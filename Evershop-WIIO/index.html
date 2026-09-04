@@ -263,7 +263,7 @@
 
   <div class="kpi-row" id="kpiRow"></div>
 
-  <p class="context-note">CJ is based in China (CST, UTC+8) — reply times above may reflect their business hours and Chinese public holidays. The chat log includes a factory-closure notice for the Dragon Boat Festival (~19–21 June).</p>
+  <p class="context-note">Reply/turnaround timing isn't tracked for WIIO (the sheet has no timestamp column) -- those KPIs show as a dash rather than a computed value.</p>
 
   <div class="card">
     <h2>What needs your attention</h2>
@@ -295,7 +295,7 @@
     <table>
       <thead>
         <tr>
-          <th>Order</th><th>Product</th><th>Category</th><th>Status</th><th>Notes</th><th>Reported</th><th>Updated</th><th>CJ Reply Time</th><th>Turnaround</th>
+          <th>Order</th><th>Product</th><th>Category</th><th>Status</th><th>Notes</th><th>Reported</th><th>Updated</th><th>WIIO Reply Time</th><th>Turnaround</th>
         </tr>
       </thead>
       <tbody id="tbody"></tbody>
@@ -351,7 +351,7 @@
     }
   }
   // Tries the live dashboard-server endpoint first (reflects the latest
-  // Refresh CJ Orders Sheet run immediately, no republish needed); falls
+  // Refresh WIIO Orders Sheet run immediately, no republish needed); falls
   // back to this page's embedded snapshot if the tunnel/server is down.
   // NOTE: this block must come before the alreadyUnlocked check below --
   // that check can call loadDataAndInit() synchronously on page load for
@@ -786,7 +786,7 @@
     const kpis = [
       { label:"Total orders", value: total.toLocaleString(), sub: `of ${DATA.total.toLocaleString()} total`,
         active: isFilterClear(), onClick: clearAllFilters, title: 'Clear all filters', dotColor: null },
-      { label:"Avg CJ Reply Time", value: formatHours(avgReply),
+      { label:"Avg WIIO Reply Time", value: formatHours(avgReply),
         sub: medReply !== null ? `median ${formatHours(medReply)} · ${replyVals.length.toLocaleString()} orders` : 'no replies in view' },
       { label:"Avg Turnaround Time", value: formatHours(avgTurn),
         sub: medTurn !== null ? `median ${formatHours(medTurn)} · report to last touch` : 'n/a' },
