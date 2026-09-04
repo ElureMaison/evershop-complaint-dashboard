@@ -296,6 +296,8 @@
 (function(){
   const GATE_HASH = 1641801224;
   const GATE_KEY = 'cj_gate_unlocked_v1';
+  const GATE_PW_KEY = 'cj_gate_pw_v1';
+  const LIVE_DATA_URL = 'https://yourbadassvaronceph.com/Evershop-Dashboard/cj_live_data';
   function djb2(s){
     let h = 5381;
     for (let i = 0; i < s.length; i++) h = ((h * 33) + s.charCodeAt(i)) >>> 0;
@@ -314,15 +316,16 @@
     gateShow.textContent = showing ? 'Show' : 'Hide';
   });
 
-  function unlock(){
+  function unlock(pw){
     gate.hidden = true;
     root.hidden = false;
-    try { localStorage.setItem(GATE_KEY, '1'); } catch(e){}
-    init();
+    try { localStorage.setItem(GATE_KEY, '1'); localStorage.setItem(GATE_PW_KEY, pw); } catch(e){}
+    loadDataAndInit(pw);
   }
   function tryUnlock(){
-    if (djb2(pwInput.value.trim()) === GATE_HASH){
-      unlock();
+    const pw = pwInput.value.trim();
+    if (djb2(pw) === GATE_HASH){
+      unlock(pw);
     } else {
       gateErr.hidden = false;
       pwInput.select();
@@ -330,9 +333,15 @@
     }
   }
   let alreadyUnlocked = false;
-  try { alreadyUnlocked = localStorage.getItem(GATE_KEY) === '1'; } catch(e){}
+  let storedPw = '';
+  try {
+    alreadyUnlocked = localStorage.getItem(GATE_KEY) === '1';
+    storedPw = localStorage.getItem(GATE_PW_KEY) || '';
+  } catch(e){}
   if (alreadyUnlocked){
-    unlock();
+    gate.hidden = true;
+    root.hidden = false;
+    loadDataAndInit(storedPw);
   } else {
     gateBtn.addEventListener('click', tryUnlock);
     pwInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryUnlock(); });
@@ -340,8 +349,21 @@
     pwInput.focus();
   }
 
-  function init(){
-  const DATA = JSON.parse(document.getElementById('dashboard-data').textContent);
+  // Tries the live dashboard-server endpoint first (reflects the latest
+  // Refresh CJ Orders Sheet run immediately, no republish needed); falls
+  // back to this page's embedded snapshot if the tunnel/server is down.
+  function loadDataAndInit(pw){
+    const embedded = JSON.parse(document.getElementById('dashboard-data').textContent);
+    fetch(LIVE_DATA_URL + '?key=' + encodeURIComponent(pw || ''), { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : Promise.reject(new Error('status ' + r.status)))
+      .then(liveData => init(liveData))
+      .catch(err => {
+        console.warn('Live data fetch failed, using embedded snapshot instead:', err);
+        init(embedded);
+      });
+  }
+
+  function init(DATA){
   const ROWS = DATA.orders;
 
   function parseDMY(s){
@@ -670,8 +692,12 @@
     const medReply = medianOf(replyVals);
     const avgTurn = avgOf(turnVals);
     const medTurn = medianOf(turnVals);
-    const resolvedCount = rows.filter(r => DATA.resolved_categories.includes(r.category)).length;
+    const resolvedRows = rows.filter(r => DATA.resolved_categories.includes(r.category));
+    const resolvedCount = resolvedRows.length;
     const pctResolved = total ? (resolvedCount / total * 100) : 0;
+    const solveVals = resolvedRows.map(r => r.turnaround_time_hours).filter(v => v !== null && v !== undefined);
+    const avgSolve = avgOf(solveVals);
+    const medSolve = medianOf(solveVals);
 
     const kpis = [
       { label:"Total orders", value: total.toLocaleString(), sub: `of ${DATA.total.toLocaleString()} total`,
@@ -680,6 +706,8 @@
         sub: medReply !== null ? `median ${formatHours(medReply)} · ${replyVals.length.toLocaleString()} orders` : 'no replies in view' },
       { label:"Avg Turnaround Time", value: formatHours(avgTurn),
         sub: medTurn !== null ? `median ${formatHours(medTurn)} · report to last touch` : 'n/a' },
+      { label:"Avg Time to Solve", value: formatHours(avgSolve),
+        sub: medSolve !== null ? `median ${formatHours(medSolve)} · ${resolvedCount.toLocaleString()} resolved orders only` : 'no resolved orders in view' },
       { label:"% Resolved / Actioned", value: `${pctResolved.toFixed(1)}%`,
         sub: `${resolvedCount.toLocaleString()} of ${total.toLocaleString()} in view` },
     ];
