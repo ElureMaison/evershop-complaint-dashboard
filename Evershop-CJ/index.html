@@ -67,6 +67,17 @@
   header.page-head{ margin-bottom:18px; }
   header.page-head h1{ font-size:22px; font-weight:650; margin:0 0 4px; }
   header.page-head p{ margin:0; color:var(--text-secondary); font-size:13px; }
+  .page-head-row{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .live-status{ display:flex; align-items:center; gap:7px; font-size:11.5px; color:var(--text-secondary); white-space:nowrap; margin-top:2px; }
+  .live-dot{ width:7px; height:7px; border-radius:50%; background:var(--text-muted); flex:none; }
+  .live-dot.live{ background:var(--status-good); }
+  .live-dot.error{ background:var(--status-critical); }
+  .live-status button{
+    background:var(--surface-1); border:1px solid var(--border); border-radius:6px; padding:3px 9px;
+    color:var(--text-secondary); font-size:11px; cursor:pointer; font-family:inherit;
+  }
+  .live-status button:hover:not(:disabled){ background:var(--surface-2); }
+  .live-status button:disabled{ opacity:.5; cursor:default; }
 
   .filters{
     display:flex; gap:8px; align-items:center; flex-wrap:wrap;
@@ -223,7 +234,14 @@
 <div id="dashboardRoot" hidden>
 <div class="wrap">
   <header class="page-head">
-    <h1>Evershop CJ Order Tracker</h1>
+    <div class="page-head-row">
+      <h1>Evershop CJ Order Tracker</h1>
+      <div class="live-status">
+        <span class="live-dot" id="liveDot"></span>
+        <span id="liveText">Loading…</span>
+        <button id="refreshBtn" type="button" title="Refresh now">Refresh</button>
+      </div>
+    </div>
     <p id="subhead">Loading…</p>
   </header>
 
@@ -352,16 +370,31 @@
   // Tries the live dashboard-server endpoint first (reflects the latest
   // Refresh CJ Orders Sheet run immediately, no republish needed); falls
   // back to this page's embedded snapshot if the tunnel/server is down.
+  let currentPw = '';
   function loadDataAndInit(pw){
+    currentPw = pw || '';
+    const liveDot = document.getElementById('liveDot');
+    const liveText = document.getElementById('liveText');
+    const refreshBtn = document.getElementById('refreshBtn');
+    if (refreshBtn) refreshBtn.disabled = true;
+    if (liveText) liveText.textContent = 'Refreshing…';
     const embedded = JSON.parse(document.getElementById('dashboard-data').textContent);
-    fetch(LIVE_DATA_URL + '?key=' + encodeURIComponent(pw || ''), { cache: 'no-store' })
+    fetch(LIVE_DATA_URL + '?key=' + encodeURIComponent(currentPw), { cache: 'no-store' })
       .then(r => r.ok ? r.json() : Promise.reject(new Error('status ' + r.status)))
-      .then(liveData => init(liveData))
+      .then(liveData => {
+        if (liveDot) liveDot.className = 'live-dot live';
+        if (liveText) liveText.textContent = 'Live';
+        init(liveData);
+      })
       .catch(err => {
         console.warn('Live data fetch failed, using embedded snapshot instead:', err);
+        if (liveDot) liveDot.className = 'live-dot error';
+        if (liveText) liveText.textContent = 'Offline snapshot';
         init(embedded);
-      });
+      })
+      .finally(() => { if (refreshBtn) refreshBtn.disabled = false; });
   }
+  document.getElementById('refreshBtn').addEventListener('click', () => loadDataAndInit(currentPw));
 
   function init(DATA){
   const ROWS = DATA.orders;
