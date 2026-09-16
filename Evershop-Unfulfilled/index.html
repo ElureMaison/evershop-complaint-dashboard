@@ -101,6 +101,16 @@
                   border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--soft)}
   button.copycode:hover{background:rgba(255,255,255,.12);color:var(--text)}
   button.copycode.ok{border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.18);color:var(--green)}
+  /* Every fact worth pasting elsewhere carries its own copy control. It stays
+     invisible until the row is hovered or focused, so the panel still reads as
+     a list of values rather than a wall of buttons. */
+  .fact{position:relative}
+  .fact .cp{opacity:0;margin-left:8px;font:inherit;font-size:9.5px;font-weight:600;letter-spacing:.04em;
+            padding:1px 7px;border-radius:4px;cursor:pointer;vertical-align:1px;
+            border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--soft)}
+  .fact:hover .cp,.fact .cp:focus{opacity:1}
+  .fact .cp:hover{background:rgba(255,255,255,.14);color:var(--text)}
+  .fact .cp.ok{opacity:1;border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.18);color:var(--green)}
   code.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;
             background:var(--card);border:1px solid var(--line-soft);border-radius:4px;padding:1px 6px}
   .checks{display:flex;gap:22px;flex-wrap:wrap;align-items:center}
@@ -293,7 +303,10 @@ function fact(label, value, opts={}){
   if (!v) return "";
   const body = opts.link ? `<a href="${esc(v)}" target="_blank" rel="noopener">${esc(opts.label||v)}</a>`
                          : `<span class="${isNote(v)?'muted':''}">${esc(v)}</span>`;
-  return `<div class="fact"><span>${esc(label)}</span>${body}</div>`;
+  // Nothing to copy from a "No tags" style placeholder, or from a link label.
+  const copyable = !opts.link && !isNote(v);
+  const cp = copyable ? `<button class="cp" data-cp="${esc(v)}">COPY</button>` : "";
+  return `<div class="fact"><span>${esc(label)}</span><span>${body}${cp}</span></div>`;
 }
 function sendVerdict(verdict, comment){
   const st = $("#vstate");
@@ -365,15 +378,18 @@ function renderDetail(o){
       <div class="section"><pre class="draft" id="d-c">${esc(o.to_customer)}</pre></div></div>
 
     <div class="panel"><div class="panel-head">Order</div><div class="section"><div class="facts">
+      ${fact("Order no.",o.order)}${fact("Customer",o.customer)}
       ${fact("Date",o.date)}${fact("Date added",o.added)}${fact("Email",o.email)}
       ${fact("Channel",o.channel)}${fact("Total",o.total)}${fact("Payment",o.payment)}
       ${fact("Fulfillment",o.fulfillment)}${fact("Items",o.items)}
-      ${fact("Product",o.product)}${fact("Ship to",o.address)}
+      ${fact("Product",o.product)}${fact("Ship to",o.full_address||o.address)}
       ${fact("Delivery",o.delivery)}${fact("Tags",o.tags)}
     </div></div></div>
 
     <div class="panel"><div class="panel-head">Supplier</div><div class="section"><div class="facts">
       ${fact("Supplier",o.supplier)}${fact("Order status",o.order_status)}
+      ${fact("Last-mile tracking",o.lastmile)}${fact("Last-mile carrier",o.lastmile_carrier)}
+      ${o.track_link ? fact("Customer tracking page",o.track_link,{link:true,label:"Open Parcel Panel →"}) : ""}
       ${o.cj_code ? `<div class="fact"><span>CJ order</span><span><code class="mono">${esc(o.cj_code)}</code></span></div>` : ""}
       ${fact("CJ status",o.cj_status)}${fact("CJ tracking",o.cj_tracking)}
       ${fact("Tracking",o.tracking)}
@@ -443,6 +459,14 @@ document.addEventListener("click", e => {
       .catch(() => { chk.checked = !on;
                      wrap.querySelector(".state").textContent = "save failed"; })
       .finally(() => wrap.classList.remove("saving"));
+    return;
+  }
+  const cp = e.target.closest("[data-cp]");
+  if (cp){
+    navigator.clipboard.writeText(cp.dataset.cp).then(() => {
+      cp.textContent = "COPIED"; cp.classList.add("ok");
+      setTimeout(() => { cp.textContent = "COPY"; cp.classList.remove("ok"); }, 1200);
+    });
     return;
   }
   const cjo = e.target.closest("[data-cjopen]");
