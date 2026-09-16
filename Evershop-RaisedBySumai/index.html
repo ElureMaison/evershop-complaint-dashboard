@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Evershop · Raised by Sumai</title>
+<style>
+  /*
+    Same shape as the ticket review portal: the order list on the left, one
+    column of stacked panels on the right. The two drafts sit at the top
+    because they are what you came to do; the full Shopify and supplier record
+    is underneath, folded away, for when you need to check something.
+  */
+  :root{
+    --bg:#212121; --pane:#282828; --card:#2e2e2e; --head:#333333;
+    --line:rgba(255,255,255,.10); --line-soft:rgba(255,255,255,.07);
+    --text:rgba(255,255,255,.92); --soft:rgba(255,255,255,.58); --dim:rgba(255,255,255,.38);
+    --green:#34D399; --red:#FF7369; --orange:#FFA344; --blue:#529CCA;
+    --font:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  body{margin:0;font:14px/1.6 var(--font);background:var(--bg);color:var(--text);
+       height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased}
+  .app{display:grid;grid-template-columns:330px 1fr;height:100vh}
+  .list{border-right:1px solid var(--line-soft);overflow-y:auto;background:var(--pane)}
+  .bar{position:sticky;top:0;background:var(--head);padding:14px 16px;z-index:2;border-bottom:1px solid var(--line)}
+  .bar h1{margin:0 0 9px;font-size:13px;font-weight:600}
+  .counts{display:flex;gap:12px;font-size:10px;color:var(--dim);margin-bottom:9px;
+          font-variant-numeric:tabular-nums;flex-wrap:wrap}
+  .counts b{color:var(--text);font-weight:600}
+  input#q{width:100%;font:inherit;font-size:12px;padding:6px 9px;border-radius:5px;margin-bottom:8px;
+          border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--text)}
+  input#q::placeholder{color:var(--dim)}
+  .filters{display:flex;gap:4px;flex-wrap:wrap}
+  /* Order-date range. Ages are what actually matter on an unfulfilled list --
+     "sitting 30+ days" is a different conversation from "placed yesterday" --
+     so the presets are ages, with explicit dates underneath for anything else. */
+  .dates{display:flex;gap:6px;align-items:center;margin:8px 0 6px}
+  .dates input{flex:1;min-width:0;font:inherit;font-size:11px;padding:4px 7px;border-radius:4px;
+               border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--text)}
+  .dates input:focus{outline:none;border-color:rgba(82,156,202,.55)}
+  .dates span{font-size:10px;color:var(--dim)}
+  .dates button{font:inherit;font-size:10px;padding:4px 8px;border-radius:4px;cursor:pointer;
+                border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--soft)}
+  .dates button:hover{background:rgba(255,255,255,.12);color:var(--text)}
+  .filters button{font:inherit;font-size:10px;font-weight:500;padding:3px 9px;border-radius:4px;
+                  border:1px solid transparent;background:rgba(255,255,255,.06);color:var(--soft);cursor:pointer}
+  .filters button:hover{background:rgba(255,255,255,.1);color:var(--text)}
+  .filters button.on{background:rgba(82,156,202,.2);border-color:rgba(82,156,202,.45);color:#8ec0ea}
+  .row{padding:11px 16px;cursor:pointer;border-bottom:1px solid var(--line-soft)}
+  .row:hover{background:rgba(255,255,255,.04)}
+  .row.active{background:rgba(82,156,202,.12);box-shadow:inset 2px 0 0 var(--blue)}
+  .row .subject{font-size:12.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px}
+  .row .meta{display:flex;gap:7px;align-items:center;font-size:10px;color:var(--dim);overflow:hidden;white-space:nowrap}
+  .dot{width:5px;height:5px;border-radius:50%;flex:0 0 auto;background:var(--soft)}
+  .dot.open{background:var(--orange)} .dot.done{background:var(--green)} .dot.stop{background:var(--red)}
+  .list-empty{padding:24px 16px;color:var(--dim);font-size:12px}
+  .detail{overflow-y:auto;padding:26px 30px 150px}
+  .empty{display:grid;place-items:center;height:100%;color:var(--dim);font-size:13px}
+  .column{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+  .panel{border:1px solid var(--line);border-radius:7px;overflow:hidden;background:var(--pane)}
+  .panel > .panel-head{background:var(--head);padding:9px 15px;font-size:12.5px;font-weight:600;
+                       border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+  .panel-head .grow{flex:1}
+  .section{padding:15px}
+  h2.title{margin:0;font-size:15px;font-weight:600;line-height:1.4}
+  .sub{margin-top:5px;font-size:11.5px;color:var(--dim)}
+  .sub a{color:var(--blue);text-decoration:none}
+  .badge{display:inline-block;border:1px solid var(--line);border-radius:4px;padding:0 7px;
+         font-size:10.5px;font-weight:600;margin-left:6px;vertical-align:2px}
+  .badge.open{color:var(--orange);border-color:rgba(255,163,68,.4)}
+  .badge.done{color:var(--green);border-color:rgba(52,211,153,.4)}
+  .badge.stop{color:var(--red);border-color:rgba(255,115,105,.4)}
+  .facts{display:flex;flex-direction:column;gap:7px;font-size:12.5px}
+  .fact{display:grid;grid-template-columns:150px 1fr;gap:12px;align-items:baseline}
+  .fact > span:first-child{color:var(--dim);font-size:10px;text-transform:uppercase;
+                           letter-spacing:.05em;font-weight:600;padding-top:2px}
+  .fact a{color:var(--blue);text-decoration:none;word-break:break-all}
+  .fact .muted{color:var(--dim)}
+  .draft{white-space:pre-wrap;font-size:13.5px;line-height:1.7;background:var(--card);
+         border:1px solid var(--line-soft);border-radius:6px;padding:13px;margin:0}
+  button.copy{font:inherit;font-size:10.5px;font-weight:600;padding:4px 11px;border-radius:5px;cursor:pointer;
+              border:1px solid rgba(82,156,202,.45);background:rgba(82,156,202,.18);color:#8ec0ea}
+  button.copy:hover{background:rgba(82,156,202,.3)}
+  button.copy.ok{border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.18);color:var(--green)}
+  details summary{cursor:pointer;list-style:none;padding:9px 15px;font-size:12px;font-weight:600;
+                  color:var(--soft);background:var(--head);user-select:none}
+  details summary::-webkit-details-marker{display:none}
+  details summary:hover{color:var(--text)}
+  details[open] summary{border-bottom:1px solid var(--line)}
+  .quote{white-space:pre-wrap;font-size:12.5px;line-height:1.65;color:var(--soft)}
+  .headbtn{font:inherit;font-size:10px;font-weight:600;padding:3px 9px;border-radius:4px;cursor:pointer;
+           border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--soft)}
+  .headbtn:hover{background:rgba(255,255,255,.12);color:var(--text)}
+  .headbtn.busy{opacity:.5;pointer-events:none}
+  .open-link{font:inherit;font-size:10.5px;font-weight:600;padding:4px 11px;border-radius:5px;
+             text-decoration:none;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--soft)}
+  .open-link:hover{background:rgba(255,255,255,.12);color:var(--text)}
+  button.copycode{font:inherit;font-size:10.5px;font-weight:600;padding:4px 11px;border-radius:5px;cursor:pointer;
+                  border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--soft)}
+  button.copycode:hover{background:rgba(255,255,255,.12);color:var(--text)}
+  button.copycode.ok{border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.18);color:var(--green)}
+  /* Every fact worth pasting elsewhere carries its own copy control. It stays
+     invisible until the row is hovered or focused, so the panel still reads as
+     a list of values rather than a wall of buttons. */
+  .fact{position:relative}
+  .fact .cp{opacity:0;margin-left:8px;font:inherit;font-size:9.5px;font-weight:600;letter-spacing:.04em;
+            padding:1px 7px;border-radius:4px;cursor:pointer;vertical-align:1px;
+            border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--soft)}
+  .fact:hover .cp,.fact .cp:focus{opacity:1}
+  .fact .cp:hover{background:rgba(255,255,255,.14);color:var(--text)}
+  .fact .cp.ok{opacity:1;border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.18);color:var(--green)}
+  code.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;
+            background:var(--card);border:1px solid var(--line-soft);border-radius:4px;padding:1px 6px}
+  .checks{display:flex;gap:22px;flex-wrap:wrap;align-items:center}
+  .check{display:flex;gap:8px;align-items:center;font-size:12.5px;cursor:pointer;user-select:none}
+  .check input{width:15px;height:15px;accent-color:var(--green);cursor:pointer}
+  .check.saving{opacity:.5;pointer-events:none}
+  .check .state{font-size:10px;color:var(--dim)}
+  .warn{font-size:11px;color:var(--orange);margin-top:9px;line-height:1.5}
+  .verdict{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+  .vb{font:inherit;font-size:12px;font-weight:600;padding:6px 16px;border-radius:6px;cursor:pointer;
+      border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--soft)}
+  .vb:hover:not(:disabled){background:rgba(255,255,255,.12);color:var(--text)}
+  .vb:disabled{opacity:.4;cursor:default}
+  .vb.ok.on{background:rgba(52,211,153,.2);border-color:rgba(52,211,153,.5);color:var(--green)}
+  .vb.no.on{background:rgba(255,115,105,.2);border-color:rgba(255,115,105,.5);color:var(--red)}
+  .vstate{font-size:11px;color:var(--dim)}
+  textarea#fb{width:100%;font:inherit;font-size:13px;line-height:1.6;margin-top:11px;padding:10px;
+              min-height:86px;resize:vertical;border-radius:6px;border:1px solid var(--line);
+              background:rgba(0,0,0,.25);color:var(--text)}
+  textarea#fb::placeholder{color:var(--dim)}
+  .fbrow{display:flex;gap:9px;align-items:center;margin-top:9px}
+  /* The verdict sits in a fixed bar at the foot of the page: it is the last
+     thing you do, and it should stay reachable without scrolling back. */
+  .actions-bar{position:fixed;bottom:0;left:330px;right:0;background:rgba(33,33,33,.96);
+               backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:13px 30px;z-index:3}
+  .actions-row{display:flex;gap:9px;align-items:center}
+  .actions-bar .hint{margin-left:auto;font-size:10px;color:var(--dim)}
+  #fbwrap{margin-top:11px}
+  /* Password gate. This is a deterrent against a stray visitor, NOT security:
+     on a public host the password sits in this file and data.json is fetchable
+     directly, so anyone who looks can read both. It keeps the page from being
+     stumbled into or indexed, nothing more. */
+  .gate{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:var(--bg)}
+  .gate form{width:min(340px,86vw);display:flex;flex-direction:column;gap:11px;text-align:center}
+  .gate h2{margin:0;font-size:15px;font-weight:600}
+  .gate p{margin:0;font-size:12px;color:var(--dim);line-height:1.55}
+  .gate input{font:inherit;font-size:14px;padding:9px 12px;border-radius:6px;text-align:center;
+              border:1px solid var(--line);background:rgba(0,0,0,.3);color:var(--text)}
+  .gate input:focus{outline:none;border-color:rgba(82,156,202,.6)}
+  .gate button{font:inherit;font-size:13px;font-weight:600;padding:9px 12px;border-radius:6px;cursor:pointer;
+               border:1px solid rgba(82,156,202,.45);background:rgba(82,156,202,.2);color:#8ec0ea}
+  .gate .bad{color:var(--red);font-size:12px;min-height:16px}
+  /* The field and its reveal toggle share one bordered box, so the eye reads
+     as part of the input rather than a button parked beside it. */
+  .pwbox{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:6px;
+         background:rgba(0,0,0,.3);overflow:hidden}
+  .pwbox:focus-within{border-color:rgba(82,156,202,.6)}
+  .pwbox input{flex:1;border:none;background:transparent;border-radius:0;text-align:left;padding:9px 12px}
+  .pwbox input:focus{outline:none}
+  .pwbox button{border:none;background:transparent;color:var(--dim);cursor:pointer;
+                padding:0 12px;font:inherit;font-size:11px;font-weight:600;letter-spacing:.04em}
+  .pwbox button:hover{color:var(--text)}
+  @media(max-width:860px){
+    .app{grid-template-columns:1fr}.list{max-height:38vh}
+    .actions-bar{left:0;padding:10px 16px}.actions-bar .hint{display:none}
+  }
+
+  /* Sumai's own words, shown verbatim and never paraphrased: the draft below
+     is our reading of the ticket, and an agent must be able to check it
+     against what was actually written. */
+  .ticket{white-space:pre-wrap;font-size:13px;line-height:1.7;background:var(--card);
+          border:1px solid var(--line-soft);border-radius:6px;padding:13px;margin:0}
+  .tag{display:inline-block;border-radius:4px;padding:1px 8px;font-size:10px;font-weight:600;
+       letter-spacing:.03em;border:1px solid var(--line);color:var(--soft);margin-left:6px}
+  .tag.courier{color:#8ec0ea;border-color:rgba(82,156,202,.45)}
+  .tag.address{color:var(--orange);border-color:rgba(255,163,68,.45)}
+  .tag.returned{color:var(--red);border-color:rgba(255,115,105,.45)}
+  .ref{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;
+       background:rgba(82,156,202,.12);border:1px solid rgba(82,156,202,.35);
+       border-radius:4px;padding:2px 8px;color:#8ec0ea}
+</style>
+</head>
+<body>
+<div class="gate" id="gate">
+  <form id="gateform" autocomplete="off">
+    <h2>Evershop · Raised by Sumai</h2>
+    <p>This page lists real customer details. Enter the team password to continue.</p>
+    <div class="pwbox">
+      <input type="password" id="pw" placeholder="Password" autofocus>
+      <button type="button" id="pwtoggle" aria-label="Show password" aria-pressed="false">SHOW</button>
+    </div>
+    <button type="submit">Open</button>
+    <div class="bad" id="gatebad"></div>
+  </form>
+</div>
+<div class="app">
+  <div class="list">
+    <div class="bar">
+      <h1>Raised by Sumai
+        <button class="headbtn" id="refresh" style="float:right">Refresh</button></h1>
+      <div class="counts" id="counts"></div>
+      <input id="q" placeholder="Search order, customer, product, tracking, reference…" autocomplete="off">
+      <div class="dates">
+        <input type="date" id="from" aria-label="Raised on or after">
+        <span>to</span>
+        <input type="date" id="to" aria-label="Raised on or before">
+        <button id="datesclear" type="button">Clear</button>
+      </div>
+      <div class="filters" id="filters"></div>
+    </div>
+    <div id="rows"></div>
+  </div>
+  <div class="detail" id="detail"><div class="empty">Pick a ticket on the left</div></div>
+</div>
+<div class="actions-bar" id="actions">
+  <div class="actions-row">
+    <button class="vb ok" data-verdict="Accurate" disabled>Accurate</button>
+    <button class="vb no" data-verdict="Inaccurate" disabled>Inaccurate</button>
+    <span class="vstate" id="vstate"></span>
+    <span class="hint" id="vhint">pick a ticket to rate its drafts — nothing is sent to anyone from here</span>
+  </div>
+  <div id="fbwrap" hidden>
+    <textarea id="fb" placeholder="Which part is wrong, and what should it say? e.g. 'the reply to Sumai should ask for a claim, not a reship' or 'the customer email should not ask them to call the carrier'"></textarea>
+    <div class="fbrow"><button class="vb no" id="fbsend">Send feedback</button>
+      <span class="vstate">saved to the Portal Feedback tab so the drafts can be corrected</span></div>
+  </div>
+</div>
+<script>
+// Where the checkbox and verdict writes go. A static page cannot hold Google
+// credentials -- anything here is readable by anyone who opens the URL -- so
+// it POSTs to a small Apps Script that runs as the sheet's owner. The URL
+// lives in config.json so it can be repointed without a rebuild.
+let SHEET_ENDPOINT = "";
+// Re:amaze brand host per store. Each store is its own brand with its own
+// host, so one shared subdomain would send agents to the wrong inbox.
+const REAMAZE_BRAND = {
+  "Clarendale":    "9diuiu-es",
+  "Lark & Clover": "jzkmeu-sn",
+  "Lume Haven":    "wwp0gv-yu",
+  "Miyora":        "miyorasg",
+};
+
+let DB = {orders: [], built: ""};
+let ORDERS = [];
+const $ = s => document.querySelector(s);
+const esc = s => (s==null?"":String(s)).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const isNote = v => /^(No |Not |WIIO after-sale record on file)/i.test((v||"").trim());
+
+let filter = "open", q = "", current = null, from = "", to = "";
+const DAY = 86400000;
+
+// "Date Reported" is WIIO's own submission stamp, written as
+// 2026/09/16 11:17:58. Date.parse handles that, but the date inputs below
+// compare ISO strings, so normalise once here rather than at every use.
+function isoDate(o){
+  const s = (o.reported || "").trim();
+  const m = s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+  if (m) return `${m[1]}-${String(m[2]).padStart(2,"0")}-${String(m[3]).padStart(2,"0")}`;
+  return (o.date || "").slice(0,10);
+}
+function ageDays(o){
+  const t = Date.parse(isoDate(o));
+  return isNaN(t) ? null : Math.floor((Date.now() - t) / DAY);
+}
+const KINDS = {
+  courier: "At local carrier", address: "Address needed", returned: "Returned to warehouse",
+  stock: "Out of stock", product: "Confirm product", shipping_method: "Shipping method",
+  tracking_update: "Tracking updated", other: "Other",
+};
+const FILTERS = [
+  ["open","Awaiting our reply"], ["all","All"],
+  ["courier","At local carrier"], ["address","Address needed"], ["returned","Returned"],
+  ["age7","0-7 days"], ["age30","8-30 days"], ["age30plus","30+ days"],
+  ["Clarendale","Clarendale"], ["Lark & Clover","Lark & Clover"],
+  ["Miyora","Miyora"], ["Lume Haven","Lume Haven"],
+  ["unfulfilled","Still unfulfilled"], ["noemail","Customer not emailed"],
+];
+
+function match(o){
+  const d = isoDate(o);
+  if (from && (!d || d < from)) return false;
+  if (to && (!d || d > to)) return false;
+  if (q){
+    const hay = [o.order,o.customer,o.product,o.tracking,o.email,o.reference,o.problem]
+      .join(" ").toLowerCase();
+    if (!hay.includes(q)) return false;
+  }
+  switch(filter){
+    case "all": return true;
+    case "open": return !!o.open;
+    case "courier": case "address": case "returned": return o.kind === filter;
+    case "age7":     { const a = ageDays(o); return a !== null && a <= 7; }
+    case "age30":    { const a = ageDays(o); return a !== null && a > 7 && a <= 30; }
+    case "age30plus":{ const a = ageDays(o); return a !== null && a > 30; }
+    case "unfulfilled": return o.checkin === "Still unfulfilled";
+    case "noemail": return !/^true$/i.test(o.emailed || "");
+    default: return o.store === filter;
+  }
+}
+function dotClass(o){
+  if (o.checkin === "Cancelled" || o.kind === "returned") return "stop";
+  if (o.open) return "open";
+  return "done";
+}
+function renderList(){
+  const shown = ORDERS.filter(match);
+  $("#counts").innerHTML =
+    `<span><b>${shown.length}</b> shown</span>`+
+    `<span><b>${ORDERS.filter(o=>o.open).length}</b> awaiting reply</span>`+
+    `<span><b>${ORDERS.length}</b> total</span>`+
+    `<span>built ${esc(DB.built)}</span>`;
+  $("#filters").innerHTML = FILTERS.map(([k,l]) =>
+    `<button data-f="${esc(k)}" class="${filter===k?'on':''}">${esc(l)}</button>`).join("");
+  $("#rows").innerHTML = shown.length ? shown.slice(0,600).map(o =>
+    `<div class="row ${current===o?'active':''}" data-i="${ORDERS.indexOf(o)}">
+       <div class="subject">${esc(o.order)} · ${esc(o.customer||"—")}</div>
+       <div class="meta"><span class="dot ${dotClass(o)}"></span>${esc(o.store)} · ${esc(KINDS[o.kind]||o.kind)} · ${esc(o.reported||"")}</div>
+     </div>`).join("") + (shown.length>600?`<div class="list-empty">showing first 600 of ${shown.length} — narrow with search</div>`:"")
+    : `<div class="list-empty">Nothing matches.</div>`;
+}
+function fact(label, value, opts={}){
+  const v = (value==null?"":String(value)).trim();
+  if (!v) return "";
+  const body = opts.link ? `<a href="${esc(v)}" target="_blank" rel="noopener">${esc(opts.label||v)}</a>`
+                         : `<span class="${isNote(v)?'muted':''}">${esc(v)}</span>`;
+  const copyable = !opts.link && !isNote(v);
+  const cp = copyable ? `<button class="cp" data-cp="${esc(v)}">COPY</button>` : "";
+  return `<div class="fact"><span>${esc(label)}</span><span>${body}${cp}</span></div>`;
+}
+function sendVerdict(verdict, comment){
+  const st = $("#vstate");
+  if (!SHEET_ENDPOINT){ st.textContent = "not saved — no endpoint configured"; return; }
+  st.textContent = "saving…";
+  fetch(SHEET_ENDPOINT, {method:"POST", mode:"cors",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body: JSON.stringify({action:"feedback", store: current.store, order: current.order,
+                          verdict, comment,
+                          to_supplier: current.to_supplier, to_customer: current.to_customer})})
+    .then(r => r.json())
+    .then(() => { st.textContent = verdict === "Accurate" ? "marked accurate" : "feedback sent — thank you";
+                  if (verdict === "Inaccurate") $("#fb").value = ""; })
+    .catch(() => { st.textContent = "could not save"; });
+}
+function reamazeLink(o){
+  const brand = REAMAZE_BRAND[o.store];
+  if (!brand) return "";
+  // A SEARCH link, not a conversation link: Re:amaze's API ignores `q`, so
+  // resolving each order to a thread silently returned whatever was newest.
+  const href = `https://${brand}.reamaze.com/admin/conversations?q=${encodeURIComponent(o.order)}`;
+  return `<a class="open-link" href="${href}" target="_blank" rel="noopener">Find in Reamaze →</a>`;
+}
+function processLink(o){
+  const l = (o.process_url||"").trim();
+  if (!/^https?:/.test(l)) return "";
+  // The Process form is where this ticket is actually answered on WIIO.
+  return `<a class="open-link" href="${esc(l)}" target="_blank" rel="noopener">Answer on WIIO →</a>`;
+}
+function renderDetail(o){
+  current = o;
+  document.querySelectorAll("[data-verdict]").forEach(b => { b.disabled = false; b.classList.remove("on"); });
+  $("#fbwrap").hidden = true;
+  $("#fb").value = "";
+  $("#vstate").textContent = SHEET_ENDPOINT ? "" : "read-only — no sheet endpoint configured";
+  $("#vhint").textContent = "tells the drafts where they are wrong — nothing is sent to anyone from here";
+  const cls = dotClass(o);
+  const kindTag = `<span class="tag ${esc(o.kind)}">${esc(KINDS[o.kind]||o.kind)}</span>`;
+  $("#detail").innerHTML = `<div class="column">
+    <div class="panel"><div class="section">
+      <h2 class="title">${esc(o.order)} · ${esc(o.customer||"—")}
+        <span class="badge ${cls}">${o.open ? "Awaiting our reply" : "Answered"}</span>${kindTag}</h2>
+      <div class="sub">${esc(o.store)} · ${esc(o.product||o.wiio_products||"")}<br>
+        ${o.url ? `<a href="${esc(o.url)}" target="_blank" rel="noopener">Open in Shopify admin →</a>` : ""}</div>
+    </div></div>
+
+    <div class="panel"><div class="panel-head"><span class="grow">What Sumai raised — ${esc(o.category||"after-sale ticket")}</span>
+      ${processLink(o)}</div>
+      <div class="section">
+        <pre class="ticket">${esc(o.problem||"(no text on the ticket)")}</pre>
+        <div class="facts" style="margin-top:13px">
+          ${o.reference ? `<div class="fact"><span>Local reference</span><span><span class="ref">${esc(o.reference)}</span><button class="cp" data-cp="${esc(o.reference)}">COPY</button></span></div>` : ""}
+          ${fact("Carrier contact",o.carrier_contact)}
+          ${fact("Raised on",o.reported)}${fact("We replied",o.updated)}
+          ${fact("WIIO reply / result",o.note)}
+        </div>
+      </div></div>
+
+    <div class="panel"><div class="panel-head"><span class="grow">Proposed reply to Sumai (WIIO)</span>
+      ${processLink(o)}<button class="copy" data-copy="s">Copy</button></div>
+      <div class="section"><pre class="draft" id="d-s">${esc(o.to_supplier)}</pre></div></div>
+
+    <div class="panel"><div class="panel-head"><span class="grow">Proposed email to customer</span>
+      ${reamazeLink(o)}<button class="copy" data-copy="c">Copy</button></div>
+      <div class="section"><pre class="draft" id="d-c">${esc(o.to_customer)}</pre></div></div>
+
+    <div class="panel"><div class="panel-head">Order</div><div class="section"><div class="facts">
+      ${fact("Order no.",o.order)}${fact("Customer",o.customer)}
+      ${fact("Order date",o.date)}${fact("Added to sheet",o.added)}${fact("Email",o.email)}
+      ${fact("Channel",o.channel)}${fact("Total",o.total)}${fact("Payment",o.payment)}
+      ${fact("Fulfillment",o.fulfillment)}${fact("Items",o.items)}
+      ${fact("Product",o.product)}${fact("Ship to",o.address)}
+      ${fact("Delivery",o.delivery)}${fact("Tags",o.tags)}
+    </div></div></div>
+
+    <div class="panel"><div class="panel-head">Supplier</div><div class="section"><div class="facts">
+      ${fact("Supplier",o.supplier)}${fact("Ticket status",o.order_status)}
+      ${fact("WIIO tracking",o.tracking)}
+      ${fact("Local reference",o.reference)}
+      ${o.track_link ? fact("Customer tracking page",o.track_link,{link:true,label:"Open Parcel Panel →"}) : ""}
+      ${o.process_url ? fact("Answer this ticket",o.process_url,{link:true,label:"Open the WIIO Process form →"}) : ""}
+      ${o.ticket_url ? fact("Ticket record",o.ticket_url,{link:true,label:"Open ticket detail →"}) : ""}
+      ${o.order_detail_url ? fact("Supplier order",o.order_detail_url,{link:true,label:"Open supplier order →"}) : ""}
+      ${fact("WIIO products",o.wiio_products)}
+      ${fact("Ticket id",o.ticket_id)}
+    </div></div></div>
+
+    <div class="panel"><div class="panel-head">Shopify check-in</div><div class="section"><div class="facts">
+      ${fact("Status",o.checkin)}${fact("Notes",o.checkin_note)}${fact("Checked on",o.checked)}
+    </div></div></div>
+
+    <div class="panel"><div class="panel-head">Actions taken</div><div class="section">
+      <div class="checks">
+        <label class="check"><input type="checkbox" data-check="emailed" ${/^true$/i.test(o.emailed)?"checked":""} ${SHEET_ENDPOINT?"":"disabled"}>
+          Emailed customer <span class="state"></span></label>
+        <label class="check"><input type="checkbox" data-check="informed" ${/^true$/i.test(o.informed)?"checked":""} ${SHEET_ENDPOINT?"":"disabled"}>
+          Replied to Sumai <span class="state"></span></label>
+      </div>
+      ${SHEET_ENDPOINT?"":'<div class="warn">Read-only: no sheet endpoint configured, so ticking these would not save. Deploy portal/raised_sheet_endpoint.gs and put its /exec URL in config.json.</div>'}
+    </div></div>
+
+  </div>`;
+  renderList();
+}
+document.addEventListener("click", e => {
+  const f = e.target.closest("[data-f]");
+  if (f){ filter = f.dataset.f; renderList(); return; }
+  const r = e.target.closest(".row");
+  if (r){ renderDetail(ORDERS[+r.dataset.i]); return; }
+  const v = e.target.closest("[data-verdict]");
+  if (v){
+    document.querySelectorAll("[data-verdict]").forEach(b => b.classList.remove("on"));
+    v.classList.add("on");
+    const bad = v.dataset.verdict === "Inaccurate";
+    $("#fbwrap").hidden = !bad;
+    if (!bad) sendVerdict("Accurate", "");
+    return;
+  }
+  if (e.target.closest("#fbsend")){
+    const t = $("#fb").value.trim();
+    if (!t){ $("#fb").focus(); return; }
+    sendVerdict("Inaccurate", t);
+    return;
+  }
+  const chk = e.target.closest("[data-check]");
+  if (chk && SHEET_ENDPOINT){
+    const wrap = chk.closest(".check"); wrap.classList.add("saving");
+    const field = chk.dataset.check, on = chk.checked;
+    fetch(SHEET_ENDPOINT, {method:"POST", mode:"cors",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body: JSON.stringify({store: current.store, order: current.order,
+                            field, value: on ? "TRUE" : "FALSE"})})
+      .then(r => r.json())
+      .then(() => { current[field] = on ? "TRUE" : "FALSE";
+                    wrap.querySelector(".state").textContent = "saved"; })
+      .catch(() => { chk.checked = !on;
+                     wrap.querySelector(".state").textContent = "save failed"; })
+      .finally(() => wrap.classList.remove("saving"));
+    return;
+  }
+  const cp = e.target.closest("[data-cp]");
+  if (cp){
+    navigator.clipboard.writeText(cp.dataset.cp).then(() => {
+      cp.textContent = "COPIED"; cp.classList.add("ok");
+      setTimeout(() => { cp.textContent = "COPY"; cp.classList.remove("ok"); }, 1200);
+    });
+    return;
+  }
+  const c = e.target.closest("[data-copy]");
+  if (c){
+    const text = $("#d-" + c.dataset.copy).textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      c.textContent = "Copied"; c.classList.add("ok");
+      setTimeout(() => { c.textContent = "Copy"; c.classList.remove("ok"); }, 1400);
+    });
+  }
+});
+$("#q").addEventListener("input", e => { q = e.target.value.trim().toLowerCase(); renderList(); });
+$("#from").addEventListener("change", e => { from = e.target.value; renderList(); });
+$("#to").addEventListener("change", e => { to = e.target.value; renderList(); });
+$("#datesclear").addEventListener("click", () => {
+  from = to = ""; $("#from").value = ""; $("#to").value = ""; renderList();
+});
+
+async function load(){
+  const b = $("#refresh"); b.classList.add("busy"); b.textContent = "Loading…";
+  try{
+    try{
+      const c = await fetch("config.json?t=" + Date.now(), {cache:"no-store"});
+      if (c.ok) SHEET_ENDPOINT = (await c.json()).sheetEndpoint || "";
+    }catch(e){ /* no config yet: the page stays read-only, which it says */ }
+    const r = await fetch("data.json?t=" + Date.now(), {cache: "no-store"});
+    DB = await r.json(); ORDERS = DB.orders;
+    const keep = current && ORDERS.find(o => o.order === current.order && o.store === current.store);
+    current = keep || null;
+    renderList();
+    if (current) renderDetail(current);
+  }catch(e){
+    $("#rows").innerHTML = `<div class="list-empty">Could not load data.json — ${esc(e.message)}</div>`;
+  }
+  b.classList.remove("busy"); b.textContent = "Refresh";
+}
+$("#refresh").addEventListener("click", load);
+
+// A deterrent against a stray visitor, NOT security: on a public host the
+// password sits in this file and data.json is fetchable directly.
+const PW = "Clarendaleronce00!";
+const pwToggle = $("#pwtoggle");
+if (pwToggle) pwToggle.addEventListener("click", () => {
+  const f = $("#pw"), show = f.type === "password";
+  f.type = show ? "text" : "password";
+  pwToggle.textContent = show ? "HIDE" : "SHOW";
+  pwToggle.setAttribute("aria-pressed", String(show));
+  pwToggle.setAttribute("aria-label", show ? "Hide password" : "Show password");
+  f.focus();
+});
+function unlock(){ $("#gate").remove(); load(); }
+if (sessionStorage.getItem("evershop-raisedbysumai") === PW){
+  unlock();
+} else {
+  $("#gateform").addEventListener("submit", ev => {
+    ev.preventDefault();
+    if ($("#pw").value === PW){
+      try{ sessionStorage.setItem("evershop-raisedbysumai", PW); }catch(e){}
+      unlock();
+    } else {
+      $("#gatebad").textContent = "Wrong password.";
+      $("#pw").select();
+    }
+  });
+}
+</script>
+</body>
+</html>

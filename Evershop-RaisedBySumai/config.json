@@ -1,0 +1,4 @@
+{
+  "sheetEndpoint": "https://script.google.com/macros/s/AKfycbwyVIMkmDeJ-qp88UcLq0AfIr12WAGl_97hiBUoLIIKimZd62IRqKY-LNLllJuTFgfXYg/exec",
+  "_help": "Written by portal/deploy_raised_apps_script.py. Re-running that script republishes the same deployment, so this URL stays valid."
+}
