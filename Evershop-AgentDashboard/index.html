@@ -131,6 +131,13 @@ tbody tr:last-child td{border-bottom:0}
 .dl .sev{flex:none;width:52px;font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding-top:2px}
 .dl .sev.fail{color:var(--fail)}.dl .sev.warn{color:var(--warn)}
 .empty{padding:22px 18px;color:var(--ink-3);font-size:13px}
+.insgrp{margin-bottom:15px}
+.insgrp:last-child{margin-bottom:0}
+.insgrp h4{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+.insgrp ul{margin:0;padding-left:18px}
+.insgrp li{font-size:13px;line-height:1.55;color:var(--ink-2);margin-bottom:4px}
+.insgrp li b{color:var(--ink);font-weight:600}
+.insmeta{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-bottom:14px}
 footer{margin-top:26px;padding-top:18px;border-top:1px solid var(--line);font-size:12.3px;color:var(--ink-3);line-height:1.6;max-width:90ch}
 footer b{color:var(--ink-2)}
 @media (max-width:760px){.hd h1{font-size:22px}.critrow{grid-template-columns:110px 1fr 40px}}
@@ -149,7 +156,7 @@ footer b{color:var(--ink-2)}
       <button id="gateBtn" type="button">Unlock</button>
     </div>
     <div class="gate-err" id="gateErr"></div>
-    <div class="build">build 2026-09-17 01:55</div>
+    <div class="build">build 2026-09-17 02:23</div>
   </div>
 </div>
 
@@ -164,7 +171,7 @@ footer b{color:var(--ink-2)}
         <a href="https://cookie-shop-ff7.notion.site/Team-quality-checks-3482916b2461806680f0ceee6eaa3c66" target="_blank" rel="noopener">Notion — Team quality checks ↗</a>
       </div>
     </div>
-    <div class="lbl">build 2026-09-17 01:55</div>
+    <div class="lbl">build 2026-09-17 02:23</div>
   </div>
 </header>
 
@@ -175,6 +182,7 @@ footer b{color:var(--ink-2)}
     <div class="fsep"></div>
     <div class="seg" id="agentSeg" role="group" aria-label="Agent"></div>
     <div class="fsep"></div>
+    <select id="qaFilter" aria-label="Scored by"><option value="">Scored by anyone</option></select>
     <select id="catFilter" aria-label="Mistake type"><option value="">All mistake types</option></select>
     <select id="sevFilter" aria-label="Severity">
       <option value="">Defects + watch</option><option value="fail">Defects only</option><option value="warn">Watch only</option>
@@ -185,6 +193,15 @@ footer b{color:var(--ink-2)}
   </div>
 
   <div class="kpis" id="kpis"></div>
+
+  <section class="card">
+    <h2><span>Insights</span>
+      <span style="display:flex;gap:8px;align-items:center">
+        <span class="note" id="insNote"></span>
+        <button class="clear" id="copyIns" type="button">Copy insights</button>
+      </span></h2>
+    <div class="pad" id="insights"></div>
+  </section>
 
   <section class="card">
     <h2><span>Agent progress</span><span class="note" id="progNote"></span></h2>
@@ -255,7 +272,7 @@ var RUB=D.rubric, ROWS=D.rows, AG=D.agents;
 var QA4=['Sajid','Mustafa','Ali','Ahmad'];
 var PERSONA=D.persona;
 var SER={Sajid:'var(--s1)',Mustafa:'var(--s2)',Ali:'var(--s3)',Ahmad:'var(--s4)',Mike:'var(--s5)',Ronce:'var(--s6)'};
-var fPeriod='all', fVal='', fAgent='', fCat='', fSev='', fQ='';
+var fPeriod='all', fVal='', fAgent='', fCat='', fSev='', fQ='', fQA='';
 
 function el(t,c,x){var n=document.createElement(t);if(c)n.className=c;if(x!=null)n.textContent=x;return n;}
 function col(f){return f>=.90?'var(--pass)':f>=.75?'var(--accent)':f>=.60?'var(--warn)':'var(--fail)';}
@@ -268,6 +285,18 @@ function mean(a){return a.length?a.reduce(function(s,x){return s+x;},0)/a.length
 
 /* ---------- filtering ---------- */
 var KEY={all:null,year:'year',quarter:'quarter',month:'month',week:'wk'};
+var GRANLABEL={wk:'week',month:'month',quarter:'quarter',year:'year'};
+var FINER={year:'quarter',quarter:'month',month:'wk',week:'wk'};
+function granularity(){ if(fPeriod==='all')return 'wk'; return fVal?FINER[fPeriod]:KEY[fPeriod]; }
+function bucketOf(r,gk){return String(r[gk]);}
+var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function tickLabel(v,gk){
+  v=String(v);
+  if(gk==='wk')return v.replace(/^\d{4}-/,'');
+  if(gk==='month'){var m=v.match(/^(\d{4})-(\d\d)$/);return m?MON[+m[2]-1]:v;}
+  if(gk==='quarter')return v.replace(/^\d{4}-/,'');
+  return v;
+}
 function periodsFor(p){
   var k=KEY[p]; if(!k)return [];
   var s={}; ROWS.forEach(function(r){s[r[k]]=1;});
@@ -280,7 +309,10 @@ function inPeriod(r){
 function rows(){return ROWS.filter(function(r){
   if(!inPeriod(r))return false;
   if(fAgent&&r.who!==fAgent)return false;
+  if(fQA&&(r.qa||'?')!==fQA)return false;
   return true;});}
+function qaValues(){var s={};ROWS.forEach(function(r){s[r.qa||'?']=1;});return Object.keys(s).sort();}
+function qaLabel(v){return v==='?'?'Not recorded in Notion':v;}
 function activeAgents(){
   var s={}; rows().forEach(function(r){s[r.who]=1;});
   return AG.filter(function(a){return s[a];});
@@ -289,6 +321,7 @@ function has35(){return rows().some(function(r){return r.week===35;});}
 function findingRows(){
   return D.findings.filter(function(f){
     if(!has35())return false;
+    if(fQA&&fQA!=='Claude review')return false;
     if(fAgent&&f.who!==fAgent)return false;
     if(fCat&&f.cat!==fCat)return false;
     if(fSev&&f.sev!==fSev)return false;
@@ -297,7 +330,7 @@ function findingRows(){
 }
 function scopeText(){
   var p=fPeriod==='all'?'all 15 weeks':(fVal||('every '+fPeriod));
-  return p+(fAgent?(' · '+fAgent+(PERSONA[fAgent]?' ('+PERSONA[fAgent]+')':'')):' · all agents');
+  return p+(fAgent?(' · '+fAgent+(PERSONA[fAgent]?' ('+PERSONA[fAgent]+')':'')):' · all agents')+(fQA?(' · scored by '+qaLabel(fQA)):'');
 }
 
 /* ---------- KPIs ---------- */
@@ -332,8 +365,9 @@ function progChart(){
   var host=document.getElementById('progChart');host.textContent='';
   var leg=document.getElementById('progLegend');leg.textContent='';
   var R=rows();
-  var wk={};R.forEach(function(r){ (wk[r.week]=wk[r.week]||[]).push(r); });
-  var weeks=Object.keys(wk).map(Number).sort(function(a,b){return a-b;});
+  var gk=granularity(), glab=GRANLABEL[gk];
+  var wk={};R.forEach(function(r){ var b=bucketOf(r,gk); (wk[b]=wk[b]||[]).push(r); });
+  var weeks=Object.keys(wk).sort();
   var act=activeAgents();
   if(weeks.length<2){
     host.appendChild(el('div','empty','Only one week in scope — widen the period filter to see a trend.'));
@@ -376,7 +410,7 @@ function progChart(){
   host.appendChild(s);
   var n=el('span');n.style.color='var(--ochre)';n.textContent='dotted line = week 35, scored by this review rather than by Amber';
   leg.appendChild(n);
-  document.getElementById('progNote').textContent=scopeText()+' · '+weeks.length+' weeks';
+  document.getElementById('progNote').textContent=scopeText()+' - '+weeks.length+' '+glab+(weeks.length===1?'':'s');
 }
 
 /* ---------- average by agent ---------- */
@@ -551,6 +585,117 @@ function findings(){
     host.appendChild(dl);});
 }
 
+/* ---------- insights ---------- */
+var INS_TEXT='';
+function fmtDate(){var d=new Date(),M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear();}
+function insights(){
+  var host=document.getElementById('insights');host.textContent='';
+  var R=rows(),act=activeAgents(),F=findingRows(),G=[];
+  if(!R.length){host.appendChild(el('div','empty','Nothing in scope.'));INS_TEXT='';return;}
+
+  var avg=Math.round(mean(R.map(function(r){return r.score;})));
+  var byW={};R.forEach(function(r){(byW[r.week]=byW[r.week]||[]).push(r.score);});
+  var wks=Object.keys(byW).map(Number).sort(function(a,b){return a-b;});
+  var wAvg=wks.map(function(w){return [w,Math.round(mean(byW[w]))];});
+  var best=wAvg.slice().sort(function(a,b){return b[1]-a[1];})[0];
+  var worst=wAvg.slice().sort(function(a,b){return a[1]-b[1];})[0];
+  var latest=wAvg[wAvg.length-1];
+  var prev=wAvg.length>1?wAvg[wAvg.length-2]:null;
+
+  G.push(['Headline',[
+    'Team average is <b>'+avg+' of 100</b> across '+R.length+' tickets scored, weeks '+wks[0]+' to '+wks[wks.length-1]+'.',
+    'Latest is <b>week '+latest[0]+' at '+latest[1]+'</b>'+(prev?(', '+(latest[1]>=prev[1]?'up':'down')+' '+Math.abs(latest[1]-prev[1])+' points from week '+prev[0]+'.'):'.'),
+    'Best week was <b>week '+best[0]+' at '+best[1]+'</b>; weakest was <b>week '+worst[0]+' at '+worst[1]+'</b>.'
+  ]]);
+
+  if(F.length){
+    var cnt={};F.forEach(function(f){cnt[f.catName]=(cnt[f.catName]||0)+1;});
+    var top=Object.keys(cnt).sort(function(a,b){return cnt[b]-cnt[a];}).slice(0,4);
+    G.push(['Most common mistakes',top.map(function(n){
+      return '<b>'+n+'</b> &mdash; '+cnt[n]+' of '+F.length+' findings ('+Math.round(100*cnt[n]/F.length)+'%).';})]);
+  }
+
+  var withCrit=act.filter(function(a){return D.crit35[a];});
+  if(withCrit.length){
+    var prof=RUB.map(function(r){
+      return [r[1],Math.round(mean(withCrit.map(function(a){return D.crit35[a][r[0]];}))),r[2]];});
+    var lo=prof.slice().sort(function(a,b){return a[1]-b[1];});
+    G.push(['Weakest parameter',[
+      '<b>'+lo[0][0]+'</b> is the weakest at <b>'+lo[0][1]+'%</b> of available points, and it carries '+lo[0][2]+'% of the score.',
+      'Next weakest is <b>'+lo[1][0]+'</b> at '+lo[1][1]+'%.',
+      'Those two decide the score: the other three are worth '+(100-lo[0][2]-lo[1][2])+'% and are already near full marks.'
+    ]]);
+    var hi=prof.slice().sort(function(a,b){return b[1]-a[1];});
+    G.push(['Team strengths',[
+      '<b>'+hi[0][0]+'</b> at '+hi[0][1]+'% &mdash; consistently the strongest criterion.',
+      '<b>'+hi[1][0]+'</b> at '+hi[1][1]+'%.',
+      'Politeness and presentation are not the problem; accuracy and comprehension are.'
+    ]]);
+  }
+
+  var per=[];
+  act.forEach(function(a){
+    var g=R.filter(function(r){return r.who===a;});
+    if(!g.length)return;
+    var gw={};g.forEach(function(r){(gw[r.week]=gw[r.week]||[]).push(r.score);});
+    var gwk=Object.keys(gw).map(Number).sort(function(x,y){return x-y;});
+    var last=gwk[gwk.length-1];
+    var lowW=gwk.slice().sort(function(x,y){return mean(gw[x])-mean(gw[y]);})[0];
+    var months={};g.forEach(function(r){(months[r.month]=months[r.month]||[]).push(r.score);});
+    var mk=Object.keys(months).sort(),mtd=mk[mk.length-1];
+    var s='<b>'+a+(PERSONA[a]?' ('+PERSONA[a]+')':'')+'</b> &mdash; week '+last+': '+Math.round(mean(gw[last]))+
+          ' &middot; '+mtd+' to date: '+Math.round(mean(months[mtd]))+
+          ' &middot; lowest week: '+Math.round(mean(gw[lowW]))+' (w'+lowW+') &middot; '+g.length+' tickets.';
+    var fa=F.filter(function(f){return f.who===a;});
+    if(fa.length){
+      var c={};fa.forEach(function(f){c[f.catName]=(c[f.catName]||0)+1;});
+      var t=Object.keys(c).sort(function(x,y){return c[y]-c[x];})[0];
+      s+=' Improve first: <b>'+t.toLowerCase()+'</b> ('+c[t]+' findings).';
+    }
+    per.push(s);
+  });
+  if(per.length)G.push(['Per agent',per]);
+
+  var own=[];
+  if(F.length){
+    var fails=F.filter(function(f){return f.sev==='fail';}).length;
+    own.push(fails+' of '+F.length+' findings are defects rather than watch items.');
+  }
+  if(withCrit.length){
+    var accAvg=Math.round(mean(withCrit.map(function(a){return D.crit35[a].acc;})));
+    own.push('Accuracy sits at <b>'+accAvg+'%</b> team-wide. Every point of it is a reply that contradicted the order record, the tracking, or an internal note.');
+  }
+  own.push('Scores in the week 35 review are lower than Amber\u2019s because those tickets were picked as the hardest each agent handled, and were scored by a different reviewer. Treat the trend line, not the level, as the signal.');
+  if(fQA==='')own.push('226 of 282 rows have no QA agent recorded in Notion, so \u201cscored by\u201d cannot be analysed for most of the history.');
+  G.push(['What the owner should know',own]);
+
+  var meta='Generated '+fmtDate()+' \u00b7 scope: '+scopeText()+' \u00b7 '+R.length+' tickets';
+  host.appendChild(el('div','insmeta',meta));
+  var txt=['EVERSHOP SUPPORT QA \u2014 INSIGHTS',meta,''];
+  G.forEach(function(grp){
+    var d=el('div','insgrp');d.appendChild(el('h4',null,grp[0]));
+    var ul=el('ul');
+    txt.push(grp[0].toUpperCase());
+    grp[1].forEach(function(line){
+      var li=document.createElement('li');li.innerHTML=line;ul.appendChild(li);
+      txt.push('\u2022 '+line.replace(/<[^>]+>/g,'').replace(/&mdash;/g,'\u2014').replace(/&middot;/g,'\u00b7'));
+    });
+    txt.push('');
+    d.appendChild(ul);host.appendChild(d);
+  });
+  INS_TEXT=txt.join('\n');
+  document.getElementById('insNote').textContent=R.length+' tickets in scope';
+}
+function copyIns(){
+  if(!INS_TEXT)return;
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(INS_TEXT);
+  else{var t=document.createElement('textarea');t.value=INS_TEXT;document.body.appendChild(t);t.select();
+       try{document.execCommand('copy');}catch(e){}document.body.removeChild(t);}
+  var b=document.getElementById('copyIns');b.textContent='Copied';
+  setTimeout(function(){b.textContent='Copy insights';},1600);
+}
+
 /* ---------- agent panels ---------- */
 function agentPanels(){
   var host=document.getElementById('agents');host.textContent='';
@@ -632,11 +777,19 @@ function buildFilters(){
   Object.keys(D.cats).sort(function(a,b){return D.cats[a].localeCompare(D.cats[b]);}).forEach(function(k){
     var o=document.createElement('option');o.value=k;o.textContent=D.cats[k];cf.appendChild(o);});
   cf.onchange=function(){fCat=this.value;render();};
+  var qf=document.getElementById('qaFilter');
+  qaValues().forEach(function(v){
+    var o=document.createElement('option');o.value=v;
+    o.textContent=qaLabel(v)+' ('+ROWS.filter(function(r){return (r.qa||'?')===v;}).length+')';
+    qf.appendChild(o);});
+  qf.onchange=function(){fQA=this.value;render();};
   document.getElementById('sevFilter').onchange=function(){fSev=this.value;render();};
   document.getElementById('search').addEventListener('input',function(){fQ=this.value.trim().toLowerCase();findings();pareto();kpis();});
+  document.getElementById('copyIns').onclick=copyIns;
   document.getElementById('clearF').onclick=function(){
-    fPeriod='all';fVal='';fAgent='';fCat='';fSev='';fQ='';
+    fPeriod='all';fVal='';fAgent='';fCat='';fSev='';fQ='';fQA='';
     document.getElementById('catFilter').value='';document.getElementById('sevFilter').value='';
+    document.getElementById('qaFilter').value='';
     document.getElementById('search').value='';fillPeriodVals();render();};
 }
 function fillPeriodVals(){
@@ -656,7 +809,7 @@ function syncSeg(){
   for(var j=0;j<as.length;j++)as[j].setAttribute('aria-pressed',fAgent===av[j]?'true':'false');
 }
 function render(){
-  syncSeg();kpis();progChart();agentChart();dotChart();critChart();heat();pareto();findings();agentPanels();
+  syncSeg();kpis();insights();progChart();agentChart();dotChart();critChart();heat();pareto();findings();agentPanels();
 }
 
 document.getElementById('foot').innerHTML=
