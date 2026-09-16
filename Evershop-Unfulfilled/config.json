@@ -1,0 +1,4 @@
+{
+  "sheetEndpoint": "https://script.google.com/macros/s/AKfycbwOL_LapW4Aq3H1Hw1NIQhTG96blnU_4JFLDyPQBFDUBCPfWj2JxiRneNCaQYdRkLu2/exec",
+  "_help": "Paste the Apps Script Web app /exec URL here. Deploy portal/sheet_endpoint.gs on the Raw Unfulfilled sheet: Extensions > Apps Script, paste, Deploy > New deployment > Web app, Execute as Me, Who has access Anyone, then copy the /exec URL into sheetEndpoint above."
+}
