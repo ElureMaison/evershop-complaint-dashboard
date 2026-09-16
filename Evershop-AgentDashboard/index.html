@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Evershop Agent Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  --ground:#EBEFF0; --surface:#FFF; --surface-2:#F5F8F8; --surface-3:#E4EAEB;
+  --ink:#16201F; --ink-2:#485857; --ink-3:#7A8B8A;
+  --line:#D5DDDE; --line-2:#C2CDCE;
+  --accent:#0E5C63; --accent-soft:#D6E7E8;
+  --ochre:#A96E07; --ochre-soft:#F6E9CF;
+  --pass:#2C6B4C; --pass-soft:#D8EADF;
+  --warn:#9E640A; --warn-soft:#F7E8CC;
+  --fail:#A23A31; --fail-soft:#F6DCD9;
+  --on-accent:#FFFFFF;
+  --shadow:0 1px 2px rgba(16,32,32,.05),0 8px 24px -12px rgba(16,32,32,.18);
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --ui:"Archivo",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#0E1417; --surface:#161E21; --surface-2:#1C2528; --surface-3:#243033;
+  --ink:#E3EBEB; --ink-2:#A0B1B1; --ink-3:#6C7D7D;
+  --line:#283437; --line-2:#36454A;
+  --accent:#54B6BF; --accent-soft:#12333A;
+  --ochre:#D9A244; --ochre-soft:#3A2D14;
+  --pass:#63C08E; --pass-soft:#14301F;
+  --warn:#D9A244; --warn-soft:#352817;
+  --fail:#E37E72; --fail-soft:#3A1E1B;
+  --on-accent:#0E1417;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -12px rgba(0,0,0,.6);
+}}
+:root[data-theme="dark"]{
+  --ground:#0E1417; --surface:#161E21; --surface-2:#1C2528; --surface-3:#243033;
+  --ink:#E3EBEB; --ink-2:#A0B1B1; --ink-3:#6C7D7D;
+  --line:#283437; --line-2:#36454A;
+  --accent:#54B6BF; --accent-soft:#12333A;
+  --ochre:#D9A244; --ochre-soft:#3A2D14;
+  --pass:#63C08E; --pass-soft:#14301F;
+  --warn:#D9A244; --warn-soft:#352817;
+  --fail:#E37E72; --fail-soft:#3A1E1B;
+  --on-accent:#0E1417;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -12px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--ui);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{margin:0;text-wrap:balance;font-weight:600;letter-spacing:-.011em}
+a{color:var(--accent)}
+.wrap{max-width:1360px;margin:0 auto;padding:0 22px 72px}
+.lbl{font-size:10.5px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.gate{position:fixed;inset:0;background:var(--ground);display:flex;align-items:center;justify-content:center;z-index:99;padding:24px}
+.gate-box{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:28px 30px;max-width:390px;width:100%;box-shadow:var(--shadow)}
+.gate-box h2{font-size:18px;margin-bottom:5px}
+.gate-box p{margin:0 0 18px;font-size:13px;color:var(--ink-2);line-height:1.5}
+.gate-row{display:flex;gap:8px}
+.gate-row input{flex:1;min-width:0;padding:9px 12px;border:1px solid var(--line-2);border-radius:5px;background:var(--surface-2);color:var(--ink);font:14px var(--ui)}
+.gate-row button{padding:9px 16px;border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);border-radius:5px;font:600 13px var(--ui);cursor:pointer}
+.gate-row button#gateShow{flex:none;padding:9px 12px;background:var(--surface-2);border-color:var(--line-2);color:var(--ink-2);font-weight:600;font-size:12px;min-width:56px}
+.gate-row button#gateShow:hover{border-color:var(--accent);color:var(--accent)}
+.gate-row button#gateShow[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.gate-err{color:var(--fail);font-size:12.5px;margin-top:10px;min-height:16px}
+header{border-bottom:1px solid var(--line);background:var(--surface);margin-bottom:20px}
+.hd{max-width:1360px;margin:0 auto;padding:22px 22px 18px;display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between}
+.hd h1{font-size:26px;letter-spacing:-.02em}
+.wk{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.08em;background:var(--accent);color:var(--on-accent);padding:3px 9px;border-radius:3px;vertical-align:3px;margin-left:10px}
+.hd .sub{color:var(--ink-2);font-size:13.5px;margin-top:5px}
+.navlinks{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
+.navlinks a{font:600 12px var(--ui);text-decoration:none;color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);padding:5px 11px;border-radius:5px;background:var(--accent-soft)}
+.filters{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:11px 14px;margin-bottom:18px}
+.filters input[type=search],.filters select{padding:7px 10px;border:1px solid var(--line-2);border-radius:5px;background:var(--surface-2);color:var(--ink);font:13px var(--ui)}
+.filters input[type=search]{flex:1 1 230px;min-width:0}
+.seg{display:flex}
+.seg button{padding:7px 12px;border:1px solid var(--line-2);background:var(--surface);font:600 12px var(--ui);color:var(--ink-2);cursor:pointer;border-right:0}
+.seg button:first-child{border-radius:5px 0 0 5px}
+.seg button:last-child{border-radius:0 5px 5px 0;border-right:1px solid var(--line-2)}
+.seg button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.clear{padding:7px 12px;border:1px solid var(--line-2);background:var(--surface);border-radius:5px;font:600 12px var(--ui);color:var(--ink-2);cursor:pointer}
+.clear:hover{border-color:var(--accent);color:var(--accent)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:12px;margin-bottom:20px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:13px 15px;display:flex;flex-direction:column;gap:4px}
+.kpi .v{font-family:var(--mono);font-size:25px;font-weight:700;line-height:1.1;letter-spacing:-.025em;font-variant-numeric:tabular-nums}
+.kpi .d{font-size:11.5px;color:var(--ink-3);line-height:1.4}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;margin-bottom:18px}
+.card>h2{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-2);padding:12px 18px;border-bottom:1px solid var(--line);font-weight:600;display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.card>h2 .note{font-size:11.5px;letter-spacing:0;text-transform:none;color:var(--ink-3);font-weight:400}
+.pad{padding:16px 18px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:18px}
+.chartbox{overflow-x:auto}
+svg{display:block;max-width:100%}
+.legend{display:flex;gap:16px;flex-wrap:wrap;padding:0 18px 14px;font-size:12px;color:var(--ink-2)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:-1px;margin-right:6px}
+.legend .ln{display:inline-block;width:16px;height:0;border-top:2px solid var(--ochre);vertical-align:4px;margin-right:6px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:600;white-space:nowrap}
+td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+.hm{width:100%;border-collapse:separate;border-spacing:3px;font-size:12px}
+.hm th{padding:4px 6px;font-size:10.5px}
+.hm th.rk{text-align:left;font-weight:600;color:var(--ink-2);text-transform:none;letter-spacing:0;font-size:12.5px;white-space:normal;min-width:140px}
+.hm td{padding:0;border:0}
+.cell{border-radius:4px;padding:7px 4px;text-align:center;font-family:var(--mono);font-weight:700;font-size:12.5px;font-variant-numeric:tabular-nums}
+.rc{border-left:3px solid var(--fail);background:var(--surface-2);border-radius:0 5px 5px 0;padding:14px 16px;margin-bottom:14px}
+.rc:last-child{margin-bottom:0}
+.rc h3{font-size:15px;margin-bottom:3px}
+.rc .tagline{font-size:12px;color:var(--ink-3);margin-bottom:10px}
+.rc dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:12.8px;line-height:1.5}
+.rc dt{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);padding-top:2px;white-space:nowrap}
+.rc dd{margin:0;color:var(--ink-2)}
+.rc dd b{color:var(--ink);font-weight:600}
+.why{list-style:none;margin:0;padding:0}
+.why li{position:relative;padding-left:18px;margin-bottom:3px}
+.why li::before{content:"↳";position:absolute;left:2px;color:var(--ink-3)}
+.why li:first-child{padding-left:0}
+.why li:first-child::before{content:""}
+.agpanel{border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--surface)}
+.aghead{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.aghead .nm{font-size:17px;font-weight:600}
+.aghead .re{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+.aghead .sc{font-family:var(--mono);font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.agbody{padding:14px 16px;display:flex;flex-direction:column;gap:13px}
+.blk h4{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px}
+.blk.s h4{color:var(--pass)} .blk.m h4{color:var(--fail)} .blk.i h4{color:var(--warn)} .blk.a h4{color:var(--accent)}
+.blk ul{margin:0;padding-left:17px;font-size:12.8px;line-height:1.5;color:var(--ink-2)}
+.blk ul li{margin-bottom:4px}
+.blk ol{margin:0;padding-left:19px;font-size:12.8px;line-height:1.5;color:var(--ink-2)}
+.blk ol li{margin-bottom:5px}
+.blk b{color:var(--ink);font-weight:600}
+.pri{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;margin-right:6px}
+.p1{background:var(--fail-soft);color:var(--fail)}
+.p2{background:var(--warn-soft);color:var(--warn)}
+.p3{background:var(--accent-soft);color:var(--accent)}
+.dl{font-size:12.8px;line-height:1.5;color:var(--ink-2)}
+.dl .row{display:flex;gap:10px;padding:7px 0;border-bottom:1px dashed var(--line)}
+.dl .row:last-child{border-bottom:0}
+.dl .who{font-family:var(--mono);font-size:11px;color:var(--ink-3);flex:none;width:72px}
+.dl .sev{flex:none;width:52px;font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding-top:2px}
+.dl .sev.fail{color:var(--fail)} .dl .sev.warn{color:var(--warn)}
+.empty{padding:22px 18px;color:var(--ink-3);font-size:13px}
+footer{margin-top:26px;padding-top:18px;border-top:1px solid var(--line);font-size:12.3px;color:var(--ink-3);line-height:1.6;max-width:88ch}
+footer b{color:var(--ink-2)}
+@media (max-width:760px){.hd h1{font-size:22px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<div class="gate" id="gate">
+  <div class="gate-box">
+    <h2>Evershop Agent Dashboard</h2>
+    <p>Support quality trends and action plans. Same password as the CJ and WIIO trackers.</p>
+    <div class="gate-row">
+      <input type="password" id="gatePw" placeholder="Password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+      <button id="gateShow" type="button" title="Show or hide the password" aria-pressed="false">Show</button>
+      <button id="gateBtn" type="button">Unlock</button>
+    </div>
+    <div class="gate-err" id="gateErr"></div>
+  </div>
+</div>
+
+<div id="appRoot" hidden>
+<header>
+  <div class="hd">
+    <div>
+      <h1>Evershop Agent Dashboard<span class="wk">2026-W35</span></h1>
+      <div class="sub">Clarendale USA · 16 tickets reviewed · four per agent · what is going wrong, why, and what to do about it</div>
+      <div class="navlinks">
+        <a href="https://yourbadassvaronceph.com/Evershop-QAReview" target="_blank" rel="noopener">← QA review portal — score the tickets</a>
+        <a href="https://cookie-shop-ff7.notion.site/Team-quality-checks-3482916b2461806680f0ceee6eaa3c66" target="_blank" rel="noopener">Notion — Team quality checks ↗</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="filters">
+    <div class="seg" id="agentSeg" role="group" aria-label="Filter by agent"></div>
+    <select id="catFilter" aria-label="Filter by mistake type"><option value="">All mistake types</option></select>
+    <select id="sevFilter" aria-label="Filter by severity">
+      <option value="">Defects and watch items</option>
+      <option value="fail">Defects only</option>
+      <option value="warn">Watch items only</option>
+    </select>
+    <input type="search" id="search" placeholder="Search the findings…">
+    <button class="clear" id="clearF" type="button">Clear</button>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="two">
+    <section class="card">
+      <h2><span>Average score by agent</span><span class="note">out of 100, mean of 4 tickets</span></h2>
+      <div class="pad chartbox" id="agentChart"></div>
+    </section>
+    <section class="card">
+      <h2><span>Every ticket scored</span><span class="note">16 tickets, 0–100</span></h2>
+      <div class="pad chartbox" id="dotChart"></div>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2><span>Pareto — which mistakes to fix first</span><span class="note">62 findings across 16 tickets; bars are share of all findings, the line is the running total</span></h2>
+    <div class="chartbox pad" id="pareto"></div>
+    <div class="legend">
+      <span><i style="background:var(--accent)"></i>Share of all findings</span>
+      <span><span class="ln"></span>Cumulative share</span>
+      <span style="color:var(--ink-3)">The first seven categories account for 79% of everything found.</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span>Where the points went</span><span class="note">percentage of each parameter earned; darker is better</span></h2>
+    <div class="pad chartbox" id="heat"></div>
+  </section>
+
+  <section class="card">
+    <h2><span>Root cause analysis</span><span class="note">four causes explain the twelve mistake types</span></h2>
+    <div class="pad" id="rootcause"></div>
+  </section>
+
+  <section class="card">
+    <h2><span>Action plan</span><span class="note">ordered by the Pareto — do these top down</span></h2>
+    <div style="overflow-x:auto"><table id="planTbl"><thead><tr>
+      <th>Priority</th><th>Action</th><th>Owner</th><th>Cadence</th><th class="num">Findings addressed</th><th class="num">Points recoverable</th>
+    </tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section class="card">
+    <h2><span>Findings</span><span class="note" id="findCount"></span></h2>
+    <div class="pad" id="findings"></div>
+  </section>
+
+  <h2 style="font-size:13px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-2);margin:26px 0 12px">Per agent — strengths, mistakes, and the plan</h2>
+  <div class="two" id="agents"></div>
+
+  <footer id="foot"></footer>
+</div>
+</div>
+
+<script id="payload" type="application/json">{"rubric":[["resp","Response time",10,"First reply inside 4h, follow-ups inside 24h, no silence while the customer is waiting."],["read","Read the ticket",10,"Nothing re-requested that the customer already gave; the actual question answered."],["play","Correct playbook",10,"The right flow for the real issue type - preference return, wrong item, or defect."],["elig","Eligibility checks",10,"30-day window confirmed, order identified, fulfilment status checked before promising."],["evid","Evidence handling",10,"Photo asked for only where it changes the outcome, then actually read and referenced."],["ladd","Offer-ladder discipline",15,"Correct rungs in order. No repeats, no reversals, nothing above the 100% ceiling, stop when told to stop."],["acc","Accuracy of facts & actions",15,"Order, tracking, status and amounts correct. The Shopify action actually done. DO FIRST notes resolved."],["ident","Agent identity & continuity",5,"Signed with the right name, consistent title, owns the thread end to end."],["tone","Tone & empathy",10,"Specific to this customer, de-escalates, apologises where an apology is owed."],["close","Closure quality",5,"Amount stated, screenshot attached, refund actually issued, ticket genuinely finished."]],"avg":{"Isabella":63,"Megan":57,"Diane":58,"Brandon":64},"totals":{"Isabella":[81,53,45,73],"Megan":[46,46,70,65],"Diane":[73,47,65,45],"Brandon":[62,74,56,64]},"ticketNames":{"Isabella":["A. Nicolini #2764719","L. Graves #2767395","S. Baca #2761606 / #2770810","L. Alweis #2764428"],"Megan":["C. Basso #2766104","D. Certini-Waymire #2766781","S. Woodward #2765476","R. Weilmann #2770219"],"Diane":["T. Cole #2769913 / #2769443 (unmatched)","C. Knarr #2745399","K. Hill #2764347","G. Jeffers #2750148"],"Brandon":["B. Arizu #2765491","L. Nurge #2766159","M. Harris #2762651","D. Weintraub #2764767"]},"profile":{"Isabella":{"resp":62,"read":58,"play":60,"elig":68,"evid":75,"ladd":68,"acc":65,"ident":45,"tone":60,"close":50},"Megan":{"resp":68,"read":35,"play":68,"elig":75,"evid":52,"ladd":65,"acc":47,"ident":60,"tone":55,"close":35},"Diane":{"resp":58,"read":42,"play":52,"elig":68,"evid":75,"ladd":58,"acc":47,"ident":70,"tone":50,"close":75},"Brandon":{"resp":75,"read":50,"play":60,"elig":80,"evid":68,"ladd":32,"acc":72,"ident":80,"tone":80,"close":65}},"team":{"resp":66,"read":46,"play":60,"elig":72,"evid":68,"ladd":56,"acc":58,"ident":64,"tone":61,"close":56},"pareto_points":[{"key":"ladd","name":"Offer-ladder discipline","lost":106,"share":16.7,"cum":16.7,"exposure":240,"rate":44.2},{"key":"acc","name":"Accuracy of facts & actions","lost":102,"share":16.1,"cum":32.8,"exposure":240,"rate":42.5},{"key":"read","name":"Read the ticket","lost":86,"share":13.5,"cum":46.3,"exposure":160,"rate":53.8},{"key":"play","name":"Correct playbook","lost":64,"share":10.1,"cum":56.4,"exposure":160,"rate":40.0},{"key":"tone","name":"Tone & empathy","lost":62,"share":9.8,"cum":66.1,"exposure":160,"rate":38.8},{"key":"resp","name":"Response time","lost":55,"share":8.7,"cum":74.8,"exposure":160,"rate":34.4},{"key":"evid","name":"Evidence handling","lost":52,"share":8.2,"cum":83.0,"exposure":160,"rate":32.5},{"key":"elig","name":"Eligibility checks","lost":44,"share":6.9,"cum":89.9,"exposure":160,"rate":27.5},{"key":"close","name":"Closure quality","lost":35,"share":5.5,"cum":95.4,"exposure":80,"rate":43.8},{"key":"ident","name":"Agent identity & continuity","lost":29,"share":4.6,"cum":100.0,"exposure":80,"rate":36.2}],"cat_pareto":[{"key":"ladder","name":"Ladder mechanics error","desc":"A rung repeated, reversed, offered above the 100% ceiling, or continued after a stop signal.","n":10,"share":16.1,"cum":16.1,"fails":7,"warns":3},{"key":"close","name":"Closure incomplete or premature","desc":"No amount, no screenshot, or 'approved' before the money moved.","n":8,"share":12.9,"cum":29.0,"fails":1,"warns":7},{"key":"dofirst","name":"Internal DO FIRST note not executed","desc":"Sophie's pre-send checklist skipped, including three repeats of the same blocking flag.","n":7,"share":11.3,"cum":40.3,"fails":4,"warns":3},{"key":"latency","name":"Action or refund late, or never done","desc":"Refunds issued only after the customer chased, or a promised action never created.","n":6,"share":9.7,"cum":50.0,"fails":5,"warns":1},{"key":"ignored","name":"Explicit instruction or choice ignored","desc":"The customer said what they wanted, plainly and more than once, and got something else.","n":6,"share":9.7,"cum":59.7,"fails":4,"warns":2},{"key":"fault","name":"Retention ladder run on our own fault","desc":"A defect, wrong colour or wrong material met with a discount instead of a fix.","n":6,"share":9.7,"cum":69.4,"fails":4,"warns":2},{"key":"misread","name":"Ticket not read","desc":"Information re-requested that was already supplied, or the complaint misread.","n":6,"share":9.7,"cum":79.0,"fails":4,"warns":2},{"key":"photo","name":"Evidence requested where it cannot help","desc":"A photo asked for on a pure preference return, adding a day and some goodwill.","n":4,"share":6.5,"cum":85.5,"fails":0,"warns":4},{"key":"identity","name":"Wrong signature or no owner","desc":"Signed with a colleague's name, or a thread with no one accountable for it.","n":3,"share":4.8,"cum":90.3,"fails":2,"warns":1},{"key":"mech","name":"Template scaffold or typo shipped","desc":"'PHOTO:' left in the body, doubled spaces, lowercase names, contentless boilerplate.","n":2,"share":3.2,"cum":93.5,"fails":0,"warns":2},{"key":"silence","name":"Unanswered, or a response-time breach","desc":"Days of silence on an open complaint, including two emails never answered at all.","n":2,"share":3.2,"cum":96.8,"fails":1,"warns":1},{"key":"false","name":"Factually wrong statement sent","desc":"A status, a record or a claim that the thread itself contradicts.","n":2,"share":3.2,"cum":100.0,"fails":2,"warns":0}],"total_lost":635,"total_possible":1600,"findings":[{"agent":"Isabella","order":"#2764719","cat":"mech","catName":"Template scaffold or typo shipped","sev":"warn","text":"Templated opener with two typos that shipped - 'Hi  A.' and 'your email.I'm happy to help.' No mention of order #2764719 or of her actual complaint. The photo instructions themselves are correct."},{"agent":"Isabella","order":"#2764719","cat":"close","catName":"Closure incomplete or premature","sev":"warn","text":"No refund amount ($26.73) and no transaction screenshot. 'Approved' instead of 'processed'."},{"agent":"Isabella","order":"#2767395","cat":"identity","catName":"Wrong signature or no owner","sev":"fail","text":"Signed 'Megan' while logged in as Isabella. The reply also asks L. for her order number instead of looking her up from her email address."},{"agent":"Isabella","order":"#2767395","cat":"silence","catName":"Unanswered, or a response-time breach","sev":"warn","text":"Three days of silence. She chases quoting the store's own 'usual response time of 24 hours'."},{"agent":"Isabella","order":"#2767395","cat":"ladder","catName":"Ladder mechanics error","sev":"fail","text":"Better Business Bureau threat. This is the point where the ladder stops and the case escalates - instead another rung followed."},{"agent":"Isabella","order":"#2767395","cat":"ladder","catName":"Ladder mechanics error","sev":"warn","text":"Correct 40% rung, wrong moment. No apology for the three-day gap anywhere in the thread."},{"agent":"Isabella","order":"#2767395","cat":"close","catName":"Closure incomplete or premature","sev":"warn","text":"She asked to see the $59 confirmed. The closing message names no figure."},{"agent":"Isabella","order":"#2761606","cat":"mech","catName":"Template scaffold or typo shipped","sev":"warn","text":"'We will move forward with processing your order accordingly' - no item, no timeline, no confirmation of what was actually agreed."},{"agent":"Isabella","order":"#2761606","cat":"latency","catName":"Action or refund late, or never done","sev":"fail","text":"A new and time-critical request: cancel duplicate order #2770810. She repeats it in three consecutive messages."},{"agent":"Isabella","order":"#2761606","cat":"latency","catName":"Action or refund late, or never done","sev":"fail","text":"40 hours later, and only 'I've forwarded your request to our team'. Cancellations have a 12-hour window - nobody checked the fulfilment status."},{"agent":"Isabella","order":"#2761606","cat":"ignored","catName":"Explicit instruction or choice ignored","sev":"warn","text":"She chose Option 2, the store credit. The reply tells her a replacement has already shipped. Her choice is never honoured or explained."},{"agent":"Isabella","order":"#2761606","cat":"close","catName":"Closure incomplete or premature","sev":"fail","text":"Thread closed with 'You're very welcome' while the duplicate order she asked to cancel is still outstanding."},{"agent":"Isabella","order":"#2764428","cat":"dofirst","catName":"Internal DO FIRST note not executed","sev":"fail","text":"Sophie: file a supplier COGs claim now - the photos show a making fault, and 'do not wait for her to accept a solution'. Nothing in the thread shows it was ever filed."},{"agent":"Isabella","order":"#2764428","cat":"fault","catName":"Retention ladder run on our own fault","sev":"fail","text":"A confirmed manufacturing defect is being met with a 20%-then-30% retention ladder. This flow does not apply when the fault is ours."},{"agent":"Isabella","order":"#2764428","cat":"fault","catName":"Retention ladder run on our own fault","sev":"warn","text":"'You're making it difficult to return it' and a bad review raised - the predictable result of discounting a defect."},{"agent":"Isabella","order":"#2764428","cat":"close","catName":"Closure incomplete or premature","sev":"warn","text":"Return acknowledged correctly, but no amount confirmed."},{"agent":"Megan","order":"#2766104","cat":"misread","catName":"Ticket not read","sev":"fail","text":"Asks for the reason for the return. She gave it in her opening line - 'the dress did not fit well... unused, tags on and in the original bag'. She has to repeat it in the next message."},{"agent":"Megan","order":"#2766104","cat":"identity","catName":"Wrong signature or no owner","sev":"fail","text":"Signed 'Diane' while logged in as Megan. And 'we are currently unable to locate your order in our system' is false: #2766104 is in the first message."},{"agent":"Megan","order":"#2766104","cat":"misread","catName":"Ticket not read","sev":"fail","text":"Third request for return documentation she has already supplied - tracking given on 27 Aug, delivery confirmed on 31 Aug."},{"agent":"Megan","order":"#2766104","cat":"false","catName":"Factually wrong statement sent","sev":"fail","text":"'Still on the way to our warehouse.' FedEx delivery was confirmed nine days earlier. The refund is past the 7-working-day promise with a chargeback threatened twice."},{"agent":"Megan","order":"#2766781","cat":"photo","catName":"Evidence requested where it cannot help","sev":"warn","text":"Good named opener, but the literal scaffold 'PHOTO:' shipped inside the message - and she asked for a return label, not an evidence request."},{"agent":"Megan","order":"#2766781","cat":"misread","catName":"Ticket not read","sev":"fail","text":"'There is nothing to take a photo of... Please send a return label as I have requested twice now.'"},{"agent":"Megan","order":"#2766781","cat":"dofirst","catName":"Internal DO FIRST note not executed","sev":"fail","text":"The credit was never issued - the reply only asks her to confirm again. 'Please note that only one offer option can be applied to this resolution' is the coldest possible wording at the decisive moment."},{"agent":"Megan","order":"#2766781","cat":"ladder","catName":"Ladder mechanics error","sev":"fail","text":"Repeats the 30% rung Sophie already sent two days earlier. She names it exactly: 'nothing more than what you offered on day one.'"},{"agent":"Megan","order":"#2765476","cat":"misread","catName":"Ticket not read","sev":"warn","text":"'The pants do not fit. The length is way too short' is a complete reason. The reply asks for the reason anyway. Also 'Dear S.' - lowercase."},{"agent":"Megan","order":"#2765476","cat":"close","catName":"Closure incomplete or premature","sev":"warn","text":"Closed by Isabella, not Megan. 'Approved' rather than 'processed', and the $26.00 from the draft is left out."},{"agent":"Megan","order":"#2770219","cat":"photo","catName":"Evidence requested where it cannot help","sev":"warn","text":"Reasonable to ask the reason here - but photos add nothing to a fit complaint."},{"agent":"Megan","order":"#2770219","cat":"misread","catName":"Ticket not read","sev":"fail","text":"She quotes the published 30-day guarantee back clause by clause, and proves her own eligibility with USPS records. That check was the agent's job."},{"agent":"Megan","order":"#2770219","cat":"latency","catName":"Action or refund late, or never done","sev":"fail","text":"She chases on 12 September. The parcel was delivered on 2 September - ten days of silence past a 7-working-day promise."},{"agent":"Diane","order":"#2769913","cat":"dofirst","catName":"Internal DO FIRST note not executed","sev":"fail","text":"Sophie flags that the two photographed blouses match neither visible order - #2769913 is a sun hat, #2769443 a jumpsuit - and asks for the order to be confirmed before any reship."},{"agent":"Diane","order":"#2769913","cat":"dofirst","catName":"Internal DO FIRST note not executed","sev":"fail","text":"The offer goes out anyway with the mismatch unresolved. 'Items' and 'sizes' also collapse to singular though she said two."},{"agent":"Diane","order":"#2769913","cat":"dofirst","catName":"Internal DO FIRST note not executed","sev":"warn","text":"Second flag of the same mismatch: 'No dollar amount was named in the message for that reason.'"},{"agent":"Diane","order":"#2769913","cat":"dofirst","catName":"Internal DO FIRST note not executed","sev":"warn","text":"Correct 40% final rung - still no attempt to identify which order the blouses came from."},{"agent":"Diane","order":"#2769913","cat":"dofirst","catName":"Internal DO FIRST note not executed","sev":"warn","text":"Third flag, now explicit: identify the order 'so the refund goes on the right order for the right amount'."},{"agent":"Diane","order":"#2745399","cat":"ignored","catName":"Explicit instruction or choice ignored","sev":"fail","text":"'I want the full refund... Please do not send more offers.' An explicit stop signal."},{"agent":"Diane","order":"#2745399","cat":"ladder","catName":"Ladder mechanics error","sev":"fail","text":"That judgement was overridden and two more offers went out, including 60%. This is the decision that produced the chargeback."},{"agent":"Diane","order":"#2745399","cat":"silence","catName":"Unanswered, or a response-time breach","sev":"fail","text":"Two months on: she says she emailed in June and July with no reply, and that returning the cardigan to China would have cost her $242."},{"agent":"Diane","order":"#2745399","cat":"ignored","catName":"Explicit instruction or choice ignored","sev":"warn","text":"The reply corrects her timeline - 'our last email response to you was sent on June 30' - rather than investigating her two emails or addressing the $242 return cost."},{"agent":"Diane","order":"#2764347","cat":"photo","catName":"Evidence requested where it cannot help","sev":"warn","text":"The generic photo template, scaffold 'PHOTO:' included, in reply to a detailed and specific complaint."},{"agent":"Diane","order":"#2764347","cat":"fault","catName":"Retention ladder run on our own fault","sev":"fail","text":"The 20%-then-30% retention ladder applied to a misadvertising claim. Wrong flow entirely."},{"agent":"Diane","order":"#2764347","cat":"ladder","catName":"Ladder mechanics error","sev":"fail","text":"Escalation to a 50% refund or a '120% store credit' - well above the 100% ceiling."},{"agent":"Diane","order":"#2750148","cat":"ignored","catName":"Explicit instruction or choice ignored","sev":"fail","text":"An already-agreed replacement is turned into a re-confirmation gate. The replacement is never created."},{"agent":"Diane","order":"#2750148","cat":"latency","catName":"Action or refund late, or never done","sev":"fail","text":"Six weeks of silence. 'I have gone on vacation twice already and no bathing suit... very unprofessional!'"},{"agent":"Diane","order":"#2750148","cat":"false","catName":"Factually wrong statement sent","sev":"fail","text":"'Since we did not receive that final confirmation, the replacement was not processed at that time' is factually wrong - she confirmed twice - and puts the failure on her."},{"agent":"Brandon","order":"#2765491","cat":"ladder","catName":"Ladder mechanics error","sev":"fail","text":"'110% store credit' offered. The ceiling is 100%. Ten points of unapproved margin, in writing."},{"agent":"Brandon","order":"#2765491","cat":"ladder","catName":"Ladder mechanics error","sev":"warn","text":"Sophie drops back to the 20% rung after 30% has already been offered. Nobody is tracking ladder state."},{"agent":"Brandon","order":"#2765491","cat":"ignored","catName":"Explicit instruction or choice ignored","sev":"fail","text":"Verbatim repeat of the earlier 110%/30% message, immediately after she asked for return instructions 'rather than additional alternative offers'."},{"agent":"Brandon","order":"#2765491","cat":"latency","catName":"Action or refund late, or never done","sev":"warn","text":"Return Form finally attached - seven days after she first asked for it."},{"agent":"Brandon","order":"#2765491","cat":"close","catName":"Closure incomplete or premature","sev":"warn","text":"Refund confirmed with no amount and no screenshot. Twenty days end to end for a straight return."},{"agent":"Brandon","order":"#2766159","cat":"fault","catName":"Retention ladder run on our own fault","sev":"fail","text":"She declines the replacement and is put onto the 20% retention rung. On a fault that is ours, that step should not exist."},{"agent":"Brandon","order":"#2766159","cat":"fault","catName":"Retention ladder run on our own fault","sev":"warn","text":"'According to your website you would cover return shipping' - she pays it herself on our error."},{"agent":"Brandon","order":"#2766159","cat":"latency","catName":"Action or refund late, or never done","sev":"fail","text":"She chases on 14 September, twelve days after returning the item, with no refund and no update."},{"agent":"Brandon","order":"#2762651","cat":"misread","catName":"Ticket not read","sev":"warn","text":"Offers a replacement 'in a more suitable size' for a fit complaint that was never about size."},{"agent":"Brandon","order":"#2762651","cat":"ladder","catName":"Ladder mechanics error","sev":"fail","text":"'110% store credit' - the second instance across Brandon's tickets."},{"agent":"Brandon","order":"#2762651","cat":"ladder","catName":"Ladder mechanics error","sev":"warn","text":"Sophie sends 100% one message later, contradicting the 110% the customer has just been offered."},{"agent":"Brandon","order":"#2762651","cat":"ignored","catName":"Explicit instruction or choice ignored","sev":"fail","text":"Another offer sent 94 minutes after that instruction."},{"agent":"Brandon","order":"#2762651","cat":"identity","catName":"Wrong signature or no owner","sev":"warn","text":"Diane answers the SKU question; Brandon answers the same question again three hours later."},{"agent":"Brandon","order":"#2762651","cat":"close","catName":"Closure incomplete or premature","sev":"warn","text":"'Your 100% refund has been approved' while the parcel is still in transit - contradicting the policy stated earlier in this same thread. No amount."},{"agent":"Brandon","order":"#2764767","cat":"photo","catName":"Evidence requested where it cannot help","sev":"warn","text":"A photo request on a pure preference return."},{"agent":"Brandon","order":"#2764767","cat":"fault","catName":"Retention ladder run on our own fault","sev":"fail","text":"'I can see the issue clearly, and this one's on us' - fault conceded on a fit complaint, with a free replacement or 100% store credit offered."},{"agent":"Brandon","order":"#2764767","cat":"ladder","catName":"Ladder mechanics error","sev":"fail","text":"The next message drops to a 20% refund. Going from 100% store credit down to 20% is a reversal, and she reads it exactly that way."},{"agent":"Brandon","order":"#2764767","cat":"close","catName":"Closure incomplete or premature","sev":"warn","text":"Closed by Isabella with 'approved' and no amount. The $49.99 is never confirmed to her."}],"roots":[{"title":"A · One flow for every refund request — nothing asks whose fault it is","tag":"The single most expensive habit in this review","evidence":"A manufacturing fault on #2764428, a wrong colour on #2766159, cotton/linen sold as polyester on #2764347, and a parcel that arrived torn and retaped on #2745399 were each answered with a 20% retention offer.","why":["The ticket is triaged by what the customer asks for — “I want a refund” — not by what actually happened.","Nothing in the flow asks whether the fault is ours before the ladder starts.","So a ladder built to protect margin on a change of mind gets pointed at our own mistakes.","A customer who knows they were wronged reads a discount as an insult, and escalates instead of accepting."],"cost":"One PayPal chargeback, one Better Business Bureau threat, one social-media threat and three review threats — out of sixteen tickets.","fix":"Add a <b>fault gate</b> as step one. If the fault is ours — defect, wrong item, wrong colour, wrong material, missing part — replace or refund immediately, no ladder, and file the supplier claim the same day. The ladder applies only to a genuine change of mind.","recover":130,"params":"Correct playbook · Offer-ladder discipline · Tone &amp; empathy"},{"title":"B · No owner on a thread, and the ladder rung is recorded nowhere","tag":"Why offers repeat, reverse, and drift above the ceiling","evidence":"Threads carry up to five signatures. “110% store credit” went out twice and 120% once, against a 100% ceiling. Rungs were repeated verbatim on #2766781 and #2765491, and reversed on #2764767 (100% credit down to 20%) and #2765491 (30% back to 20%). Two agents answered the same SKU question three hours apart.","why":["Any agent can pick up any thread, and Sophie posts under the admin account signed “Sophie”.","The current rung exists only in the memory of whoever last read the thread.","So the next writer guesses — higher, lower, or exactly the same as last time.","The customer sees a team not talking to itself, and stops believing any of the offers."],"cost":"Every repeated or reversed rung is a wasted contact. Two customers named it explicitly and ended the relationship over it.","fix":"Assign an <b>owner on the first reply</b> and keep it. Record the rung as a Re:amaze tag — <b>rung-20 / rung-30 / rung-40 / ladder-stopped</b> — and allow movement upward only. Anyone picking up a colleague's thread opens with one line naming themselves.","recover":110,"params":"Offer-ladder discipline · Agent identity &amp; continuity · Read the ticket"},{"title":"C · Replies go out before the record is checked; the money moves afterwards, or never","tag":"The largest single block of lost points","evidence":"“Unable to locate your order in our system” when the order number was in the first message. “Still on the way to our warehouse” nine days after delivery was confirmed. A $34.99 store credit instructed and never issued. $86.70 refunded against an order flagged three times as unidentified. Four refunds paid only after the customer chased, ten to fourteen days past a seven-working-day promise.","why":["The DO FIRST block is treated as preamble to the draft rather than as the task itself.","Nothing in the queue surfaces “this return has landed, the refund is now due”.","So the easy half — sending the message — gets done, and the hard half waits.","The customer is tracking the parcel themselves, so they see the gap before we do."],"cost":"102 of the 240 accuracy points forfeited, and the proximate cause of the chargeback exposure on three tickets.","fix":"Treat <b>DO FIRST as a checklist that must be ticked</b> before the draft is sent, and note in-thread that it was done. Run a daily <b>returns delivered → refund due</b> list off the tracking numbers. Never write a status without opening the tracking link and Shopify first.","recover":140,"params":"Accuracy of facts &amp; actions · Closure quality · Response time"},{"title":"D · The opening and closing macros are used unconditionally","tag":"The cheapest points on the board","evidence":"A photo was requested on a pure preference return four times; three customers refused outright, one calling it “a strange request”. The literal scaffold “PHOTO:” shipped to customers twice. Eight closing messages named no amount, and “approved” was used where “processed” was meant.","why":["Both macros are applied to every ticket regardless of what kind of ticket it is.","A photo request costs a day and some goodwill; on a change of mind it buys nothing back.","A close with no figure guarantees a follow-up email, which re-opens a ticket that was finished.","These are habits rather than judgement calls — which is exactly why they are the cheapest to fix."],"cost":"Roughly one extra round-trip per ticket, on more than half of them.","fix":"Request a photo only when it changes what you will do — a defect, a wrong item, or a supplier claim. Make the closing macro require <b>the amount in currency, the word “processed”, and the transaction screenshot</b>. Proofread the send, not the draft.","recover":90,"params":"Evidence handling · Closure quality · Read the ticket"}],"plan":[{"pri":1,"action":"Fault gate before the ladder","detail":"First question on every refund request: is this our mistake? If yes — replace or refund now, file the supplier claim, no ladder.","owner":"Amber · Ronce","when":"This week","n":6,"pts":130},{"pri":1,"action":"DO FIRST becomes a tick-list, not a preamble","detail":"The internal block is worked top to bottom and confirmed in-thread before the draft underneath it is sent. A repeated flag is a stop.","owner":"All agents","when":"Every reply","n":7,"pts":80},{"pri":1,"action":"Daily “returns delivered → refund due” list","detail":"Every return tracking number goes on a list. The day it scans as delivered, the refund is issued and the close is sent — without waiting to be chased.","owner":"Ronce","when":"Daily","n":6,"pts":60},{"pri":2,"action":"Record the ladder rung as a Re:amaze tag","detail":"rung-20 / rung-30 / rung-40 / ladder-stopped. Read the tag before offering; move up only, never sideways or back.","owner":"Ronce to set up · all agents to use","when":"This week","n":10,"pts":90},{"pri":2,"action":"Write the stop rules into the macro set","detail":"A chargeback, regulator, or review threat, or the words “no more offers”, ends the ladder immediately and escalates. Put it at the top of the offer macros.","owner":"Amber","when":"This week","n":6,"pts":40},{"pri":2,"action":"One owner per thread, and a signature check before send","detail":"Whoever replies first owns it. Anyone covering opens with one line naming themselves. Check the signature block every time — three replies went out under a colleague's name.","owner":"All agents","when":"Every reply","n":3,"pts":30},{"pri":3,"action":"Closing macro requires the amount and the screenshot","detail":"Amount in currency, the word “processed” not “approved”, and the transaction screenshot attached. No close without all three.","owner":"Amber","when":"This week","n":8,"pts":35},{"pri":3,"action":"Photo only where it changes the outcome","detail":"Defect, wrong item, or supplier claim. Never on “it doesn't suit me”. And remove the “PHOTO:” scaffold from the macro.","owner":"All agents","when":"Every reply","n":4,"pts":35},{"pri":3,"action":"Fix the Return Form SKU field","detail":"Two customers this week challenged a form asking for a SKU they were never given. Make the field optional or drop it.","owner":"Ronce","when":"This month","n":2,"pts":10},{"pri":3,"action":"Update the Notion playbook to the live ladder","detail":"The doc still describes 40 → 60 → 100% and names WIIO throughout. Agents are being trained on a process that no longer matches what they run.","owner":"Amber","when":"This month","n":0,"pts":25}],"agentReport":{"Isabella":{"strengths":["The best single reply in the whole review — on <b>#2764428</b> she named the exact faults back: “the unfinished stitching on the front pleat and the narrow turned-over hem you describe.”","The cleanest factual record on the team: not one false statement across four tickets.","Strong rung order — 20 → 30 → 40 with the Return Form attached, on three of four tickets."],"mistakes":["Signed a reply <b>“Megan”</b> on #2767395.","Asked a customer for her order number instead of looking it up from her email address; Sophie found it in one step.","Three days of silence on an open complaint, and 40 hours on a time-critical cancellation that was never actioned.","Never states the refund amount on close — all four tickets."],"improve":["Look the order up before the first reply — the email address is already a lookup.","One specific sentence proving she read the ticket, before any template.","State the figure and attach the screenshot when closing."],"plan":["Before every first reply, search the customer's email in Shopify. Never ask for an order number you can find.","Cancellations and address changes jump the queue — the window closes whether or not the queue is busy.","Check the signature block before every send.","Use the #2764428 opening as the personal template: name the specific problem back before offering anything."]},"Megan":{"strengths":["Fastest first replies of anyone — 43 minutes, 1h 21m, 2h 38m, 5 hours.","Correctly held the line on <b>#2766781</b> when told not to stack the 20% code on top of the store credit.","The <b>#2770219</b> close was the right shape: $117.00 named, transaction screenshot attached."],"mistakes":["Asks for information the customer already gave — on all four tickets. Return tracking was requested three separate times on #2766104 after it had been supplied.","Signed a reply <b>“Diane”</b> on #2766104.","Two false statements sent: “unable to locate your order in our system”, and “still on the way to our warehouse” nine days after delivery.","Repeated a ladder rung Sophie had already sent; the customer named it and left.","A $34.99 store credit she was instructed to issue was never issued."],"improve":["Read the whole thread before replying, not just the newest message.","Open the tracking link and Shopify before writing any status.","Execute the refund on the day the return lands, and close it herself."],"plan":["Before sending, answer one question: is anything I am asking for already in this ticket?","Never write a status you have not personally checked in the last few minutes.","Check the signature block before every send.","When the internal note says issue the credit — issue it, then write the message."]},"Diane":{"strengths":["The best evidence practice on the team: asked for each item laid flat <b>plus the size label</b>, and correctly waived photos on swimwear as an intimate item.","The best closing messages anyone wrote — $54.00 and $86.70, both with the amount named and the transaction screenshot attached, both sent within a day of the trigger.","Her offer writing is genuinely warm and reads as a person, not a macro."],"mistakes":["Overrode Sophie's correct judgement on <b>#2745399</b> — the note said go to full refund because the customer had said “no more offers”; two more offers went out, and the ticket is now a PayPal dispute.","Ignored an order-mismatch flag <b>three times</b> and refunded $86.70 against an order that was never identified.","Turned an already-agreed replacement into a re-confirmation gate on <b>#2750148</b>; it was never created, the customer waited six weeks and missed two holidays.","Then told her the delay was because she had never confirmed — she had, twice."],"improve":["Treat a repeated internal flag as blocking, not advisory.","Never pay out against an order that has not been identified.","Never explain a delay as the customer's fault without re-reading the thread first."],"plan":["A DO FIRST flag repeated more than once is a stop. Resolve it or escalate — do not send past it.","Put a follow-up date on anything waiting on an internal action; chase it yourself at 48 hours.","When you disagree with Sophie's reasoning, escalate rather than override.","Keep doing the size-label photo request and the amount-plus-screenshot close — both should be the team standard."]},"Brandon":{"strengths":["Highest average on the team, and the fastest first touch — 28 to 37 minutes on three of four tickets.","The best tone anywhere in the review: the <b>#2766159</b> apology names the delay, the amount and the order number; the SKU apology admits the form is confusing and fixes it in one line.","The best-constructed photo request in all sixteen tickets — full item, colour, and product label.","The most consistent identity: Brandon throughout, every ticket."],"mistakes":["The weakest ladder discipline on the team. <b>“110% store credit” offered twice</b> against a 100% ceiling.","A rung repeated verbatim on #2765491, and reversed on #2764767 — from 100% store credit down to a 20% refund.","An offer sent <b>94 minutes</b> after the customer wrote “please do not try to send me any other offers”.","Conceded fault on a fit complaint — “this one's on us” — then retreated to the 20% rung in the next message.","The Return Form was withheld seven days on #2765491 while she asked four times."],"improve":["Learn the four rungs cold — 110% is not one of them.","Check what has already been offered in the thread, including by Sophie, before offering anything.","When a customer says stop, stop."],"plan":["Memorise the ladder: 100% credit or 20% → 100% credit or 30% → 40% or a paid return. Nothing above the ceiling, ever.","Scroll the thread and read the current rung before writing an offer.","“No more offers”, a chargeback threat, or a review threat ends the ladder — give them what they asked for and flag it.","Write up his own #2766159 close and SKU apology as the team's templates — they are the best examples we have."]}}}</script>
+<script>
+(function(){
+"use strict";
+var D=JSON.parse(document.getElementById('payload').textContent);
+var AGENTS=['Isabella','Megan','Diane','Brandon'];
+var PERSON={Isabella:'Sajid',Megan:'Mustafa',Diane:'Ali',Brandon:'Ahmad'};
+var fAgent='',fCat='',fSev='',fQ='';
+
+function el(t,c,x){var n=document.createElement(t);if(c)n.className=c;if(x!=null)n.textContent=x;return n;}
+function col(f){return f>=.85?'var(--pass)':f>=.7?'var(--accent)':f>=.55?'var(--warn)':'var(--fail)';}
+function svg(w,h){var s=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  s.setAttribute('viewBox','0 0 '+w+' '+h);s.setAttribute('width',w);s.setAttribute('height',h);return s;}
+function sel(n,a){var e=document.createElementNS('http://www.w3.org/2000/svg',n);
+  for(var k in a)e.setAttribute(k,a[k]);return e;}
+function txt(x,y,s,o){var t=sel('text',{x:x,y:y});t.textContent=s;
+  o=o||{};for(var k in o)t.setAttribute(k,o[k]);
+  t.setAttribute('font-family','var(--mono)');return t;}
+
+/* ---------- KPIs ---------- */
+function kpis(){
+  var box=document.getElementById('kpis');box.textContent='';
+  var avg=Math.round(AGENTS.reduce(function(s,a){return s+D.avg[a];},0)/4);
+  var lostPct=(100*D.total_lost/D.total_possible).toFixed(0);
+  var rows=[
+   [avg+' / 100','Team average','mean of all 16 ticket scores',col(avg/100)],
+   [D.total_lost+' pts','Points forfeited',lostPct+'% of the 1,600 available',''],
+   ['34 / 28','Defects / watch items','62 findings across 16 tickets',''],
+   ['6','Escalations provoked','1 chargeback, 1 BBB threat, 1 social threat, 3 review threats','var(--fail)'],
+   ['4 of 16','Refunds paid only after a chase','10–14 days past a 7-working-day promise','var(--fail)'],
+   ['0','Supplier claims filed','2 were explicitly requested in internal notes','var(--warn)']
+  ];
+  rows.forEach(function(r){
+    var k=el('div','kpi');
+    var v=el('div','v',r[0]);if(r[3])v.style.color=r[3];
+    k.appendChild(v);k.appendChild(el('div','lbl',r[1]));k.appendChild(el('div','d',r[2]));
+    box.appendChild(k);
+  });
+}
+
+/* ---------- agent bars ---------- */
+function agentChart(){
+  var host=document.getElementById('agentChart');host.textContent='';
+  var W=460,rowH=40,padL=108,padR=54,H=AGENTS.length*rowH+18;
+  var s=svg(W,H);
+  [0,25,50,75,100].forEach(function(t){
+    var x=padL+(W-padL-padR)*t/100;
+    s.appendChild(sel('line',{x1:x,y1:6,x2:x,y2:H-16,stroke:'var(--line)','stroke-width':1}));
+    s.appendChild(txt(x,H-4,String(t),{'font-size':9,fill:'var(--ink-3)','text-anchor':'middle'}));
+  });
+  AGENTS.forEach(function(a,i){
+    var v=D.avg[a],y=10+i*rowH,w=(W-padL-padR)*v/100;
+    var lab=txt(padL-10,y+16,a,{'font-size':12.5,fill:'var(--ink)','text-anchor':'end','font-family':'var(--ui)','font-weight':600});
+    s.appendChild(lab);
+    s.appendChild(txt(padL-10,y+27,PERSON[a],{'font-size':10,fill:'var(--ink-3)','text-anchor':'end'}));
+    s.appendChild(sel('rect',{x:padL,y:y+4,width:W-padL-padR,height:20,rx:4,fill:'var(--surface-3)'}));
+    var r=sel('rect',{x:padL,y:y+4,width:Math.max(4,w),height:20,rx:4,fill:col(v/100)});
+    r.appendChild(sel('title',{})).textContent=a+' ('+PERSON[a]+') — '+v+'/100';
+    s.appendChild(r);
+    s.appendChild(txt(padL+w+8,y+19,String(v),{'font-size':13,'font-weight':700,fill:col(v/100)}));
+  });
+  host.appendChild(s);
+}
+
+/* ---------- ticket dots ---------- */
+function dotChart(){
+  var host=document.getElementById('dotChart');host.textContent='';
+  var W=460,rowH=40,padL=108,padR=26,H=AGENTS.length*rowH+18;
+  var s=svg(W,H);
+  [0,25,50,75,100].forEach(function(t){
+    var x=padL+(W-padL-padR)*t/100;
+    s.appendChild(sel('line',{x1:x,y1:6,x2:x,y2:H-16,stroke:'var(--line)','stroke-width':1}));
+    s.appendChild(txt(x,H-4,String(t),{'font-size':9,fill:'var(--ink-3)','text-anchor':'middle'}));
+  });
+  AGENTS.forEach(function(a,i){
+    var y=10+i*rowH+14;
+    s.appendChild(txt(padL-10,y+4,a,{'font-size':12.5,fill:'var(--ink)','text-anchor':'end','font-family':'var(--ui)','font-weight':600}));
+    var vals=D.totals[a].slice().sort(function(p,q){return p-q;});
+    s.appendChild(sel('line',{x1:padL+(W-padL-padR)*vals[0]/100,y1:y,x2:padL+(W-padL-padR)*vals[3]/100,y2:y,stroke:'var(--line-2)','stroke-width':2}));
+    D.totals[a].forEach(function(v,j){
+      var x=padL+(W-padL-padR)*v/100;
+      var c=sel('circle',{cx:x,cy:y,r:6,fill:col(v/100),stroke:'var(--surface)','stroke-width':2});
+      c.appendChild(sel('title',{})).textContent=D.ticketNames[a][j]+' — '+v+'/100';
+      s.appendChild(c);
+    });
+    var lo=vals[0],hi=vals[3];
+    s.appendChild(txt(padL+(W-padL-padR)*lo/100,y-11,String(lo),{'font-size':10,fill:'var(--ink-3)','text-anchor':'middle'}));
+    s.appendChild(txt(padL+(W-padL-padR)*hi/100,y+19,String(hi),{'font-size':10,fill:'var(--ink-3)','text-anchor':'middle'}));
+  });
+  host.appendChild(s);
+}
+
+/* ---------- pareto ---------- */
+function pareto(){
+  var host=document.getElementById('pareto');host.textContent='';
+  var P=D.cat_pareto,n=P.length;
+  var W=980,H=310,padL=44,padR=16,padT=12,padB=104;
+  var plotW=W-padL-padR,plotH=H-padT-padB,bw=plotW/n;
+  var s=svg(W,H);
+  [0,20,40,60,80,100].forEach(function(t){
+    var y=padT+plotH*(1-t/100);
+    s.appendChild(sel('line',{x1:padL,y1:y,x2:W-padR,y2:y,stroke:'var(--line)','stroke-width':1}));
+    s.appendChild(txt(padL-8,y+3,t+'%',{'font-size':9.5,fill:'var(--ink-3)','text-anchor':'end'}));
+  });
+  var pts=[];
+  P.forEach(function(p,i){
+    var bh=plotH*p.share/100,x=padL+i*bw+bw*0.18,w=bw*0.64;
+    var r=sel('rect',{x:x,y:padT+plotH-bh,width:w,height:Math.max(3,bh),rx:4,fill:'var(--accent)'});
+    r.appendChild(sel('title',{})).textContent=p.name+' — '+p.n+' findings, '+p.share+'% of all';
+    s.appendChild(r);
+    s.appendChild(txt(x+w/2,padT+plotH-bh-6,String(p.n),{'font-size':11,'font-weight':700,fill:'var(--ink)','text-anchor':'middle'}));
+    pts.push([padL+i*bw+bw/2,padT+plotH*(1-p.cum/100)]);
+    /* wrapped category label */
+    var words=p.name.split(' '),line='',lines=[];
+    words.forEach(function(wd){
+      if((line+' '+wd).trim().length>15){lines.push(line.trim());line=wd;}else line=(line+' '+wd).trim();
+    });
+    if(line)lines.push(line);
+    lines.slice(0,4).forEach(function(ln,k){
+      s.appendChild(txt(padL+i*bw+bw/2,padT+plotH+15+k*11,ln,
+        {'font-size':9.5,fill:'var(--ink-2)','text-anchor':'middle','font-family':'var(--ui)'}));
+    });
+  });
+  var d=pts.map(function(p,i){return (i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1);}).join(' ');
+  s.appendChild(sel('path',{d:d,fill:'none',stroke:'var(--ochre)','stroke-width':2,'stroke-linejoin':'round'}));
+  pts.forEach(function(p,i){
+    s.appendChild(sel('circle',{cx:p[0],cy:p[1],r:4.5,fill:'var(--ochre)',stroke:'var(--surface)','stroke-width':2}));
+    if(i===0||i===6||i===n-1)
+      s.appendChild(txt(p[0],p[1]-10,P[i].cum+'%',{'font-size':10,'font-weight':700,fill:'var(--ochre)','text-anchor':'middle'}));
+  });
+  /* 80% guide */
+  var y80=padT+plotH*0.2;
+  s.appendChild(sel('line',{x1:padL,y1:y80,x2:W-padR,y2:y80,stroke:'var(--ochre)','stroke-width':1,'stroke-dasharray':'4 4',opacity:.65}));
+  s.appendChild(txt(W-padR-2,y80-5,'80% line',{'font-size':9.5,fill:'var(--ochre)','text-anchor':'end'}));
+  host.appendChild(s);
+}
+
+/* ---------- heatmap ---------- */
+function heat(){
+  var host=document.getElementById('heat');host.textContent='';
+  var t=el('table','hm');
+  var thead=el('thead'),hr=el('tr');
+  hr.appendChild(el('th','rk','Parameter'));
+  AGENTS.forEach(function(a){hr.appendChild(el('th',null,a));});
+  hr.appendChild(el('th',null,'Team'));
+  hr.appendChild(el('th',null,'Lost'));
+  thead.appendChild(hr);t.appendChild(thead);
+  var tb=el('tbody');
+  var byKey={};D.pareto_points.forEach(function(p){byKey[p.key]=p;});
+  D.rubric.forEach(function(r){
+    var tr=el('tr');
+    var th=el('th','rk',r[1]);th.appendChild(el('div','lbl',r[2]+' pts'));tr.appendChild(th);
+    AGENTS.concat(['__team']).forEach(function(a){
+      var v=(a==='__team')?D.team[r[0]]:D.profile[a][r[0]];
+      var td=el('td');
+      var c=el('div','cell',v+'%');
+      var f=Math.max(0,Math.min(1,(v-25)/65));
+      c.style.background='color-mix(in srgb, var(--accent) '+Math.round(12+f*76)+'%, var(--surface-2))';
+      c.style.color=f>0.55?'var(--on-accent)':'var(--ink)';
+      if(a==='__team')c.style.outline='1px solid var(--line-2)';
+      c.title=(a==='__team'?'Team':a)+' — '+r[1]+': '+v+'% of the available points';
+      td.appendChild(c);tr.appendChild(td);
+    });
+    var td=el('td');var c=el('div','cell','−'+byKey[r[0]].lost);
+    c.style.background='var(--surface-2)';c.style.color='var(--fail)';
+    c.title=byKey[r[0]].lost+' points lost of '+byKey[r[0]].exposure+' available across 16 tickets';
+    td.appendChild(c);tr.appendChild(td);
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb);host.appendChild(t);
+}
+
+/* ---------- root cause ---------- */
+function rootcause(){
+  var host=document.getElementById('rootcause');host.textContent='';
+  D.roots.forEach(function(r){
+    var d=el('div','rc');
+    d.appendChild(el('h3',null,r.title));
+    d.appendChild(el('div','tagline',r.tag));
+    var dl=el('dl');
+    function row(k,v,html){dl.appendChild(el('dt',null,k));
+      var dd=el('dd');if(html)dd.innerHTML=v;else dd.textContent=v;dl.appendChild(dd);}
+    row('Evidence',r.evidence);
+    var whyDD=el('dd'),ul=el('ul','why');
+    r.why.forEach(function(w){ul.appendChild(el('li',null,w));});
+    dl.appendChild(el('dt',null,'Why'));whyDD.appendChild(ul);dl.appendChild(whyDD);
+    row('Costs us',r.cost,true);
+    row('Fix',r.fix,true);
+    dl.appendChild(el('dt',null,'Recovers'));
+    var rd=el('dd');rd.innerHTML='<b>'+r.recover+' points</b> of the 635 forfeited · '+r.params;
+    dl.appendChild(rd);
+    d.appendChild(dl);
+    host.appendChild(d);
+  });
+}
+
+/* ---------- action plan ---------- */
+function plan(){
+  var tb=document.querySelector('#planTbl tbody');tb.textContent='';
+  D.plan.forEach(function(p){
+    var tr=el('tr');
+    var td0=el('td');
+    var sp=el('span','pri p'+p.pri,'P'+p.pri);td0.appendChild(sp);
+    tr.appendChild(td0);
+    var td1=el('td');td1.innerHTML='<b>'+p.action+'</b><br><span style="color:var(--ink-3)">'+p.detail+'</span>';
+    tr.appendChild(td1);
+    tr.appendChild(el('td',null,p.owner));
+    tr.appendChild(el('td',null,p.when));
+    tr.appendChild(el('td','num',String(p.n)));
+    tr.appendChild(el('td','num','+'+p.pts));
+    tb.appendChild(tr);
+  });
+}
+
+/* ---------- findings list (filtered) ---------- */
+function findings(){
+  var host=document.getElementById('findings');host.textContent='';
+  var rows=D.findings.filter(function(f){
+    if(fAgent&&f.agent!==fAgent)return false;
+    if(fCat&&f.cat!==fCat)return false;
+    if(fSev&&f.sev!==fSev)return false;
+    if(fQ){var h=(f.text+' '+f.agent+' '+f.order+' '+f.catName).toLowerCase();
+      if(h.indexOf(fQ)<0)return false;}
+    return true;
+  });
+  document.getElementById('findCount').textContent=rows.length+' of '+D.findings.length+' shown';
+  if(!rows.length){host.appendChild(el('div','empty','Nothing matches those filters.'));return;}
+  var byCat={};rows.forEach(function(f){(byCat[f.catName]=byCat[f.catName]||[]).push(f);});
+  Object.keys(byCat).sort(function(a,b){return byCat[b].length-byCat[a].length;}).forEach(function(cn){
+    var h=el('h4',null,cn+'  ·  '+byCat[cn].length);
+    h.style.cssText='font-size:12px;margin:14px 0 6px;color:var(--ink)';
+    host.appendChild(h);
+    var dl=el('div','dl');
+    byCat[cn].forEach(function(f){
+      var r=el('div','row');
+      r.appendChild(el('div','sev '+f.sev,f.sev==='fail'?'Defect':'Watch'));
+      r.appendChild(el('div','who',f.agent+' '+f.order));
+      r.appendChild(el('div',null,f.text));
+      dl.appendChild(r);
+    });
+    host.appendChild(dl);
+  });
+}
+
+/* ---------- agent panels ---------- */
+function agentPanels(){
+  var host=document.getElementById('agents');host.textContent='';
+  AGENTS.forEach(function(a){
+    if(fAgent&&fAgent!==a)return;
+    var p=D.agentReport[a];
+    var d=el('div','agpanel');
+    var h=el('div','aghead');
+    var left=el('div');
+    left.appendChild(el('span','nm',a));
+    left.appendChild(document.createTextNode(' '));
+    left.appendChild(el('span','re',PERSON[a]));
+    h.appendChild(left);
+    var sc=el('div','sc',D.avg[a]+' / 100');sc.style.color=col(D.avg[a]/100);
+    h.appendChild(sc);d.appendChild(h);
+    var b=el('div','agbody');
+    function blk(cls,title,items,ordered){
+      var x=el('div','blk '+cls);x.appendChild(el('h4',null,title));
+      var l=el(ordered?'ol':'ul');
+      items.forEach(function(i){var li=el('li');li.innerHTML=i;l.appendChild(li);});
+      x.appendChild(l);b.appendChild(x);
+    }
+    blk('s','Strengths',p.strengths);
+    blk('m','Most common mistakes',p.mistakes);
+    blk('i','What to improve first',p.improve);
+    blk('a','Action plan',p.plan,true);
+    d.appendChild(b);host.appendChild(d);
+  });
+}
+
+/* ---------- filters ---------- */
+function buildFilters(){
+  var seg=document.getElementById('agentSeg');
+  [''].concat(AGENTS).forEach(function(a){
+    var b=el('button',null,a||'All agents');b.type='button';
+    b.setAttribute('aria-pressed',fAgent===a?'true':'false');
+    b.onclick=function(){fAgent=a;render();};
+    seg.appendChild(b);
+  });
+  var cf=document.getElementById('catFilter');
+  D.cat_pareto.forEach(function(c){
+    var o=document.createElement('option');o.value=c.key;o.textContent=c.name+' ('+c.n+')';cf.appendChild(o);
+  });
+  cf.onchange=function(){fCat=this.value;render();};
+  document.getElementById('sevFilter').onchange=function(){fSev=this.value;render();};
+  document.getElementById('search').addEventListener('input',function(){fQ=this.value.trim().toLowerCase();findings();});
+  document.getElementById('clearF').onclick=function(){
+    fAgent='';fCat='';fSev='';fQ='';
+    document.getElementById('catFilter').value='';
+    document.getElementById('sevFilter').value='';
+    document.getElementById('search').value='';
+    render();
+  };
+}
+function syncSeg(){
+  var bs=document.getElementById('agentSeg').children;
+  var vals=[''].concat(AGENTS);
+  for(var i=0;i<bs.length;i++)bs[i].setAttribute('aria-pressed',fAgent===vals[i]?'true':'false');
+}
+function render(){syncSeg();findings();agentPanels();}
+
+document.getElementById('foot').innerHTML=
+ '<b>Method.</b> All 1,300 Clarendale USA tickets opened in ISO week 35 (24–30 Aug 2026) were pulled from the Re:amaze API and grouped by assignee. '+
+ 'Four tickets per agent were selected — in each case one where that agent wrote the largest share of the staff replies. Each was scored against a 10-parameter, 100-point rubric, '+
+ 'and every finding was tagged to one of twelve mistake types. The Pareto is built from those 62 tagged findings; the heatmap is built from the 1,600 rubric points available across the 16 tickets.'+
+ '<br><br><b>Two Paretos, same conclusion.</b> By finding count, seven of twelve mistake types cover 79%. By rubric points, four of ten parameters cover 56% — '+
+ 'ladder discipline, accuracy, reading the ticket, and choosing the right playbook. Both point at the same four root causes below.'+
+ '<br><br><b>Caveat.</b> The rubric is provisional: it was derived from the Notion playbook and the ladder these threads actually run, not from the previous quality checks in Gmail. '+
+ 'Scores and weights may shift once those are available, but the findings themselves are quotes from the tickets and do not depend on the weighting.';
+
+kpis();agentChart();dotChart();pareto();heat();rootcause();plan();buildFilters();render();
+
+var GATE_HASH=1641801224, GK='qa_gate_unlocked_v1';
+function djb2(s){var x=5381;for(var i=0;i<s.length;i++)x=((x*33)+s.charCodeAt(i))>>>0;return x;}
+var gate=document.getElementById('gate'),appRoot=document.getElementById('appRoot');
+function unlock(){gate.hidden=true;gate.style.display='none';appRoot.hidden=false;}
+function tryUnlock(){
+  var pw=document.getElementById('gatePw').value;
+  if(djb2(pw)===GATE_HASH){try{localStorage.setItem(GK,'1');}catch(e){}unlock();}
+  else{document.getElementById('gateErr').textContent='Incorrect password.';}
+}
+var pwEl=document.getElementById('gatePw'),showEl=document.getElementById('gateShow');
+showEl.addEventListener('click',function(){
+  var showing=pwEl.type==='text';
+  pwEl.type=showing?'password':'text';
+  showEl.textContent=showing?'Show':'Hide';
+  showEl.setAttribute('aria-pressed',showing?'false':'true');
+  pwEl.focus();
+  var n=pwEl.value.length;try{pwEl.setSelectionRange(n,n);}catch(e){}
+});
+document.getElementById('gateBtn').addEventListener('click',tryUnlock);
+document.getElementById('gatePw').addEventListener('keydown',function(e){if(e.key==='Enter')tryUnlock();});
+var already=false;try{already=localStorage.getItem(GK)==='1';}catch(e){}
+if(already)unlock();else document.getElementById('gatePw').focus();
+})();
+</script>
+
+</body>
+</html>
