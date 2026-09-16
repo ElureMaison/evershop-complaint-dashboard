@@ -204,7 +204,8 @@ footer b{color:var(--ink-2)}
 .gate-row{display:flex;gap:8px}
 .gate-row input{flex:1;min-width:0;padding:9px 12px;border:1px solid var(--line-2);border-radius:5px;background:var(--surface-2);color:var(--ink);font:14px var(--ui)}
 .gate-row button{padding:9px 16px;border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);border-radius:5px;font:600 13px var(--ui);cursor:pointer}
-.gate-row button#gateShow{flex:none;padding:9px 12px;background:var(--surface-2);border-color:var(--line-2);color:var(--ink-2);font-weight:600;font-size:12px;min-width:56px}
+.gate-row button#gateShow{flex:none;padding:0;width:40px;display:flex;align-items:center;justify-content:center;background:var(--surface-2);border-color:var(--line-2);color:var(--ink-3)}
+.gate-row button#gateShow svg{display:block}
 .gate-row button#gateShow:hover{border-color:var(--accent);color:var(--accent)}
 .gate-row button#gateShow[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
 .gate-err{color:var(--fail);font-size:12.5px;margin-top:10px;min-height:16px}
@@ -225,7 +226,7 @@ footer b{color:var(--ink-2)}
     <p>Week 35 quality review. Same password as the CJ and WIIO trackers.</p>
     <div class="gate-row">
       <input type="password" id="gatePw" placeholder="Password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-      <button id="gateShow" type="button" title="Show or hide the password" aria-pressed="false">Show</button>
+      <button id="gateShow" type="button" title="Show password" aria-label="Show password" aria-pressed="false"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 12S5.5 4.5 12 4.5 22.5 12 22.5 12 18.5 19.5 12 19.5 1.5 12 1.5 12z"/><circle cx="12" cy="12" r="3.2"/></svg></button>
       <button id="gateBtn" type="button">Unlock</button>
     </div>
     <div class="gate-err" id="gateErr"></div>
@@ -657,31 +658,46 @@ document.getElementById('note').addEventListener('input',function(){S[cur][slugs
 document.getElementById('note').addEventListener('blur',save);
 
 function renderAll(){renderStrip();renderNav();renderTicket();renderWindow();renderScore();renderPick();}
-renderAll();renderRef();
 
-/* ---- gate (same password as the CJ / WIIO trackers) ---- */
-var GATE_HASH=1641801224, GK='qa_gate_unlocked_v1';
+
+/* ---- gate: bound before anything that can throw ---- */
+var GATE_HASH=1641801224, GK='qa_gate_unlocked_v1', booted=false;
 function djb2(s){var x=5381;for(var i=0;i<s.length;i++)x=((x*33)+s.charCodeAt(i))>>>0;return x;}
 var gate=document.getElementById('gate'),appRoot=document.getElementById('appRoot');
-function unlock(){gate.hidden=true;gate.style.display='none';appRoot.hidden=false;}
-function tryUnlock(){
-  var pw=document.getElementById('gatePw').value;
-  if(djb2(pw)===GATE_HASH){try{localStorage.setItem(GK,'1');}catch(e){}unlock();}
-  else{document.getElementById('gateErr').textContent='Incorrect password.';}
-}
 var pwEl=document.getElementById('gatePw'),showEl=document.getElementById('gateShow');
+var EYE_ON='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 12S5.5 4.5 12 4.5 22.5 12 22.5 12 18.5 19.5 12 19.5 1.5 12 1.5 12z"/><circle cx="12" cy="12" r="3.2"/></svg>';
+var EYE_OFF='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 12S5.5 4.5 12 4.5c1.7 0 3.2.5 4.5 1.2M22.5 12s-1.6 3-4.6 4.9M9.9 9.9a3.2 3.2 0 004.2 4.2"/><line x1="3" y1="3" x2="21" y2="21"/></svg>';
+function boot(){
+  if(booted)return; booted=true;
+  try{ renderAll();renderRef(); }
+  catch(err){
+    appRoot.innerHTML='<div style="max-width:640px;margin:60px auto;padding:22px;border:1px solid var(--fail);'+
+      'background:var(--fail-soft);color:var(--fail);border-radius:6px;font:14px/1.6 var(--ui)">'+
+      '<b>This page failed to render.</b><br>'+String(err&&err.message||err)+
+      '<br><br style="color:var(--ink-2)">The data is still in the page source; this is a display fault.</div>';
+    if(window.console)console.error(err);
+  }
+}
+function unlock(){gate.hidden=true;gate.style.display='none';appRoot.hidden=false;boot();}
+function tryUnlock(){
+  if(djb2(pwEl.value)===GATE_HASH){try{localStorage.setItem(GK,'1');}catch(e){}unlock();}
+  else{document.getElementById('gateErr').textContent='Incorrect password.';pwEl.select();}
+}
 showEl.addEventListener('click',function(){
   var showing=pwEl.type==='text';
   pwEl.type=showing?'password':'text';
-  showEl.textContent=showing?'Show':'Hide';
+  showEl.innerHTML=showing?EYE_ON:EYE_OFF;
   showEl.setAttribute('aria-pressed',showing?'false':'true');
+  showEl.setAttribute('aria-label',showing?'Show password':'Hide password');
+  showEl.title=showing?'Show password':'Hide password';
   pwEl.focus();
   var n=pwEl.value.length;try{pwEl.setSelectionRange(n,n);}catch(e){}
 });
 document.getElementById('gateBtn').addEventListener('click',tryUnlock);
-document.getElementById('gatePw').addEventListener('keydown',function(e){if(e.key==='Enter')tryUnlock();});
+pwEl.addEventListener('keydown',function(e){if(e.key==='Enter')tryUnlock();});
+pwEl.addEventListener('input',function(){document.getElementById('gateErr').textContent='';});
 var already=false;try{already=localStorage.getItem(GK)==='1';}catch(e){}
-if(already)unlock();else document.getElementById('gatePw').focus();
+if(already)unlock();else pwEl.focus();
 })();
 </script>
 
