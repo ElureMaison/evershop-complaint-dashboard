@@ -231,7 +231,7 @@ footer b{color:var(--ink-2)}
       <button id="gateBtn" type="button">Unlock</button>
     </div>
     <div class="gate-err" id="gateErr"></div>
-    <div class="build">build 2026-09-17 01:55</div>
+    <div class="build">build 2026-09-17 02:03</div>
   </div>
 </div>
 
@@ -246,7 +246,7 @@ footer b{color:var(--ink-2)}
         <a href="https://cookie-shop-ff7.notion.site/Team-quality-checks-3482916b2461806680f0ceee6eaa3c66" target="_blank" rel="noopener">Notion — Team quality checks ↗</a>
       </div>
     </div>
-    <div class="lbl" style="align-self:flex-end">build 2026-09-17 01:55</div>
+    <div class="lbl" style="align-self:flex-end">build 2026-09-17 02:03</div>
     <div class="hmeta">
       <div><span class="lbl">Source</span><span class="v">Re:amaze · Clarendale USA</span></div>
       <div><span class="lbl">Tickets that week</span><span class="v">1,300</span></div>
@@ -298,6 +298,7 @@ footer b{color:var(--ink-2)}
             <div><span class="pill" id="totPill">—</span></div>
           </div>
         </div>
+        <div class="winbox" id="winbox"></div>
         <div class="seg">
           <button type="button" id="segEv" aria-pressed="true">What happened here</button>
           <button type="button" id="segCo" aria-pressed="false">Coaching</button>
@@ -381,6 +382,7 @@ try{var raw=localStorage.getItem(KEY);if(raw){var p=JSON.parse(raw);
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));flash('Saved');}catch(e){flash('Not saved — storage blocked');}}
 var ft;function flash(m){var el=document.getElementById('saved');el.textContent=m;clearTimeout(ft);ft=setTimeout(function(){el.textContent='';},2000);}
 
+function $(id){var n=document.getElementById(id);if(!n&&window.console)console.warn('missing #'+id);return n||document.createElement('div');}
 function el(t,c,x){var n=document.createElement(t);if(c)n.className=c;if(x!=null)n.textContent=x;return n;}
 function fmt(iso){var d=new Date(iso),M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   function p(n){return(n<10?'0':'')+n;}
