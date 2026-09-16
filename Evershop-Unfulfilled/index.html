@@ -33,6 +33,17 @@
           border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--text)}
   input#q::placeholder{color:var(--dim)}
   .filters{display:flex;gap:4px;flex-wrap:wrap}
+  /* Order-date range. Ages are what actually matter on an unfulfilled list --
+     "sitting 30+ days" is a different conversation from "placed yesterday" --
+     so the presets are ages, with explicit dates underneath for anything else. */
+  .dates{display:flex;gap:6px;align-items:center;margin:8px 0 6px}
+  .dates input{flex:1;min-width:0;font:inherit;font-size:11px;padding:4px 7px;border-radius:4px;
+               border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--text)}
+  .dates input:focus{outline:none;border-color:rgba(82,156,202,.55)}
+  .dates span{font-size:10px;color:var(--dim)}
+  .dates button{font:inherit;font-size:10px;padding:4px 8px;border-radius:4px;cursor:pointer;
+                border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--soft)}
+  .dates button:hover{background:rgba(255,255,255,.12);color:var(--text)}
   .filters button{font:inherit;font-size:10px;font-weight:500;padding:3px 9px;border-radius:4px;
                   border:1px solid transparent;background:rgba(255,255,255,.06);color:var(--soft);cursor:pointer}
   .filters button:hover{background:rgba(255,255,255,.1);color:var(--text)}
@@ -86,6 +97,12 @@
   .open-link{font:inherit;font-size:10.5px;font-weight:600;padding:4px 11px;border-radius:5px;
              text-decoration:none;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--soft)}
   .open-link:hover{background:rgba(255,255,255,.12);color:var(--text)}
+  button.copycode{font:inherit;font-size:10.5px;font-weight:600;padding:4px 11px;border-radius:5px;cursor:pointer;
+                  border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--soft)}
+  button.copycode:hover{background:rgba(255,255,255,.12);color:var(--text)}
+  button.copycode.ok{border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.18);color:var(--green)}
+  code.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;
+            background:var(--card);border:1px solid var(--line-soft);border-radius:4px;padding:1px 6px}
   .checks{display:flex;gap:22px;flex-wrap:wrap;align-items:center}
   .check{display:flex;gap:8px;align-items:center;font-size:12.5px;cursor:pointer;user-select:none}
   .check input{width:15px;height:15px;accent-color:var(--green);cursor:pointer}
@@ -126,6 +143,16 @@
   .gate button{font:inherit;font-size:13px;font-weight:600;padding:9px 12px;border-radius:6px;cursor:pointer;
                border:1px solid rgba(82,156,202,.45);background:rgba(82,156,202,.2);color:#8ec0ea}
   .gate .bad{color:var(--red);font-size:12px;min-height:16px}
+  /* The field and its reveal toggle share one bordered box, so the eye reads
+     as part of the input rather than a button parked beside it. */
+  .pwbox{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:6px;
+         background:rgba(0,0,0,.3);overflow:hidden}
+  .pwbox:focus-within{border-color:rgba(82,156,202,.6)}
+  .pwbox input{flex:1;border:none;background:transparent;border-radius:0;text-align:left;padding:9px 12px}
+  .pwbox input:focus{outline:none}
+  .pwbox button{border:none;background:transparent;color:var(--dim);cursor:pointer;
+                padding:0 12px;font:inherit;font-size:11px;font-weight:600;letter-spacing:.04em}
+  .pwbox button:hover{color:var(--text)}
   @media(max-width:860px){
     .app{grid-template-columns:1fr}.list{max-height:38vh}
     .actions-bar{left:0;padding:10px 16px}.actions-bar .hint{display:none}
@@ -137,7 +164,10 @@
   <form id="gateform" autocomplete="off">
     <h2>Evershop · Unfulfilled orders</h2>
     <p>This page lists real customer details. Enter the team password to continue.</p>
-    <input type="password" id="pw" placeholder="Password" autofocus>
+    <div class="pwbox">
+      <input type="password" id="pw" placeholder="Password" autofocus>
+      <button type="button" id="pwtoggle" aria-label="Show password" aria-pressed="false">SHOW</button>
+    </div>
     <button type="submit">Open</button>
     <div class="bad" id="gatebad"></div>
   </form>
@@ -149,6 +179,12 @@
         <button class="headbtn" id="refresh" style="float:right">Refresh</button></h1>
       <div class="counts" id="counts"></div>
       <input id="q" placeholder="Search order, customer, product, tracking…" autocomplete="off">
+      <div class="dates">
+        <input type="date" id="from" aria-label="Orders placed on or after">
+        <span>to</span>
+        <input type="date" id="to" aria-label="Orders placed on or before">
+        <button id="datesclear" type="button">Clear</button>
+      </div>
       <div class="filters" id="filters"></div>
     </div>
     <div id="rows"></div>
@@ -196,15 +232,25 @@ const esc = s => (s==null?"":String(s)).replace(/[&<>"]/g, c => ({'&':'&amp;','<
 // checked, not content -- show them greyed rather than as if they were data.
 const isNote = v => /^(No |Not |WIIO after-sale record on file)/i.test((v||"").trim());
 
-let filter = "open", q = "", current = null;
+let filter = "open", q = "", current = null, from = "", to = "";
+const DAY = 86400000;
+function ageDays(o){
+  // Dates are ISO on every row (the Miyora/Lume Haven relative text was
+  // normalised), so a plain Date parse is safe here.
+  const t = Date.parse(o.date);
+  return isNaN(t) ? null : Math.floor((Date.now() - t) / DAY);
+}
 const FILTERS = [
   ["open","Still unfulfilled"], ["all","All"],
+  ["age7","0-7 days"], ["age30","8-30 days"], ["age30plus","30+ days"],
   ["Clarendale","Clarendale"], ["Lark & Clover","Lark & Clover"],
   ["Miyora","Miyora"], ["Lume Haven","Lume Haven"],
   ["notrack","No tracking"], ["cj","CJ"], ["wiio","WIIO"],
 ];
 
 function match(o){
+  if (from && (!o.date || o.date < from)) return false;
+  if (to && (!o.date || o.date > to)) return false;
   if (q){
     const hay = [o.order,o.customer,o.product,o.tracking,o.email,o.supplier].join(" ").toLowerCase();
     if (!hay.includes(q)) return false;
@@ -212,6 +258,9 @@ function match(o){
   switch(filter){
     case "all": return true;
     case "open": return o.checkin === "Still unfulfilled";
+    case "age7":     { const d = ageDays(o); return d !== null && d <= 7; }
+    case "age30":    { const d = ageDays(o); return d !== null && d > 7 && d <= 30; }
+    case "age30plus":{ const d = ageDays(o); return d !== null && d > 30; }
     case "notrack": return !o.tracking || isNote(o.tracking);
     case "cj": return /CJ/.test(o.supplier);
     case "wiio": return /WIIO/.test(o.supplier);
@@ -260,6 +309,13 @@ function sendVerdict(verdict, comment){
                   if (verdict === "Inaccurate") $("#fb").value = ""; })
     .catch(() => { st.textContent = "could not save"; });
 }
+function cjCodeButton(o){
+  // CJ's order list is not addressable per order, so the next best thing is
+  // one click to put the order number on the clipboard ready for CJ's search
+  // box. Prefers the store order number, which is what that box expects.
+  if (!/CJ/.test(o.supplier)) return "";
+  return `<button class="copycode" data-copycode="${esc(o.order)}">Copy order no.</button>`;
+}
 function supplierLink(o){
   const l = (o.link||"").trim();
   if (/^https?:/.test(l)) return `<a class="open-link" href="${esc(l)}" target="_blank" rel="noopener">Open supplier →</a>`;
@@ -295,7 +351,7 @@ function renderDetail(o){
     </div></div>
 
     <div class="panel"><div class="panel-head"><span class="grow">Proposed message to supplier — ${esc(o.supplier)}</span>
-      ${supplierLink(o)}<button class="copy" data-copy="s">Copy</button></div>
+      ${supplierLink(o)}${cjCodeButton(o)}<button class="copy" data-copy="s">Copy</button></div>
       <div class="section"><pre class="draft" id="d-s">${esc(o.to_supplier)}</pre></div></div>
 
     <div class="panel"><div class="panel-head"><span class="grow">Proposed email to customer</span>
@@ -312,6 +368,8 @@ function renderDetail(o){
 
     <div class="panel"><div class="panel-head">Supplier</div><div class="section"><div class="facts">
       ${fact("Supplier",o.supplier)}${fact("Order status",o.order_status)}
+      ${o.cj_code ? `<div class="fact"><span>CJ order</span><span><code class="mono">${esc(o.cj_code)}</code></span></div>` : ""}
+      ${fact("CJ status",o.cj_status)}${fact("CJ tracking",o.cj_tracking)}
       ${fact("Tracking",o.tracking)}
       ${o.link && /^https?:/.test(o.link) ? fact("Supplier order",o.link,{link:true,label:"Open supplier record →"}) : fact("Supplier order",o.link)}
       ${fact("Date reported",o.reported)}${fact("Date updated",o.updated)}
@@ -381,6 +439,14 @@ document.addEventListener("click", e => {
       .finally(() => wrap.classList.remove("saving"));
     return;
   }
+  const cc = e.target.closest("[data-copycode]");
+  if (cc){
+    navigator.clipboard.writeText(cc.dataset.copycode).then(() => {
+      cc.textContent = "Copied"; cc.classList.add("ok");
+      setTimeout(() => { cc.textContent = "Copy order no."; cc.classList.remove("ok"); }, 1400);
+    });
+    return;
+  }
   const c = e.target.closest("[data-copy]");
   if (c){
     const text = $("#d-" + c.dataset.copy).textContent;
@@ -391,6 +457,11 @@ document.addEventListener("click", e => {
   }
 });
 $("#q").addEventListener("input", e => { q = e.target.value.trim().toLowerCase(); renderList(); });
+$("#from").addEventListener("change", e => { from = e.target.value; renderList(); });
+$("#to").addEventListener("change", e => { to = e.target.value; renderList(); });
+$("#datesclear").addEventListener("click", () => {
+  from = to = ""; $("#from").value = ""; $("#to").value = ""; renderList();
+});
 
 async function load(){
   const b = $("#refresh"); b.classList.add("busy"); b.textContent = "Loading…";
@@ -414,6 +485,15 @@ async function load(){
 $("#refresh").addEventListener("click", load);
 
 const PW = "Clarendaleronce00!";
+const pwToggle = $("#pwtoggle");
+if (pwToggle) pwToggle.addEventListener("click", () => {
+  const f = $("#pw"), show = f.type === "password";
+  f.type = show ? "text" : "password";
+  pwToggle.textContent = show ? "HIDE" : "SHOW";
+  pwToggle.setAttribute("aria-pressed", String(show));
+  pwToggle.setAttribute("aria-label", show ? "Hide password" : "Show password");
+  f.focus();
+});
 function unlock(){
   $("#gate").remove();
   load();
