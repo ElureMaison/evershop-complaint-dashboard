@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Evershop · Unfulfilled orders</title>
+<style>
+  /*
+    Same shape as the ticket review portal: the order list on the left, one
+    column of stacked panels on the right. The two drafts sit at the top
+    because they are what you came to do; the full Shopify and supplier record
+    is underneath, folded away, for when you need to check something.
+  */
+  :root{
+    --bg:#212121; --pane:#282828; --card:#2e2e2e; --head:#333333;
+    --line:rgba(255,255,255,.10); --line-soft:rgba(255,255,255,.07);
+    --text:rgba(255,255,255,.92); --soft:rgba(255,255,255,.58); --dim:rgba(255,255,255,.38);
+    --green:#34D399; --red:#FF7369; --orange:#FFA344; --blue:#529CCA;
+    --font:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  body{margin:0;font:14px/1.6 var(--font);background:var(--bg);color:var(--text);
+       height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased}
+  .app{display:grid;grid-template-columns:330px 1fr;height:100vh}
+  .list{border-right:1px solid var(--line-soft);overflow-y:auto;background:var(--pane)}
+  .bar{position:sticky;top:0;background:var(--head);padding:14px 16px;z-index:2;border-bottom:1px solid var(--line)}
+  .bar h1{margin:0 0 9px;font-size:13px;font-weight:600}
+  .counts{display:flex;gap:12px;font-size:10px;color:var(--dim);margin-bottom:9px;
+          font-variant-numeric:tabular-nums;flex-wrap:wrap}
+  .counts b{color:var(--text);font-weight:600}
+  input#q{width:100%;font:inherit;font-size:12px;padding:6px 9px;border-radius:5px;margin-bottom:8px;
+          border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--text)}
+  input#q::placeholder{color:var(--dim)}
+  .filters{display:flex;gap:4px;flex-wrap:wrap}
+  .filters button{font:inherit;font-size:10px;font-weight:500;padding:3px 9px;border-radius:4px;
+                  border:1px solid transparent;background:rgba(255,255,255,.06);color:var(--soft);cursor:pointer}
+  .filters button:hover{background:rgba(255,255,255,.1);color:var(--text)}
+  .filters button.on{background:rgba(82,156,202,.2);border-color:rgba(82,156,202,.45);color:#8ec0ea}
+  .row{padding:11px 16px;cursor:pointer;border-bottom:1px solid var(--line-soft)}
+  .row:hover{background:rgba(255,255,255,.04)}
+  .row.active{background:rgba(82,156,202,.12);box-shadow:inset 2px 0 0 var(--blue)}
+  .row .subject{font-size:12.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px}
+  .row .meta{display:flex;gap:7px;align-items:center;font-size:10px;color:var(--dim);overflow:hidden;white-space:nowrap}
+  .dot{width:5px;height:5px;border-radius:50%;flex:0 0 auto;background:var(--soft)}
+  .dot.open{background:var(--orange)} .dot.done{background:var(--green)} .dot.stop{background:var(--red)}
+  .list-empty{padding:24px 16px;color:var(--dim);font-size:12px}
+  .detail{overflow-y:auto;padding:26px 30px 150px}
+  .empty{display:grid;place-items:center;height:100%;color:var(--dim);font-size:13px}
+  .column{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+  .panel{border:1px solid var(--line);border-radius:7px;overflow:hidden;background:var(--pane)}
+  .panel > .panel-head{background:var(--head);padding:9px 15px;font-size:12.5px;font-weight:600;
+                       border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+  .panel-head .grow{flex:1}
+  .section{padding:15px}
+  h2.title{margin:0;font-size:15px;font-weight:600;line-height:1.4}
+  .sub{margin-top:5px;font-size:11.5px;color:var(--dim)}
+  .sub a{color:var(--blue);text-decoration:none}
+  .badge{display:inline-block;border:1px solid var(--line);border-radius:4px;padding:0 7px;
+         font-size:10.5px;font-weight:600;margin-left:6px;vertical-align:2px}
+  .badge.open{color:var(--orange);border-color:rgba(255,163,68,.4)}
+  .badge.done{color:var(--green);border-color:rgba(52,211,153,.4)}
+  .badge.stop{color:var(--red);border-color:rgba(255,115,105,.4)}
+  .facts{display:flex;flex-direction:column;gap:7px;font-size:12.5px}
+  .fact{display:grid;grid-template-columns:150px 1fr;gap:12px;align-items:baseline}
+  .fact > span:first-child{color:var(--dim);font-size:10px;text-transform:uppercase;
+                           letter-spacing:.05em;font-weight:600;padding-top:2px}
+  .fact a{color:var(--blue);text-decoration:none;word-break:break-all}
+  .fact .muted{color:var(--dim)}
+  .draft{white-space:pre-wrap;font-size:13.5px;line-height:1.7;background:var(--card);
+         border:1px solid var(--line-soft);border-radius:6px;padding:13px;margin:0}
+  button.copy{font:inherit;font-size:10.5px;font-weight:600;padding:4px 11px;border-radius:5px;cursor:pointer;
+              border:1px solid rgba(82,156,202,.45);background:rgba(82,156,202,.18);color:#8ec0ea}
+  button.copy:hover{background:rgba(82,156,202,.3)}
+  button.copy.ok{border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.18);color:var(--green)}
+  details summary{cursor:pointer;list-style:none;padding:9px 15px;font-size:12px;font-weight:600;
+                  color:var(--soft);background:var(--head);user-select:none}
+  details summary::-webkit-details-marker{display:none}
+  details summary:hover{color:var(--text)}
+  details[open] summary{border-bottom:1px solid var(--line)}
+  .quote{white-space:pre-wrap;font-size:12.5px;line-height:1.65;color:var(--soft)}
+  .headbtn{font:inherit;font-size:10px;font-weight:600;padding:3px 9px;border-radius:4px;cursor:pointer;
+           border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--soft)}
+  .headbtn:hover{background:rgba(255,255,255,.12);color:var(--text)}
+  .headbtn.busy{opacity:.5;pointer-events:none}
+  .open-link{font:inherit;font-size:10.5px;font-weight:600;padding:4px 11px;border-radius:5px;
+             text-decoration:none;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--soft)}
+  .open-link:hover{background:rgba(255,255,255,.12);color:var(--text)}
+  .checks{display:flex;gap:22px;flex-wrap:wrap;align-items:center}
+  .check{display:flex;gap:8px;align-items:center;font-size:12.5px;cursor:pointer;user-select:none}
+  .check input{width:15px;height:15px;accent-color:var(--green);cursor:pointer}
+  .check.saving{opacity:.5;pointer-events:none}
+  .check .state{font-size:10px;color:var(--dim)}
+  .warn{font-size:11px;color:var(--orange);margin-top:9px;line-height:1.5}
+  .verdict{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+  .vb{font:inherit;font-size:12px;font-weight:600;padding:6px 16px;border-radius:6px;cursor:pointer;
+      border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--soft)}
+  .vb:hover:not(:disabled){background:rgba(255,255,255,.12);color:var(--text)}
+  .vb:disabled{opacity:.4;cursor:default}
+  .vb.ok.on{background:rgba(52,211,153,.2);border-color:rgba(52,211,153,.5);color:var(--green)}
+  .vb.no.on{background:rgba(255,115,105,.2);border-color:rgba(255,115,105,.5);color:var(--red)}
+  .vstate{font-size:11px;color:var(--dim)}
+  textarea#fb{width:100%;font:inherit;font-size:13px;line-height:1.6;margin-top:11px;padding:10px;
+              min-height:86px;resize:vertical;border-radius:6px;border:1px solid var(--line);
+              background:rgba(0,0,0,.25);color:var(--text)}
+  textarea#fb::placeholder{color:var(--dim)}
+  .fbrow{display:flex;gap:9px;align-items:center;margin-top:9px}
+  /* The verdict sits in a fixed bar at the foot of the page: it is the last
+     thing you do, and it should stay reachable without scrolling back. */
+  .actions-bar{position:fixed;bottom:0;left:330px;right:0;background:rgba(33,33,33,.96);
+               backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:13px 30px;z-index:3}
+  .actions-row{display:flex;gap:9px;align-items:center}
+  .actions-bar .hint{margin-left:auto;font-size:10px;color:var(--dim)}
+  #fbwrap{margin-top:11px}
+  /* Password gate. This is a deterrent against a stray visitor, NOT security:
+     on a public host the password sits in this file and data.json is fetchable
+     directly, so anyone who looks can read both. It keeps the page from being
+     stumbled into or indexed, nothing more. */
+  .gate{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:var(--bg)}
+  .gate form{width:min(340px,86vw);display:flex;flex-direction:column;gap:11px;text-align:center}
+  .gate h2{margin:0;font-size:15px;font-weight:600}
+  .gate p{margin:0;font-size:12px;color:var(--dim);line-height:1.55}
+  .gate input{font:inherit;font-size:14px;padding:9px 12px;border-radius:6px;text-align:center;
+              border:1px solid var(--line);background:rgba(0,0,0,.3);color:var(--text)}
+  .gate input:focus{outline:none;border-color:rgba(82,156,202,.6)}
+  .gate button{font:inherit;font-size:13px;font-weight:600;padding:9px 12px;border-radius:6px;cursor:pointer;
+               border:1px solid rgba(82,156,202,.45);background:rgba(82,156,202,.2);color:#8ec0ea}
+  .gate .bad{color:var(--red);font-size:12px;min-height:16px}
+  @media(max-width:860px){
+    .app{grid-template-columns:1fr}.list{max-height:38vh}
+    .actions-bar{left:0;padding:10px 16px}.actions-bar .hint{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="gate" id="gate">
+  <form id="gateform" autocomplete="off">
+    <h2>Evershop · Unfulfilled orders</h2>
+    <p>This page lists real customer details. Enter the team password to continue.</p>
+    <input type="password" id="pw" placeholder="Password" autofocus>
+    <button type="submit">Open</button>
+    <div class="bad" id="gatebad"></div>
+  </form>
+</div>
+<div class="app">
+  <div class="list">
+    <div class="bar">
+      <h1>Unfulfilled orders
+        <button class="headbtn" id="refresh" style="float:right">Refresh</button></h1>
+      <div class="counts" id="counts"></div>
+      <input id="q" placeholder="Search order, customer, product, tracking…" autocomplete="off">
+      <div class="filters" id="filters"></div>
+    </div>
+    <div id="rows"></div>
+  </div>
+  <div class="detail" id="detail"><div class="empty">Pick an order on the left</div></div>
+</div>
+<div class="actions-bar" id="actions">
+  <div class="actions-row">
+    <button class="vb ok" data-verdict="Accurate" disabled>Accurate</button>
+    <button class="vb no" data-verdict="Inaccurate" disabled>Inaccurate</button>
+    <span class="vstate" id="vstate"></span>
+    <span class="hint" id="vhint">pick an order to rate its drafts — nothing is sent to anyone from here</span>
+  </div>
+  <div id="fbwrap" hidden>
+    <textarea id="fb" placeholder="Which part is wrong, and what should it say? e.g. 'supplier draft should not promise a ship date' or 'customer email should offer a replacement, not a refund'"></textarea>
+    <div class="fbrow"><button class="vb no" id="fbsend">Send feedback</button>
+      <span class="vstate">saved to the Portal Feedback tab so the drafts can be corrected</span></div>
+  </div>
+</div>
+<script>
+// Where the checkbox and verdict writes go. A static page cannot hold Google
+// credentials -- anything here is readable by anyone who opens the URL -- so
+// it POSTs to a small Apps Script that runs as the sheet's owner.
+//
+// The URL lives in config.json rather than in this file, so pointing the page
+// at a new deployment is a one-line edit to a 40-byte file (editable straight
+// from GitHub) instead of a rebuild and redeploy of the whole portal.
+let SHEET_ENDPOINT = "";
+// Re:amaze brand host per store. Each store is its own brand with its own
+// host -- "larkandclover" is a DIFFERENT brand from the jzkmeu-sn store the
+// Evershop sheet calls Lark & Clover, so one shared subdomain sent agents to
+// the wrong inbox.
+const REAMAZE_BRAND = {
+  "Clarendale":    "9diuiu-es",
+  "Lark & Clover": "jzkmeu-sn",
+  "Lume Haven":    "wwp0gv-yu",
+  "Miyora":        "miyorasg",
+};
+
+let DB = {orders: [], built: ""};
+let ORDERS = [];
+const $ = s => document.querySelector(s);
+const esc = s => (s==null?"":String(s)).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// Values written by the sheet's no-blank pass are statements about what was
+// checked, not content -- show them greyed rather than as if they were data.
+const isNote = v => /^(No |Not |WIIO after-sale record on file)/i.test((v||"").trim());
+
+let filter = "open", q = "", current = null;
+const FILTERS = [
+  ["open","Still unfulfilled"], ["all","All"],
+  ["Clarendale","Clarendale"], ["Lark & Clover","Lark & Clover"],
+  ["Miyora","Miyora"], ["Lume Haven","Lume Haven"],
+  ["notrack","No tracking"], ["cj","CJ"], ["wiio","WIIO"],
+];
+
+function match(o){
+  if (q){
+    const hay = [o.order,o.customer,o.product,o.tracking,o.email,o.supplier].join(" ").toLowerCase();
+    if (!hay.includes(q)) return false;
+  }
+  switch(filter){
+    case "all": return true;
+    case "open": return o.checkin === "Still unfulfilled";
+    case "notrack": return !o.tracking || isNote(o.tracking);
+    case "cj": return /CJ/.test(o.supplier);
+    case "wiio": return /WIIO/.test(o.supplier);
+    default: return o.store === filter;
+  }
+}
+function dotClass(o){
+  if (o.checkin === "Still unfulfilled") return "open";
+  if (o.checkin === "Cancelled") return "stop";
+  return "done";
+}
+function renderList(){
+  const shown = ORDERS.filter(match);
+  $("#counts").innerHTML =
+    `<span><b>${shown.length}</b> shown</span>`+
+    `<span><b>${ORDERS.filter(o=>o.checkin==="Still unfulfilled").length}</b> outstanding</span>`+
+    `<span><b>${ORDERS.length}</b> total</span>`+
+    `<span>built ${esc(DB.built)}</span>`;
+  $("#filters").innerHTML = FILTERS.map(([k,l]) =>
+    `<button data-f="${esc(k)}" class="${filter===k?'on':''}">${esc(l)}</button>`).join("");
+  $("#rows").innerHTML = shown.length ? shown.slice(0,600).map((o,i) =>
+    `<div class="row ${current===o?'active':''}" data-i="${ORDERS.indexOf(o)}">
+       <div class="subject">${esc(o.order)} · ${esc(o.customer)}</div>
+       <div class="meta"><span class="dot ${dotClass(o)}"></span>${esc(o.store)} · ${esc(o.supplier)} · ${esc(o.date)}</div>
+     </div>`).join("") + (shown.length>600?`<div class="list-empty">showing first 600 of ${shown.length} — narrow with search</div>`:"")
+    : `<div class="list-empty">Nothing matches.</div>`;
+}
+function fact(label, value, opts={}){
+  const v = (value==null?"":String(value)).trim();
+  if (!v) return "";
+  const body = opts.link ? `<a href="${esc(v)}" target="_blank" rel="noopener">${esc(opts.label||v)}</a>`
+                         : `<span class="${isNote(v)?'muted':''}">${esc(v)}</span>`;
+  return `<div class="fact"><span>${esc(label)}</span>${body}</div>`;
+}
+function sendVerdict(verdict, comment){
+  const st = $("#vstate");
+  if (!SHEET_ENDPOINT){ st.textContent = "not saved — no endpoint configured"; return; }
+  st.textContent = "saving…";
+  fetch(SHEET_ENDPOINT, {method:"POST", mode:"cors",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body: JSON.stringify({action:"feedback", store: current.store, order: current.order,
+                          verdict, comment,
+                          to_supplier: current.to_supplier, to_customer: current.to_customer})})
+    .then(r => r.json())
+    .then(() => { st.textContent = verdict === "Accurate" ? "marked accurate" : "feedback sent — thank you";
+                  if (verdict === "Inaccurate") $("#fb").value = ""; })
+    .catch(() => { st.textContent = "could not save"; });
+}
+function supplierLink(o){
+  const l = (o.link||"").trim();
+  if (/^https?:/.test(l)) return `<a class="open-link" href="${esc(l)}" target="_blank" rel="noopener">Open supplier →</a>`;
+  return "";
+}
+function reamazeLink(o){
+  const brand = REAMAZE_BRAND[o.store];
+  if (!brand) return "";
+  // A SEARCH link, not a conversation link. Re:amaze's API ignores `q`
+  // entirely, so an earlier attempt to resolve each order to its own thread
+  // silently returned whatever conversation was newest -- 2,215 orders
+  // collapsed onto 5 slugs, 1,624 of them the same refund thread. The admin
+  // UI's own search is a different path; this drops the agent in the right
+  // brand with the order number ready rather than on a wrong thread.
+  const href = `https://${brand}.reamaze.com/admin/conversations?q=${encodeURIComponent(o.order)}`;
+  return `<a class="open-link" href="${href}" target="_blank" rel="noopener">Find in Reamaze →</a>`;
+}
+function renderDetail(o){
+  current = o;
+  document.querySelectorAll("[data-verdict]").forEach(b => b.disabled = false);
+  document.querySelectorAll("[data-verdict]").forEach(b => b.classList.remove("on"));
+  $("#fbwrap").hidden = true;
+  $("#fb").value = "";
+  $("#vstate").textContent = SHEET_ENDPOINT ? "" : "read-only — no sheet endpoint configured";
+  $("#vhint").textContent = "tells the drafts where they are wrong — nothing is sent to anyone from here";
+  const cls = dotClass(o);
+  $("#detail").innerHTML = `<div class="column">
+    <div class="panel"><div class="section">
+      <h2 class="title">${esc(o.order)} · ${esc(o.customer)}
+        <span class="badge ${cls}">${esc(o.checkin)}</span></h2>
+      <div class="sub">${esc(o.store)} · ${esc(o.product)}<br>
+        <a href="${esc(o.url)}" target="_blank" rel="noopener">Open in Shopify admin →</a></div>
+    </div></div>
+
+    <div class="panel"><div class="panel-head"><span class="grow">Proposed message to supplier — ${esc(o.supplier)}</span>
+      ${supplierLink(o)}<button class="copy" data-copy="s">Copy</button></div>
+      <div class="section"><pre class="draft" id="d-s">${esc(o.to_supplier)}</pre></div></div>
+
+    <div class="panel"><div class="panel-head"><span class="grow">Proposed email to customer</span>
+      ${reamazeLink(o)}<button class="copy" data-copy="c">Copy</button></div>
+      <div class="section"><pre class="draft" id="d-c">${esc(o.to_customer)}</pre></div></div>
+
+    <div class="panel"><div class="panel-head">Order</div><div class="section"><div class="facts">
+      ${fact("Date",o.date)}${fact("Date added",o.added)}${fact("Email",o.email)}
+      ${fact("Channel",o.channel)}${fact("Total",o.total)}${fact("Payment",o.payment)}
+      ${fact("Fulfillment",o.fulfillment)}${fact("Items",o.items)}
+      ${fact("Product",o.product)}${fact("Ship to",o.address)}
+      ${fact("Delivery",o.delivery)}${fact("Tags",o.tags)}
+    </div></div></div>
+
+    <div class="panel"><div class="panel-head">Supplier</div><div class="section"><div class="facts">
+      ${fact("Supplier",o.supplier)}${fact("Order status",o.order_status)}
+      ${fact("Tracking",o.tracking)}
+      ${o.link && /^https?:/.test(o.link) ? fact("Supplier order",o.link,{link:true,label:"Open supplier record →"}) : fact("Supplier order",o.link)}
+      ${fact("Date reported",o.reported)}${fact("Date updated",o.updated)}
+      ${fact("Emailed customer",o.emailed)}${fact("Supplier informed",o.informed)}
+    </div></div></div>
+
+    <div class="panel"><div class="panel-head">Shopify check-in</div><div class="section"><div class="facts">
+      ${fact("Status",o.checkin)}${fact("Notes",o.checkin_note)}${fact("Checked on",o.checked)}
+    </div></div></div>
+
+    <div class="panel"><details><summary>Notes &amp; last supplier message</summary>
+      <div class="section">
+        <div class="fact"><span>Note</span><div class="quote ${isNote(o.note)?'muted':''}">${esc(o.note)}</div></div>
+      </div>
+      <div class="section" style="border-top:1px solid var(--line-soft)">
+        <div class="fact"><span>Last supplier message</span><div class="quote ${isNote(o.last_msg)?'muted':''}">${esc(o.last_msg)}</div></div>
+      </div>
+    </details></div>
+    <div class="panel"><div class="panel-head">Actions taken</div><div class="section">
+      <div class="checks">
+        <label class="check"><input type="checkbox" data-check="emailed" ${/^true$/i.test(o.emailed)?"checked":""} ${SHEET_ENDPOINT?"":"disabled"}>
+          Emailed customer <span class="state"></span></label>
+        <label class="check"><input type="checkbox" data-check="informed" ${/^true$/i.test(o.informed)?"checked":""} ${SHEET_ENDPOINT?"":"disabled"}>
+          Supplier informed <span class="state"></span></label>
+      </div>
+      ${SHEET_ENDPOINT?"":'<div class="warn">Read-only: no sheet endpoint configured, so ticking these would not save. Deploy portal/sheet_endpoint.gs and set SHEET_ENDPOINT at the top of this page.</div>'}
+    </div></div>
+
+  </div>`;
+  renderList();
+}
+document.addEventListener("click", e => {
+  const f = e.target.closest("[data-f]");
+  if (f){ filter = f.dataset.f; renderList(); return; }
+  const r = e.target.closest(".row");
+  if (r){ renderDetail(ORDERS[+r.dataset.i]); return; }
+  const v = e.target.closest("[data-verdict]");
+  if (v){
+    document.querySelectorAll("[data-verdict]").forEach(b => b.classList.remove("on"));
+    v.classList.add("on");
+    const bad = v.dataset.verdict === "Inaccurate";
+    $("#fbwrap").hidden = !bad;
+    // "Accurate" needs no explanation, so record it immediately; "Inaccurate"
+    // waits for the comment, which is the part that can actually fix a draft.
+    if (!bad) sendVerdict("Accurate", "");
+    return;
+  }
+  if (e.target.closest("#fbsend")){
+    const t = $("#fb").value.trim();
+    if (!t){ $("#fb").focus(); return; }
+    sendVerdict("Inaccurate", t);
+    return;
+  }
+  const chk = e.target.closest("[data-check]");
+  if (chk && SHEET_ENDPOINT){
+    const wrap = chk.closest(".check"); wrap.classList.add("saving");
+    const field = chk.dataset.check, on = chk.checked;
+    fetch(SHEET_ENDPOINT, {method:"POST", mode:"cors",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body: JSON.stringify({store: current.store, order: current.order,
+                            field, value: on ? "TRUE" : "FALSE"})})
+      .then(r => r.json())
+      .then(() => { current[field] = on ? "TRUE" : "FALSE";
+                    wrap.querySelector(".state").textContent = "saved"; })
+      .catch(() => { chk.checked = !on;
+                     wrap.querySelector(".state").textContent = "save failed"; })
+      .finally(() => wrap.classList.remove("saving"));
+    return;
+  }
+  const c = e.target.closest("[data-copy]");
+  if (c){
+    const text = $("#d-" + c.dataset.copy).textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      c.textContent = "Copied"; c.classList.add("ok");
+      setTimeout(() => { c.textContent = "Copy"; c.classList.remove("ok"); }, 1400);
+    });
+  }
+});
+$("#q").addEventListener("input", e => { q = e.target.value.trim().toLowerCase(); renderList(); });
+
+async function load(){
+  const b = $("#refresh"); b.classList.add("busy"); b.textContent = "Loading…";
+  try{
+    try{
+      const c = await fetch("config.json?t=" + Date.now(), {cache:"no-store"});
+      if (c.ok) SHEET_ENDPOINT = (await c.json()).sheetEndpoint || "";
+    }catch(e){ /* no config yet: the page stays read-only, which it says */ }
+    // cache-bust so Refresh really re-reads the file rather than the browser copy
+    const r = await fetch("data.json?t=" + Date.now(), {cache: "no-store"});
+    DB = await r.json(); ORDERS = DB.orders;
+    const keep = current && ORDERS.find(o => o.order === current.order && o.store === current.store);
+    current = keep || null;
+    renderList();
+    if (current) renderDetail(current);
+  }catch(e){
+    $("#rows").innerHTML = `<div class="list-empty">Could not load data.json — ${esc(e.message)}</div>`;
+  }
+  b.classList.remove("busy"); b.textContent = "Refresh";
+}
+$("#refresh").addEventListener("click", load);
+
+const PW = "Clarendaleronce00!";
+function unlock(){
+  $("#gate").remove();
+  load();
+}
+if (sessionStorage.getItem("evershop-unfulfilled") === PW){
+  unlock();
+} else {
+  $("#gateform").addEventListener("submit", ev => {
+    ev.preventDefault();
+    if ($("#pw").value === PW){
+      try{ sessionStorage.setItem("evershop-unfulfilled", PW); }catch(e){}
+      unlock();
+    } else {
+      $("#gatebad").textContent = "Wrong password.";
+      $("#pw").select();
+    }
+  });
+}
+</script>
+</body>
+</html>
