@@ -310,13 +310,19 @@ function sendVerdict(verdict, comment){
     .catch(() => { st.textContent = "could not save"; });
 }
 function cjCodeButton(o){
-  // CJ's order list is not addressable per order, so the next best thing is
-  // one click to put the order number on the clipboard ready for CJ's search
-  // box. Prefers the store order number, which is what that box expects.
+  // CJ's order list cannot be deep-linked. Tested against a live session on
+  // 2026-09-17: orderNum / shopOrderNum / searchValue / keyword all leave the
+  // search box empty, and /orderDetail renders nothing for orderId, cjOrderId,
+  // orderNum or id. The search is React state, unreachable from the URL.
+  //
+  // So the click does the next best thing -- copies the order number AND opens
+  // CJ, leaving one paste to do instead of typing the number out.
   if (!/CJ/.test(o.supplier)) return "";
-  return `<button class="copycode" data-copycode="${esc(o.order)}">Copy order no.</button>`;
+  return `<button class="copycode" data-cjopen="${esc(o.order)}">Open CJ + copy no.</button>`;
 }
 function supplierLink(o){
+  // CJ rows get the combined open+copy button instead of a bare list link.
+  if (/CJ/.test(o.supplier) && !/regwiio/.test(o.link||"")) return "";
   const l = (o.link||"").trim();
   if (/^https?:/.test(l)) return `<a class="open-link" href="${esc(l)}" target="_blank" rel="noopener">Open supplier →</a>`;
   return "";
@@ -437,6 +443,20 @@ document.addEventListener("click", e => {
       .catch(() => { chk.checked = !on;
                      wrap.querySelector(".state").textContent = "save failed"; })
       .finally(() => wrap.classList.remove("saving"));
+    return;
+  }
+  const cjo = e.target.closest("[data-cjopen]");
+  if (cjo){
+    const num = cjo.dataset.cjopen;
+    // Copy first, then open: the clipboard write needs this click's user
+    // gesture, and window.open can steal focus before it completes.
+    navigator.clipboard.writeText(num).finally(() => {
+      window.open("https://www.cjdropshipping.com/mine/dropshipping/orderList?orderType=3&childType=1",
+                  "_blank", "noopener");
+      cjo.textContent = `${num} copied — paste in CJ`;
+      cjo.classList.add("ok");
+      setTimeout(() => { cjo.textContent = "Open CJ + copy no."; cjo.classList.remove("ok"); }, 3000);
+    });
     return;
   }
   const cc = e.target.closest("[data-copycode]");
