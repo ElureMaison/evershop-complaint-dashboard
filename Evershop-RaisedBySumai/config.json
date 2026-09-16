@@ -1,4 +1,4 @@
 {
-  "sheetEndpoint": "https://script.google.com/macros/s/AKfycbwyVIMkmDeJ-qp88UcLq0AfIr12WAGl_97hiBUoLIIKimZd62IRqKY-LNLllJuTFgfXYg/exec",
-  "_help": "Written by portal/deploy_raised_apps_script.py. Re-running that script republishes the same deployment, so this URL stays valid."
+  "sheetEndpoint": "https://script.google.com/macros/s/AKfycbwOL_LapW4Aq3H1Hw1NIQhTG96blnU_4JFLDyPQBFDUBCPfWj2JxiRneNCaQYdRkLu2/exec",
+  "_help": "Shared with the Evershop-Unfulfilled portal on purpose. That Apps Script project is already authorised by its owner; a brand-new bound project is not, and Google answers an unauthorised web app with 'Access Denied', which in the portal looks exactly like a save that silently failed. The page sends sheet:'raised' so the script writes to the Raised By Sumai spreadsheet. Redeploy it with portal/deploy_apps_script.py."
 }

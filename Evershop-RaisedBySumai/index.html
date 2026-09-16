@@ -233,6 +233,10 @@
 // credentials -- anything here is readable by anyone who opens the URL -- so
 // it POSTs to a small Apps Script that runs as the sheet's owner. The URL
 // lives in config.json so it can be repointed without a rebuild.
+// The endpoint is SHARED with the Evershop-Unfulfilled portal -- that Apps
+// Script project is the one the owner has authorised -- so every write names
+// the sheet it is for. Without `sheet:"raised"` the script defaults to the
+// unfulfilled spreadsheet and would tick a box on the wrong sheet.
 let SHEET_ENDPOINT = "";
 // Re:amaze brand host per store. Each store is its own brand with its own
 // host, so one shared subdomain would send agents to the wrong inbox.
@@ -336,7 +340,7 @@ function sendVerdict(verdict, comment){
   st.textContent = "saving…";
   fetch(SHEET_ENDPOINT, {method:"POST", mode:"cors",
     headers:{"Content-Type":"text/plain;charset=utf-8"},
-    body: JSON.stringify({action:"feedback", store: current.store, order: current.order,
+    body: JSON.stringify({sheet:"raised", action:"feedback", store: current.store, order: current.order,
                           verdict, comment,
                           to_supplier: current.to_supplier, to_customer: current.to_customer})})
     .then(r => r.json())
@@ -459,7 +463,7 @@ document.addEventListener("click", e => {
     const field = chk.dataset.check, on = chk.checked;
     fetch(SHEET_ENDPOINT, {method:"POST", mode:"cors",
       headers:{"Content-Type":"text/plain;charset=utf-8"},
-      body: JSON.stringify({store: current.store, order: current.order,
+      body: JSON.stringify({sheet:"raised", store: current.store, order: current.order,
                             field, value: on ? "TRUE" : "FALSE"})})
       .then(r => r.json())
       .then(() => { current[field] = on ? "TRUE" : "FALSE";
