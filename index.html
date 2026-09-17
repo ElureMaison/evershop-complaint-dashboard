@@ -492,6 +492,57 @@
   .contact-list a:hover{ border-color:var(--rose); color:var(--rose-deep); }
   .ic{ width:34px; height:34px; border-radius:50%; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:0.9rem; }
 
+  /* ---- Selected Work ---- */
+  .demo-card{
+    display:grid; grid-template-columns:1fr 1.15fr; gap:40px; align-items:center;
+    border:1px solid var(--line); border-radius:20px; padding:34px;
+    background:var(--surface); margin-bottom:56px;
+  }
+  @media (max-width:900px){ .demo-card{ grid-template-columns:1fr; gap:28px; padding:26px; } }
+  .demo-card h3{ font-size:1.55rem; margin:10px 0 0; }
+  .demo-card p{ color:var(--ink-soft); margin:14px 0 0; font-size:1.02rem; }
+  .demo-note{
+    font-family:"IBM Plex Mono",monospace; font-size:0.74rem; letter-spacing:0.03em;
+    color:var(--ink-soft); border-left:2px solid var(--rose); padding-left:12px;
+  }
+  .demo-shot{
+    display:block; border:1px solid var(--line); border-radius:14px; overflow:hidden;
+    box-shadow:0 20px 44px -28px var(--shadow); transition:transform .25s ease;
+  }
+  .demo-shot:hover{ transform:translateY(-3px); }
+  .demo-shot img{ display:block; width:100%; height:auto; }
+  .case-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:24px; }
+  @media (max-width:900px){ .case-grid{ grid-template-columns:1fr; } }
+  .case-card{
+    border:1px solid var(--line); border-radius:18px; padding:28px;
+    background:var(--surface); display:flex; flex-direction:column;
+  }
+  .case-card h3{ font-size:1.2rem; margin:0; }
+  .case-meta{
+    font-family:"IBM Plex Mono",monospace; font-size:0.72rem; letter-spacing:0.04em;
+    color:var(--ink-soft); margin:8px 0 18px;
+  }
+  .case-block{ margin-bottom:14px; }
+  .case-label{
+    display:block; font-family:"IBM Plex Mono",monospace; font-size:0.66rem;
+    letter-spacing:0.12em; text-transform:uppercase; color:var(--rose-deep); margin-bottom:5px;
+  }
+  .case-block p{ margin:0; color:var(--ink-soft); font-size:0.95rem; line-height:1.65; }
+  .case-tools{ display:flex; flex-wrap:wrap; gap:8px; margin-top:auto; padding-top:16px; }
+  .chip.chip-plain{ padding:8px 16px; font-size:0.84rem; font-weight:500; }
+  .guardrails{
+    margin-top:56px; border:1px solid var(--line); border-radius:18px;
+    padding:30px 34px; background:var(--rose-tint);
+  }
+  .guardrails h3{ font-size:1.2rem; margin:10px 0 18px; }
+  .guardrails ul{ margin:0; padding:0; list-style:none; display:grid; gap:14px; }
+  .guardrails li{ color:var(--ink-soft); font-size:0.97rem; line-height:1.6; padding-left:22px; position:relative; }
+  .guardrails li:before{ content:"\2713"; position:absolute; left:0; color:var(--rose-deep); }
+  .nda-note{
+    margin-top:26px; font-family:"IBM Plex Mono",monospace; font-size:0.74rem;
+    color:var(--ink-soft); letter-spacing:0.03em;
+  }
+
   footer{ padding:28px 0 40px; text-align:center; color:var(--ink-soft); font-size:0.85rem; font-family:"IBM Plex Mono",monospace; }
 </style>
 </head>
@@ -507,8 +558,9 @@
       <a href="#expertise"><span class="idx">02</span>Skills</a>
       <a href="#tools"><span class="idx">03</span>Toolkit</a>
       <a href="#experience"><span class="idx">04</span>Experience</a>
-      <a href="#testimonials"><span class="idx">05</span>Feedback</a>
-      <a href="#contact"><span class="idx">06</span>Contact</a>
+      <a href="#work"><span class="idx">05</span>Work</a>
+      <a href="#testimonials"><span class="idx">06</span>Feedback</a>
+      <a href="#contact"><span class="idx">07</span>Contact</a>
     </nav>
     <div class="nav-right">
       <button class="theme-btn" id="themeBtn" aria-label="Toggle color theme">◐</button>
@@ -1106,6 +1158,123 @@
       </div>
     </div>
   </section>
+
+  <section id="work">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Selected Work</p>
+        <h2>What the AI actually does.</h2>
+        <p>Four builds across e-commerce logistics, insurance, compliance and retail. Client names are withheld under NDA, so here is the shape of each system &mdash; and one you can open and click.</p>
+      </div>
+
+      <div class="demo-card">
+        <div>
+          <p class="eyebrow">Live demo</p>
+          <h3>A shipment dashboard you can actually use.</h3>
+          <p>A working rebuild of an operations dashboard I built for a logistics client: cycle times from order to proofs to ship to delivery, an order status breakdown, and per-market gear tracking with carrier detail on hover. Filter by year, season or sport, or exclude an order and watch every average move with it.</p>
+          <p class="demo-note">Generated sample data under a fictional brand. No client, order or shipment in it is real.</p>
+          <div class="cta-row" style="margin-top:22px">
+            <a class="btn btn-primary" href="/Demo-ShipmentTracker/">Open the demo &rarr;</a>
+          </div>
+        </div>
+        <a class="demo-shot" href="/Demo-ShipmentTracker/" aria-label="Open the shipment dashboard demo">
+          <img src="/Demo-ShipmentTracker/preview.png" loading="lazy"
+               alt="Shipment performance dashboard showing cycle-time KPIs, an order status table and per-market gear progress bars">
+        </a>
+      </div>
+
+      <div class="case-grid">
+
+        <article class="case-card">
+          <h3>Order tracking across three carriers</h3>
+          <p class="case-meta">E-commerce &amp; logistics client &middot; US &middot; NDA</p>
+          <div class="case-block"><span class="case-label">The problem</span>
+            <p>Order status lived in three carrier portals &mdash; AfterShip, FedEx and UPS &mdash; plus the store's own admin. Answering one &ldquo;where is my order?&rdquo; meant opening each in turn.</p></div>
+          <div class="case-block"><span class="case-label">What I built</span>
+            <p>A Claude-powered operations dashboard that pulls tracking from all three carriers into a single live view, with scheduling and handoffs wired through Google Workspace, Slack and ClickUp.</p></div>
+          <div class="case-block"><span class="case-label">The result</span>
+            <p>Status lookups collapse into one screen, and exceptions surface on their own instead of being hunted down carrier by carrier.</p></div>
+          <div class="case-block"><span class="case-label">Keeping it accurate</span>
+            <p>Carrier data is shown as recorded, never paraphrased by the model. Anything a customer would see is drafted for a person to approve, not sent automatically.</p></div>
+          <div class="case-tools">
+            <span class="chip chip-plain">Claude AI</span><span class="chip chip-plain">AfterShip</span>
+            <span class="chip chip-plain">FedEx</span><span class="chip chip-plain">UPS</span>
+            <span class="chip chip-plain">Slack</span><span class="chip chip-plain">ClickUp</span>
+            <span class="chip chip-plain">Google Workspace</span>
+          </div>
+        </article>
+
+        <article class="case-card">
+          <h3>Quote data into the CRM, without re-keying</h3>
+          <p class="case-meta">Health insurance agency &middot; US &middot; NDA</p>
+          <div class="case-block"><span class="case-label">The problem</span>
+            <p>Qualification data sat in HealthSherpa and Sunfire while the record of truth was Zoho CRM, so the same details were typed twice and status changes were noticed late.</p></div>
+          <div class="case-block"><span class="case-label">What I built</span>
+            <p>Claude integrations that read qualification data from HealthSherpa and Sunfire and update the matching Zoho CRM records, with Slack and IONOS email alerts on status changes and recurring reports across Google Workspace.</p></div>
+          <div class="case-block"><span class="case-label">The result</span>
+            <p>The CRM reflects its source systems without manual re-entry, and the team hears about a status change the day it happens rather than at the next review.</p></div>
+          <div class="case-block"><span class="case-label">Keeping it accurate</span>
+            <p>Only named fields are allowed to change, so an unexpected value stops the run instead of quietly overwriting a client record.</p></div>
+          <div class="case-tools">
+            <span class="chip chip-plain">Claude AI</span><span class="chip chip-plain">HealthSherpa</span>
+            <span class="chip chip-plain">Sunfire</span><span class="chip chip-plain">Zoho CRM</span>
+            <span class="chip chip-plain">Slack</span><span class="chip chip-plain">IONOS Email</span>
+          </div>
+        </article>
+
+        <article class="case-card">
+          <h3>Compliance checks that run the same way every time</h3>
+          <p class="case-meta">Company formation provider &middot; UK &middot; NDA</p>
+          <div class="case-block"><span class="case-label">The problem</span>
+            <p>Formation work repeats the same checks case after case across Groove, eFiling and Companies House, and customer feedback arrived scattered across Trustpilot and Google reviews.</p></div>
+          <div class="case-block"><span class="case-label">What I built</span>
+            <p>A Claude integration spanning those systems: repetitive compliance form tasks, policy checks run against each case, and monitoring of Trustpilot and Google reviews to flag feedback and route it to the right person.</p></div>
+          <div class="case-block"><span class="case-label">The result</span>
+            <p>Checks are consistent from case to case, and review feedback reaches an owner instead of sitting unread in a feed.</p></div>
+          <div class="case-block"><span class="case-label">Keeping it accurate</span>
+            <p>Compliance outcomes are flagged for a human decision. The automation prepares and evidences the check &mdash; it does not sign it off.</p></div>
+          <div class="case-tools">
+            <span class="chip chip-plain">Claude AI</span><span class="chip chip-plain">Groove</span>
+            <span class="chip chip-plain">eFiling</span><span class="chip chip-plain">Companies House</span>
+            <span class="chip chip-plain">Trustpilot</span><span class="chip chip-plain">Google Reviews</span>
+          </div>
+        </article>
+
+        <article class="case-card">
+          <h3>Listing upkeep and creative for a Shopify store</h3>
+          <p class="case-meta">Shopify business &middot; US &middot; NDA</p>
+          <div class="case-block"><span class="case-label">The problem</span>
+            <p>Product and listing maintenance is an endless run of small edits, and imagery was needed in more sizes and variants than a design turnaround could keep up with.</p></div>
+          <div class="case-block"><span class="case-label">What I built</span>
+            <p>Shopify update workflows driven by Claude for product and listing maintenance, Magnific AI for image and creative generation, and Google Workspace for task tracking and reporting.</p></div>
+          <div class="case-block"><span class="case-label">The result</span>
+            <p>Listings stay current without someone editing them one at a time, and creative stops being the thing everything waits on.</p></div>
+          <div class="case-block"><span class="case-label">Keeping it accurate</span>
+            <p>Generated imagery is reviewed before it goes near a product page, and data changes are batched so they can be checked in one pass rather than trusted one at a time.</p></div>
+          <div class="case-tools">
+            <span class="chip chip-plain">Claude AI</span><span class="chip chip-plain">Shopify</span>
+            <span class="chip chip-plain">Magnific AI</span><span class="chip chip-plain">Google Workspace</span>
+            <span class="chip chip-plain">Trello</span>
+          </div>
+        </article>
+
+      </div>
+
+      <div class="guardrails">
+        <p class="eyebrow">How I work with AI</p>
+        <h3>The part most people skip.</h3>
+        <ul>
+          <li>A person approves anything a customer will read. The model drafts; it does not send.</li>
+          <li>The system of record stays the source of truth. AI summarises and routes &mdash; it never becomes the place the number lives.</li>
+          <li>Low confidence is a flag, not a guess. Cases the model is unsure about go to a human queue instead of being answered anyway.</li>
+          <li>There are jobs I won't hand to AI. Ask me which ones, and why.</li>
+        </ul>
+        <p class="nda-note">Client names withheld under NDA &mdash; happy to walk through any of these in detail on a call.</p>
+      </div>
+
+    </div>
+  </section>
+
 
   <section id="education">
     <div class="wrap">
