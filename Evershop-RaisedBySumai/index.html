@@ -389,10 +389,11 @@ function renderDetail(o){
         <div class="facts" style="margin-top:13px">
           ${o.reference ? `<div class="fact"><span>Local reference</span><span><span class="ref">${esc(o.reference)}</span><button class="cp" data-cp="${esc(o.reference)}">COPY</button></span></div>` : ""}
           ${fact("Carrier contact",o.carrier_contact)}
-          ${o.destroy_by ? `<div class="fact"><span>Held until</span><span><b style="color:var(--red)">${esc(o.destroy_by)}</b> — destroyed after this</span></div>` : ""}
-          ${o.reship_fee ? `<div class="fact"><span>Reship fee (customer)</span><span><span class="ref">${esc(o.reship_fee)}</span><button class="cp" data-cp="${esc(o.reship_fee)}">COPY</button> <span class="muted">SOP band ${esc(o.reship_fee_band||"")}</span></span></div>` : ""}
-          ${fact("WIIO charges us",o.supplier_fee)}
-          ${o.fee_note ? `<div class="fact"><span></span><span style="color:var(--orange)">${esc(o.fee_note)}</span></div>` : ""}
+          ${o.destroy_by ? `<div class="fact"><span>Reship by</span><span><b style="color:var(--red)">${esc(o.destroy_by)}</b> <span class="muted">— WIIO destroys it after this; the customer is told only the date</span></span></div>` : ""}
+          ${o.reship_fee ? `<div class="fact"><span>Reship fee (customer)</span><span><span class="ref">${esc(o.reship_fee)}</span><button class="cp" data-cp="${esc(o.reship_fee)}">COPY</button></span></div>` : ""}
+          ${o.fee_basis ? `<div class="fact"><span></span><span class="muted">${esc(o.fee_basis)}</span></div>` : ""}
+          ${o.supplier_fee ? `<div class="fact"><span>WIIO charges us</span><span>${esc(o.supplier_fee)} <span class="muted">— our cost, never quoted to the customer</span></span></div>` : ""}
+          ${o.fee_note ? `<div class="fact"><span>No fee quoted</span><span style="color:var(--orange)">${esc(o.fee_note)}</span></div>` : ""}
           ${fact("Raised on",o.reported)}${fact("We replied",o.updated)}
           ${fact("WIIO reply / result",o.note)}
         </div>
