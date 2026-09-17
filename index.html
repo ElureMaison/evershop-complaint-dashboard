@@ -1399,13 +1399,23 @@
     });
 
     if(!reduceMotion){
-      var autoTimer = setInterval(function(){
+      var autoTimer = null;
+      function advance(){
         var atEnd = scroller.scrollLeft + scroller.clientWidth >= scroller.scrollWidth - 4;
         if(atEnd){ scroller.scrollTo({ left:0, behavior:'smooth' }); }
         else { scroller.scrollBy({ left: scroller.clientWidth, behavior:'smooth' }); }
-      }, 5200);
-      scroller.addEventListener('mouseenter', function(){ clearInterval(autoTimer); });
-      scroller.addEventListener('touchstart', function(){ clearInterval(autoTimer); }, {passive:true});
+      }
+      function startAuto(){ if(autoTimer === null) autoTimer = setInterval(advance, 5200); }
+      function stopAuto(){ if(autoTimer !== null){ clearInterval(autoTimer); autoTimer = null; } }
+      // Only advance while the carousel is actually on screen: it resizes to fit
+      // each slide, and doing that off screen would shift the page under a reader.
+      var visObserver = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if(e.isIntersecting){ startAuto(); } else { stopAuto(); } });
+      }, { threshold: 0 });
+      visObserver.observe(scroller);
+      function stopForGood(){ stopAuto(); visObserver.disconnect(); }
+      scroller.addEventListener('mouseenter', stopForGood);
+      scroller.addEventListener('touchstart', stopForGood, {passive:true});
     }
   }
 
@@ -1456,7 +1466,7 @@
           revealObserver.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+    }, { threshold: 0, rootMargin: '0px 0px -60px 0px' });
     revealEls.forEach(function(el){ revealObserver.observe(el); });
   }
 })();
