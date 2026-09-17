@@ -16,5 +16,6 @@ password-gated and excluded from search engines.
 - `/Evershop-QAReview/` -- QA Review portal
 - `/Evershop-AgentDashboard/` -- Agent dashboard
 - `/OKOT-Update/` -- OKOT weekly digest
+- `/Demo-ShipmentTracker/` -- Portfolio demo: shipment performance dashboard (generated sample data, public)
 
 Static site, deployed via GitHub Pages.

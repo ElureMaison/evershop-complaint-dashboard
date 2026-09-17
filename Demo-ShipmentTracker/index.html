@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard &mdash; Vantage Shipment Tracker (Demo)</title>
+<meta name="description" content="Interactive demo of a shipment performance dashboard: cycle-time KPIs, order status and per-market gear tracking. Sample data only.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%A6%3C/text%3E%3C/svg%3E">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  .spin { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<div class="bg-purple-700 text-white text-center text-xs font-semibold px-4 py-2">
+  PORTFOLIO DEMO &middot; every figure on this page is generated sample data &mdash; no real customer, order or shipment is shown
+</div>
+
+<nav class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between flex-wrap gap-3">
+  <div class="flex items-center gap-2 text-gray-900 font-bold text-lg">
+    <span class="text-2xl">&#128230;</span>
+    <span>Vantage Shipment Tracker</span>
+    <span class="ml-2 text-xs font-medium bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Demo</span>
+  </div>
+  <div class="flex items-center gap-5 text-sm text-gray-400">
+    <span class="text-gray-800 font-semibold flex items-center gap-1">&#128202; Dashboard</span>
+    <span class="hidden sm:flex items-center gap-1">&#128666; Tracking</span>
+    <span class="hidden sm:flex items-center gap-1">&#128451; Orders</span>
+    <span class="hidden md:flex items-center gap-1">&#128197; Calendar</span>
+    <span class="hidden md:flex items-center gap-1">&#128230; Inventory</span>
+  </div>
+</nav>
+
+<main class="max-w-5xl mx-auto px-6 py-8">
+
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">Performance Dashboard</h1>
+    <p class="text-sm text-gray-400 mt-1" id="last-loaded">Loading&hellip;</p>
+  </div>
+  <button onclick="reload()" id="refresh-btn"
+          class="px-4 py-2 bg-white border border-gray-300 rounded-xl text-sm font-semibold text-gray-600 hover:border-purple-400 hover:text-purple-700 transition-all flex items-center gap-2">
+    <span id="refresh-icon">&#8635;</span> Refresh
+  </button>
+</div>
+
+<div class="flex flex-wrap items-center gap-4 mb-6">
+  <div id="year-toggle" class="flex rounded-xl border border-gray-200 overflow-hidden text-sm font-semibold"></div>
+  <div id="season-toggle" class="flex rounded-xl border border-gray-200 overflow-hidden text-sm font-semibold"></div>
+  <div id="sport-toggle" class="flex rounded-xl border border-gray-200 overflow-hidden text-sm font-semibold"></div>
+  <div class="relative" id="exclude-wrap">
+    <button onclick="toggleExclude()" id="exclude-btn"
+            class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:border-purple-400 transition-all">
+      <span id="exclude-label">Exclude orders</span>
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+    </button>
+    <div id="exclude-menu" class="hidden absolute z-10 mt-1 left-0 bg-white border border-gray-200 rounded-xl shadow-lg py-1 min-w-64 max-h-64 overflow-y-auto">
+      <div id="exclude-list" class="px-1"></div>
+    </div>
+  </div>
+</div>
+
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+  <div class="bg-white rounded-2xl border border-gray-200 shadow-sm px-5 py-4">
+    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Order &rarr; Proofs</p>
+    <p class="text-2xl font-bold text-gray-900" id="card-proofs">&mdash;</p>
+    <p class="text-xs text-gray-400 mt-0.5">avg working days</p>
+  </div>
+  <div class="bg-white rounded-2xl border border-gray-200 shadow-sm px-5 py-4">
+    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Order &rarr; Ship</p>
+    <p class="text-2xl font-bold text-gray-900" id="card-ship">&mdash;</p>
+    <p class="text-xs text-gray-400 mt-0.5">avg working days</p>
+  </div>
+  <div class="bg-white rounded-2xl border border-gray-200 shadow-sm px-5 py-4">
+    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Order &rarr; Delivery</p>
+    <p class="text-2xl font-bold text-gray-900" id="card-delivery">&mdash;</p>
+    <p class="text-xs text-gray-400 mt-0.5">avg working days</p>
+  </div>
+  <div class="bg-white rounded-2xl border border-gray-200 shadow-sm px-5 py-4">
+    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Ship &rarr; Delivery</p>
+    <p class="text-2xl font-bold text-gray-900" id="card-ship-to-delivery">&mdash;</p>
+    <p class="text-xs text-gray-400 mt-0.5">avg calendar days in transit</p>
+  </div>
+</div>
+
+<div class="grid grid-cols-2 gap-4 mb-4">
+  <div class="bg-white rounded-2xl border border-gray-200 shadow-sm px-5 py-4">
+    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">% Delayed</p>
+    <p class="text-2xl font-bold" id="card-delay">&mdash;</p>
+    <p class="text-xs text-gray-400 mt-0.5">orders that missed estimated dates</p>
+  </div>
+  <div class="bg-white rounded-2xl border border-gray-200 shadow-sm px-5 py-4">
+    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">% Error</p>
+    <p class="text-2xl font-bold" id="card-error">&mdash;</p>
+    <p class="text-xs text-gray-400 mt-0.5">gear items received incorrectly</p>
+  </div>
+</div>
+
+<div class="grid grid-cols-3 gap-4 mb-4">
+  <div class="bg-white rounded-2xl border border-gray-200 shadow-sm px-5 py-4">
+    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">% Arrived</p>
+    <p class="text-2xl font-bold text-green-600" id="card-gear-arrived">&mdash;</p>
+    <p class="text-xs text-gray-400 mt-0.5">of all ordered gear units</p>
+  </div>
+  <div class="bg-white rounded-2xl border border-gray-200 shadow-sm px-5 py-4">
+    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">% Shipped</p>
+    <p class="text-2xl font-bold text-orange-500" id="card-gear-shipped">&mdash;</p>
+    <p class="text-xs text-gray-400 mt-0.5">in transit to markets</p>
+  </div>
+  <div class="bg-white rounded-2xl border border-gray-200 shadow-sm px-5 py-4">
+    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">% In Production</p>
+    <p class="text-2xl font-bold text-gray-500" id="card-gear-production">&mdash;</p>
+    <p class="text-xs text-gray-400 mt-0.5">not yet shipped</p>
+  </div>
+</div>
+
+<div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mb-8">
+  <div class="px-6 py-4 border-b border-gray-100"><h2 class="font-bold text-gray-800 text-base">Order Status</h2></div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="bg-gray-50 text-gray-500 text-xs font-semibold uppercase tracking-wide">
+          <th class="px-6 py-3 text-left"></th>
+          <th class="px-4 py-3 text-center">Total</th>
+          <th class="px-4 py-3 text-center text-red-600">Behind</th>
+          <th class="px-4 py-3 text-center text-green-600">Ahead</th>
+          <th class="px-4 py-3 text-center text-blue-600">On Schedule</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-3 font-semibold text-gray-700">Ongoing</td>
+          <td class="px-4 py-3 text-center text-gray-600 font-semibold" id="st-ongoing-total">&mdash;</td>
+          <td class="px-4 py-3 text-center font-bold text-red-600" id="st-ongoing-behind">&mdash;</td>
+          <td class="px-4 py-3 text-center font-bold text-green-600" id="st-ongoing-ahead">&mdash;</td>
+          <td class="px-4 py-3 text-center font-bold text-blue-600" id="st-ongoing-onschedule">&mdash;</td>
+        </tr>
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-3 font-semibold text-gray-700">Delivered</td>
+          <td class="px-4 py-3 text-center text-gray-600 font-semibold" id="st-delivered-total">&mdash;</td>
+          <td class="px-4 py-3 text-center font-bold text-red-600" id="st-delivered-behind">&mdash;</td>
+          <td class="px-4 py-3 text-center font-bold text-green-600" id="st-delivered-ahead">&mdash;</td>
+          <td class="px-4 py-3 text-center font-bold text-blue-600" id="st-delivered-onschedule">&mdash;</td>
+        </tr>
+        <tr class="bg-gray-50 hover:bg-gray-100">
+          <td class="px-6 py-3 font-bold text-gray-800">Total</td>
+          <td class="px-4 py-3 text-center text-gray-800 font-bold" id="st-total-total">&mdash;</td>
+          <td class="px-4 py-3 text-center font-bold text-red-600" id="st-total-behind">&mdash;</td>
+          <td class="px-4 py-3 text-center font-bold text-green-600" id="st-total-ahead">&mdash;</td>
+          <td class="px-4 py-3 text-center font-bold text-blue-600" id="st-total-onschedule">&mdash;</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mb-8">
+  <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+    <h2 class="font-bold text-gray-800 text-base">Gear Status</h2>
+    <span class="text-xs text-gray-400" id="gear-status-updated"></span>
+  </div>
+  <div id="gear-status-body" class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+    <div class="text-center text-gray-400 text-sm py-6 col-span-full">Loading&hellip;</div>
+  </div>
+</div>
+
+<div id="gear-tip" style="display:none;position:fixed;z-index:9999;pointer-events:none;background:#1e293b;color:#f1f5f9;font-family:ui-monospace,monospace;font-size:12px;line-height:1.7;padding:8px 12px;border-radius:8px;white-space:pre;box-shadow:0 4px 16px rgba(0,0,0,.25)"></div>
+
+<div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+  <div class="px-6 py-4 border-b border-gray-100"><h2 class="font-bold text-gray-800 text-base">Per Market</h2></div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="bg-gray-50 text-gray-500 text-xs font-semibold uppercase tracking-wide">
+          <th class="px-6 py-3 text-left">Market</th>
+          <th class="px-4 py-3 text-center">Orders</th>
+          <th class="px-4 py-3 text-center">&rarr; Proofs</th>
+          <th class="px-4 py-3 text-center">&rarr; Ship</th>
+          <th class="px-4 py-3 text-center">&rarr; Delivery</th>
+          <th class="px-4 py-3 text-center">Ship &rarr; Del</th>
+          <th class="px-4 py-3 text-center">% Delayed</th>
+          <th class="px-4 py-3 text-center">% Error</th>
+        </tr>
+      </thead>
+      <tbody id="market-table" class="divide-y divide-gray-100">
+        <tr><td colspan="8" class="px-6 py-8 text-center text-gray-400 text-sm">Loading&hellip;</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<p class="text-xs text-gray-400 mt-8 text-center">
+  Sample-data rebuild of a shipment tracking dashboard &middot; built by Rona Shella Cacao &middot;
+  <a href="/" class="text-purple-600 hover:underline">back to portfolio</a>
+</p>
+
+</main>
+
+<script>
+const DEMO = {"brand":"Vantage Team Sports","orders":[{"id":"o1","label":"Austin Volleyball Fall Order 1","market":"Austin","sport":"Volleyball","season":"Fall","year":2025,"days_to_proofs":3.7,"days_to_ship":18.2,"days_to_delivery":null,"days_ship_to_delivery":null,"is_delayed":true,"current_phase":2,"order_status":2},{"id":"o2","label":"Austin Softball Fall Order 8","market":"Austin","sport":"Softball","season":"Fall","year":2025,"days_to_proofs":4.2,"days_to_ship":24.6,"days_to_delivery":null,"days_ship_to_delivery":null,"is_delayed":false,"current_phase":3,"order_status":1},{"id":"o3","label":"Austin Volleyball Summer Order 2","market":"Austin","sport":"Volleyball","season":"Summer","year":2025,"days_to_proofs":8.8,"days_to_ship":33.4,"days_to_delivery":41.7,"days_ship_to_delivery":8.3,"is_delayed":false,"current_phase":4,"order_status":2},{"id":"o4","label":"Charlotte Soccer Summer Order 8","market":"Charlotte","sport":"Soccer","season":"Summer","year":2026,"days_to_proofs":5.9,"days_to_ship":21.3,"days_to_delivery":26.3,"days_ship_to_delivery":5.0,"is_delayed":true,"current_phase":4,"order_status":1},{"id":"o5","label":"Charlotte Softball Summer Order 5","market":"Charlotte","sport":"Softball","season":"Summer","year":2026,"days_to_proofs":5.0,"days_to_ship":25.6,"days_to_delivery":33.7,"days_ship_to_delivery":8.1,"is_delayed":false,"current_phase":4,"order_status":1},{"id":"o6","label":"Charlotte Volleyball Fall Order 6","market":"Charlotte","sport":"Volleyball","season":"Fall","year":2025,"days_to_proofs":7.0,"days_to_ship":26.4,"days_to_delivery":null,"days_ship_to_delivery":null,"is_delayed":false,"current_phase":2,"order_status":1},{"id":"o7","label":"Charlotte Softball Fall Order 3","market":"Charlotte","sport":"Softball","season":"Fall","year":2026,"days_to_proofs":5.7,"days_to_ship":18.4,"days_to_delivery":null,"days_ship_to_delivery":null,"is_delayed":false,"current_phase":3,"order_status":1},{"id":"o8","label":"Charlotte Baseball Fall Order 2","market":"Charlotte","sport":"Baseball","season":"Fall","year":2026,"days_to_proofs":5.1,"days_to_ship":29.4,"days_to_delivery":null,"days_ship_to_delivery":null,"is_delayed":false,"current_phase":1,"order_status":1},{"id":"o9","label":"Denver Softball Fall Order 4","market":"Denver","sport":"Softball","season":"Fall","year":2026,"days_to_proofs":2.2,"days_to_ship":18.7,"days_to_delivery":null,"days_ship_to_delivery":null,"is_delayed":false,"current_phase":2,"order_status":2},{"id":"o10","label":"Denver Soccer Fall Order 1","market":"Denver","sport":"Soccer","season":"Fall","year":2026,"days_to_proofs":3.2,"days_to_ship":26.3,"days_to_delivery":30.5,"days_ship_to_delivery":4.2,"is_delayed":false,"current_phase":4,"order_status":0},{"id":"o11","label":"Denver Soccer Summer Order 4","market":"Denver","sport":"Soccer","season":"Summer","year":2025,"days_to_proofs":8.5,"days_to_ship":22.7,"days_to_delivery":29.7,"days_ship_to_delivery":7.0,"is_delayed":false,"current_phase":4,"order_status":2},{"id":"o12","label":"Nashville Soccer Summer Order 1","market":"Nashville","sport":"Soccer","season":"Summer","year":2026,"days_to_proofs":7.6,"days_to_ship":17.3,"days_to_delivery":25.4,"days_ship_to_delivery":8.1,"is_delayed":false,"current_phase":4,"order_status":0},{"id":"o13","label":"Nashville Softball Summer Order 8","market":"Nashville","sport":"Softball","season":"Summer","year":2025,"days_to_proofs":7.0,"days_to_ship":23.4,"days_to_delivery":31.2,"days_ship_to_delivery":7.8,"is_delayed":false,"current_phase":4,"order_status":0},{"id":"o14","label":"Nashville Baseball Summer Order 3","market":"Nashville","sport":"Baseball","season":"Summer","year":2026,"days_to_proofs":2.2,"days_to_ship":20.2,"days_to_delivery":26.1,"days_ship_to_delivery":5.9,"is_delayed":false,"current_phase":4,"order_status":1},{"id":"o15","label":"Phoenix Volleyball Summer Order 6","market":"Phoenix","sport":"Volleyball","season":"Summer","year":2026,"days_to_proofs":4.9,"days_to_ship":27.7,"days_to_delivery":35.8,"days_ship_to_delivery":8.1,"is_delayed":false,"current_phase":4,"order_status":2},{"id":"o16","label":"Phoenix Volleyball Summer Order 1","market":"Phoenix","sport":"Volleyball","season":"Summer","year":2025,"days_to_proofs":3.3,"days_to_ship":28.4,"days_to_delivery":36.4,"days_ship_to_delivery":8.0,"is_delayed":false,"current_phase":4,"order_status":1},{"id":"o17","label":"Phoenix Volleyball Fall Order 5","market":"Phoenix","sport":"Volleyball","season":"Fall","year":2025,"days_to_proofs":2.0,"days_to_ship":23.8,"days_to_delivery":null,"days_ship_to_delivery":null,"is_delayed":false,"current_phase":3,"order_status":1},{"id":"o18","label":"Phoenix Baseball Fall Order 7","market":"Phoenix","sport":"Baseball","season":"Fall","year":2026,"days_to_proofs":8.1,"days_to_ship":23.1,"days_to_delivery":25.4,"days_ship_to_delivery":2.3,"is_delayed":true,"current_phase":4,"order_status":0},{"id":"o19","label":"Phoenix Soccer Fall Order 3","market":"Phoenix","sport":"Soccer","season":"Fall","year":2026,"days_to_proofs":6.1,"days_to_ship":25.4,"days_to_delivery":null,"days_ship_to_delivery":null,"is_delayed":true,"current_phase":1,"order_status":2},{"id":"o20","label":"Portland Baseball Fall Order 6","market":"Portland","sport":"Baseball","season":"Fall","year":2026,"days_to_proofs":7.1,"days_to_ship":29.7,"days_to_delivery":38.5,"days_ship_to_delivery":8.8,"is_delayed":false,"current_phase":4,"order_status":1},{"id":"o21","label":"Portland Softball Fall Order 3","market":"Portland","sport":"Softball","season":"Fall","year":2026,"days_to_proofs":6.4,"days_to_ship":21.4,"days_to_delivery":27.4,"days_ship_to_delivery":6.0,"is_delayed":false,"current_phase":4,"order_status":2},{"id":"o22","label":"Portland Softball Fall Order 2","market":"Portland","sport":"Softball","season":"Fall","year":2026,"days_to_proofs":4.2,"days_to_ship":29.8,"days_to_delivery":36.9,"days_ship_to_delivery":7.1,"is_delayed":false,"current_phase":4,"order_status":1},{"id":"o23","label":"Portland Volleyball Fall Order 2","market":"Portland","sport":"Volleyball","season":"Fall","year":2026,"days_to_proofs":6.4,"days_to_ship":24.3,"days_to_delivery":null,"days_ship_to_delivery":null,"is_delayed":false,"current_phase":3,"order_status":2},{"id":"o24","label":"Sacramento Soccer Summer Order 2","market":"Sacramento","sport":"Soccer","season":"Summer","year":2026,"days_to_proofs":3.7,"days_to_ship":28.5,"days_to_delivery":35.6,"days_ship_to_delivery":7.1,"is_delayed":true,"current_phase":4,"order_status":0},{"id":"o25","label":"Sacramento Volleyball Fall Order 4","market":"Sacramento","sport":"Volleyball","season":"Fall","year":2026,"days_to_proofs":5.7,"days_to_ship":20.1,"days_to_delivery":null,"days_ship_to_delivery":null,"is_delayed":false,"current_phase":3,"order_status":0},{"id":"o26","label":"Sacramento Softball Fall Order 8","market":"Sacramento","sport":"Softball","season":"Fall","year":2025,"days_to_proofs":4.2,"days_to_ship":19.4,"days_to_delivery":26.2,"days_ship_to_delivery":6.8,"is_delayed":false,"current_phase":4,"order_status":1},{"id":"o27","label":"Sacramento Soccer Fall Order 7","market":"Sacramento","sport":"Soccer","season":"Fall","year":2025,"days_to_proofs":2.0,"days_to_ship":11.9,"days_to_delivery":20.5,"days_ship_to_delivery":8.6,"is_delayed":true,"current_phase":4,"order_status":0}],"markets":{"Austin":{"total":2114,"arrived":1047,"shipped":485,"in_production":582,"error":26,"arrived_pct":50,"shipped_pct":23,"in_production_pct":28,"gear":[{"gear_type":"Pants","total":319,"arrived":1,"shipped":158,"in_production":160,"error":26,"arrived_items":[{"market":"Austin","gear_type":"Pants","order":1,"qty":1}],"shipped_items":[{"market":"Austin","gear_type":"Pants","order":7,"qty":158,"tn":"1Z2481810955"}],"in_production_items":[{"market":"Austin","gear_type":"Pants","order":8,"qty":160}],"error_items":[{"market":"Austin","gear_type":"Pants","order":2,"qty":26,"reason":"Missing numbers"}]},{"gear_type":"Socks","total":764,"arrived":547,"shipped":62,"in_production":155,"error":0,"arrived_items":[{"market":"Austin","gear_type":"Socks","order":7,"qty":181},{"market":"Austin","gear_type":"Socks","order":8,"qty":366}],"shipped_items":[{"market":"Austin","gear_type":"Socks","order":7,"qty":20,"tn":"1Z4268543068"},{"market":"Austin","gear_type":"Socks","order":3,"qty":42,"tn":"1Z1159551248"}],"in_production_items":[{"market":"Austin","gear_type":"Socks","order":8,"qty":49},{"market":"Austin","gear_type":"Socks","order":7,"qty":106}],"error_items":[]},{"gear_type":"Hoodies","total":305,"arrived":111,"shipped":153,"in_production":41,"error":0,"arrived_items":[{"market":"Austin","gear_type":"Hoodies","order":5,"qty":46},{"market":"Austin","gear_type":"Hoodies","order":8,"qty":33},{"market":"Austin","gear_type":"Hoodies","order":3,"qty":32}],"shipped_items":[{"market":"Austin","gear_type":"Hoodies","order":1,"qty":86,"tn":"1Z3509731137"},{"market":"Austin","gear_type":"Hoodies","order":7,"qty":67,"tn":"1Z2368421174"}],"in_production_items":[{"market":"Austin","gear_type":"Hoodies","order":6,"qty":19},{"market":"Austin","gear_type":"Hoodies","order":6,"qty":22}],"error_items":[]},{"gear_type":"Jerseys","total":206,"arrived":11,"shipped":53,"in_production":142,"error":0,"arrived_items":[{"market":"Austin","gear_type":"Jerseys","order":6,"qty":6},{"market":"Austin","gear_type":"Jerseys","order":6,"qty":5}],"shipped_items":[{"market":"Austin","gear_type":"Jerseys","order":2,"qty":53,"tn":"1Z7885928905"}],"in_production_items":[{"market":"Austin","gear_type":"Jerseys","order":4,"qty":142}],"error_items":[]},{"gear_type":"Helmets","total":520,"arrived":377,"shipped":59,"in_production":84,"error":0,"arrived_items":[{"market":"Austin","gear_type":"Helmets","order":5,"qty":130},{"market":"Austin","gear_type":"Helmets","order":6,"qty":247}],"shipped_items":[{"market":"Austin","gear_type":"Helmets","order":3,"qty":25,"tn":"1Z1867476067"},{"market":"Austin","gear_type":"Helmets","order":8,"qty":34,"tn":"1Z7810100581"}],"in_production_items":[{"market":"Austin","gear_type":"Helmets","order":2,"qty":50},{"market":"Austin","gear_type":"Helmets","order":8,"qty":34}],"error_items":[]}]},"Charlotte":{"total":2551,"arrived":1423,"shipped":280,"in_production":848,"error":28,"arrived_pct":56,"shipped_pct":11,"in_production_pct":33,"gear":[{"gear_type":"Helmets","total":450,"arrived":348,"shipped":59,"in_production":43,"error":0,"arrived_items":[{"market":"Charlotte","gear_type":"Helmets","order":5,"qty":348}],"shipped_items":[{"market":"Charlotte","gear_type":"Helmets","order":3,"qty":23,"tn":"1Z1661082818"},{"market":"Charlotte","gear_type":"Helmets","order":3,"qty":36,"tn":"1Z4999832948"}],"in_production_items":[{"market":"Charlotte","gear_type":"Helmets","order":2,"qty":43}],"error_items":[]},{"gear_type":"Caps","total":822,"arrived":299,"shipped":75,"in_production":448,"error":28,"arrived_items":[{"market":"Charlotte","gear_type":"Caps","order":8,"qty":102},{"market":"Charlotte","gear_type":"Caps","order":8,"qty":86},{"market":"Charlotte","gear_type":"Caps","order":5,"qty":111}],"shipped_items":[{"market":"Charlotte","gear_type":"Caps","order":8,"qty":75,"tn":"1Z7876305303"}],"in_production_items":[{"market":"Charlotte","gear_type":"Caps","order":3,"qty":448}],"error_items":[{"market":"Charlotte","gear_type":"Caps","order":2,"qty":28,"reason":"Color mismatch"}]},{"gear_type":"Bags","total":306,"arrived":265,"shipped":2,"in_production":39,"error":0,"arrived_items":[{"market":"Charlotte","gear_type":"Bags","order":4,"qty":174},{"market":"Charlotte","gear_type":"Bags","order":6,"qty":91}],"shipped_items":[{"market":"Charlotte","gear_type":"Bags","order":4,"qty":1,"tn":"1Z4182105850"},{"market":"Charlotte","gear_type":"Bags","order":5,"qty":1,"tn":"1Z8833836537"}],"in_production_items":[{"market":"Charlotte","gear_type":"Bags","order":1,"qty":19},{"market":"Charlotte","gear_type":"Bags","order":7,"qty":20}],"error_items":[]},{"gear_type":"Socks","total":319,"arrived":10,"shipped":64,"in_production":245,"error":0,"arrived_items":[{"market":"Charlotte","gear_type":"Socks","order":4,"qty":3},{"market":"Charlotte","gear_type":"Socks","order":3,"qty":4},{"market":"Charlotte","gear_type":"Socks","order":4,"qty":3}],"shipped_items":[{"market":"Charlotte","gear_type":"Socks","order":4,"qty":28,"tn":"1Z9804698076"},{"market":"Charlotte","gear_type":"Socks","order":8,"qty":36,"tn":"1Z2003291694"}],"in_production_items":[{"market":"Charlotte","gear_type":"Socks","order":1,"qty":245}],"error_items":[]},{"gear_type":"Pants","total":350,"arrived":209,"shipped":78,"in_production":63,"error":0,"arrived_items":[{"market":"Charlotte","gear_type":"Pants","order":4,"qty":79},{"market":"Charlotte","gear_type":"Pants","order":2,"qty":56},{"market":"Charlotte","gear_type":"Pants","order":4,"qty":74}],"shipped_items":[{"market":"Charlotte","gear_type":"Pants","order":2,"qty":41,"tn":"1Z2288678086"},{"market":"Charlotte","gear_type":"Pants","order":2,"qty":37,"tn":"1Z3457133847"}],"in_production_items":[{"market":"Charlotte","gear_type":"Pants","order":7,"qty":63}],"error_items":[]},{"gear_type":"Hoodies","total":304,"arrived":292,"shipped":2,"in_production":10,"error":0,"arrived_items":[{"market":"Charlotte","gear_type":"Hoodies","order":2,"qty":170},{"market":"Charlotte","gear_type":"Hoodies","order":3,"qty":122}],"shipped_items":[{"market":"Charlotte","gear_type":"Hoodies","order":3,"qty":1,"tn":"1Z5389594237"},{"market":"Charlotte","gear_type":"Hoodies","order":4,"qty":1,"tn":"1Z8124255819"}],"in_production_items":[{"market":"Charlotte","gear_type":"Hoodies","order":3,"qty":10}],"error_items":[]}]},"Denver":{"total":2592,"arrived":910,"shipped":768,"in_production":914,"error":5,"arrived_pct":35,"shipped_pct":30,"in_production_pct":35,"gear":[{"gear_type":"Helmets","total":822,"arrived":130,"shipped":240,"in_production":452,"error":0,"arrived_items":[{"market":"Denver","gear_type":"Helmets","order":6,"qty":87},{"market":"Denver","gear_type":"Helmets","order":4,"qty":43}],"shipped_items":[{"market":"Denver","gear_type":"Helmets","order":6,"qty":142,"tn":"1Z7075486332"},{"market":"Denver","gear_type":"Helmets","order":2,"qty":98,"tn":"1Z6575442713"}],"in_production_items":[{"market":"Denver","gear_type":"Helmets","order":5,"qty":196},{"market":"Denver","gear_type":"Helmets","order":6,"qty":256}],"error_items":[]},{"gear_type":"Bags","total":303,"arrived":118,"shipped":47,"in_production":138,"error":0,"arrived_items":[{"market":"Denver","gear_type":"Bags","order":3,"qty":24},{"market":"Denver","gear_type":"Bags","order":6,"qty":44},{"market":"Denver","gear_type":"Bags","order":6,"qty":50}],"shipped_items":[{"market":"Denver","gear_type":"Bags","order":7,"qty":30,"tn":"1Z8893326654"},{"market":"Denver","gear_type":"Bags","order":5,"qty":17,"tn":"1Z5143268689"}],"in_production_items":[{"market":"Denver","gear_type":"Bags","order":4,"qty":54},{"market":"Denver","gear_type":"Bags","order":8,"qty":84}],"error_items":[]},{"gear_type":"Jerseys","total":568,"arrived":72,"shipped":366,"in_production":130,"error":5,"arrived_items":[{"market":"Denver","gear_type":"Jerseys","order":7,"qty":15},{"market":"Denver","gear_type":"Jerseys","order":1,"qty":33},{"market":"Denver","gear_type":"Jerseys","order":3,"qty":24}],"shipped_items":[{"market":"Denver","gear_type":"Jerseys","order":4,"qty":366,"tn":"1Z6411925239"}],"in_production_items":[{"market":"Denver","gear_type":"Jerseys","order":6,"qty":65},{"market":"Denver","gear_type":"Jerseys","order":5,"qty":65}],"error_items":[{"market":"Denver","gear_type":"Jerseys","order":4,"qty":5,"reason":"Wrong size run"}]},{"gear_type":"Pants","total":132,"arrived":124,"shipped":4,"in_production":4,"error":0,"arrived_items":[{"market":"Denver","gear_type":"Pants","order":5,"qty":29},{"market":"Denver","gear_type":"Pants","order":6,"qty":61},{"market":"Denver","gear_type":"Pants","order":7,"qty":34}],"shipped_items":[{"market":"Denver","gear_type":"Pants","order":4,"qty":2,"tn":"1Z4166818382"},{"market":"Denver","gear_type":"Pants","order":6,"qty":2,"tn":"1Z9022677181"}],"in_production_items":[{"market":"Denver","gear_type":"Pants","order":6,"qty":4}],"error_items":[]},{"gear_type":"Socks","total":72,"arrived":48,"shipped":18,"in_production":6,"error":0,"arrived_items":[{"market":"Denver","gear_type":"Socks","order":7,"qty":22},{"market":"Denver","gear_type":"Socks","order":1,"qty":26}],"shipped_items":[{"market":"Denver","gear_type":"Socks","order":5,"qty":18,"tn":"1Z9615362452"}],"in_production_items":[{"market":"Denver","gear_type":"Socks","order":4,"qty":1},{"market":"Denver","gear_type":"Socks","order":4,"qty":5}],"error_items":[]},{"gear_type":"Caps","total":695,"arrived":418,"shipped":93,"in_production":184,"error":0,"arrived_items":[{"market":"Denver","gear_type":"Caps","order":5,"qty":190},{"market":"Denver","gear_type":"Caps","order":7,"qty":102},{"market":"Denver","gear_type":"Caps","order":7,"qty":126}],"shipped_items":[{"market":"Denver","gear_type":"Caps","order":7,"qty":46,"tn":"1Z6662562310"},{"market":"Denver","gear_type":"Caps","order":4,"qty":47,"tn":"1Z3895748726"}],"in_production_items":[{"market":"Denver","gear_type":"Caps","order":8,"qty":184}],"error_items":[]}]},"Nashville":{"total":1185,"arrived":229,"shipped":472,"in_production":484,"error":0,"arrived_pct":19,"shipped_pct":40,"in_production_pct":41,"gear":[{"gear_type":"Helmets","total":163,"arrived":109,"shipped":6,"in_production":48,"error":0,"arrived_items":[{"market":"Nashville","gear_type":"Helmets","order":6,"qty":73},{"market":"Nashville","gear_type":"Helmets","order":1,"qty":36}],"shipped_items":[{"market":"Nashville","gear_type":"Helmets","order":7,"qty":6,"tn":"1Z7161213733"}],"in_production_items":[{"market":"Nashville","gear_type":"Helmets","order":5,"qty":48}],"error_items":[]},{"gear_type":"Caps","total":660,"arrived":97,"shipped":350,"in_production":213,"error":0,"arrived_items":[{"market":"Nashville","gear_type":"Caps","order":8,"qty":30},{"market":"Nashville","gear_type":"Caps","order":6,"qty":67}],"shipped_items":[{"market":"Nashville","gear_type":"Caps","order":7,"qty":193,"tn":"1Z8923196292"},{"market":"Nashville","gear_type":"Caps","order":4,"qty":157,"tn":"1Z4467186198"}],"in_production_items":[{"market":"Nashville","gear_type":"Caps","order":6,"qty":100},{"market":"Nashville","gear_type":"Caps","order":4,"qty":113}],"error_items":[]},{"gear_type":"Hoodies","total":181,"arrived":18,"shipped":51,"in_production":112,"error":0,"arrived_items":[{"market":"Nashville","gear_type":"Hoodies","order":8,"qty":4},{"market":"Nashville","gear_type":"Hoodies","order":5,"qty":5},{"market":"Nashville","gear_type":"Hoodies","order":2,"qty":9}],"shipped_items":[{"market":"Nashville","gear_type":"Hoodies","order":4,"qty":26,"tn":"1Z4929205703"},{"market":"Nashville","gear_type":"Hoodies","order":5,"qty":25,"tn":"1Z6452070851"}],"in_production_items":[{"market":"Nashville","gear_type":"Hoodies","order":4,"qty":63},{"market":"Nashville","gear_type":"Hoodies","order":3,"qty":49}],"error_items":[]},{"gear_type":"Pants","total":181,"arrived":5,"shipped":65,"in_production":111,"error":0,"arrived_items":[{"market":"Nashville","gear_type":"Pants","order":8,"qty":3},{"market":"Nashville","gear_type":"Pants","order":2,"qty":2}],"shipped_items":[{"market":"Nashville","gear_type":"Pants","order":5,"qty":30,"tn":"1Z9089586892"},{"market":"Nashville","gear_type":"Pants","order":5,"qty":35,"tn":"1Z2437857111"}],"in_production_items":[{"market":"Nashville","gear_type":"Pants","order":4,"qty":40},{"market":"Nashville","gear_type":"Pants","order":1,"qty":71}],"error_items":[]}]},"Phoenix":{"total":938,"arrived":190,"shipped":407,"in_production":341,"error":0,"arrived_pct":20,"shipped_pct":43,"in_production_pct":36,"gear":[{"gear_type":"Socks","total":560,"arrived":72,"shipped":289,"in_production":199,"error":0,"arrived_items":[{"market":"Phoenix","gear_type":"Socks","order":6,"qty":18},{"market":"Phoenix","gear_type":"Socks","order":4,"qty":34},{"market":"Phoenix","gear_type":"Socks","order":1,"qty":20}],"shipped_items":[{"market":"Phoenix","gear_type":"Socks","order":1,"qty":289,"tn":"1Z8752175150"}],"in_production_items":[{"market":"Phoenix","gear_type":"Socks","order":2,"qty":199}],"error_items":[]},{"gear_type":"Bags","total":89,"arrived":49,"shipped":27,"in_production":13,"error":0,"arrived_items":[{"market":"Phoenix","gear_type":"Bags","order":6,"qty":28},{"market":"Phoenix","gear_type":"Bags","order":3,"qty":21}],"shipped_items":[{"market":"Phoenix","gear_type":"Bags","order":7,"qty":27,"tn":"1Z3254766402"}],"in_production_items":[{"market":"Phoenix","gear_type":"Bags","order":8,"qty":13}],"error_items":[]},{"gear_type":"Caps","total":65,"arrived":20,"shipped":21,"in_production":24,"error":0,"arrived_items":[{"market":"Phoenix","gear_type":"Caps","order":4,"qty":20}],"shipped_items":[{"market":"Phoenix","gear_type":"Caps","order":5,"qty":21,"tn":"1Z7746864460"}],"in_production_items":[{"market":"Phoenix","gear_type":"Caps","order":6,"qty":24}],"error_items":[]},{"gear_type":"Pants","total":224,"arrived":49,"shipped":70,"in_production":105,"error":0,"arrived_items":[{"market":"Phoenix","gear_type":"Pants","order":8,"qty":27},{"market":"Phoenix","gear_type":"Pants","order":5,"qty":22}],"shipped_items":[{"market":"Phoenix","gear_type":"Pants","order":1,"qty":25,"tn":"1Z2223550544"},{"market":"Phoenix","gear_type":"Pants","order":7,"qty":45,"tn":"1Z8528130232"}],"in_production_items":[{"market":"Phoenix","gear_type":"Pants","order":7,"qty":47},{"market":"Phoenix","gear_type":"Pants","order":5,"qty":58}],"error_items":[]}]},"Portland":{"total":2542,"arrived":1325,"shipped":707,"in_production":510,"error":10,"arrived_pct":52,"shipped_pct":28,"in_production_pct":20,"gear":[{"gear_type":"Socks","total":781,"arrived":138,"shipped":478,"in_production":165,"error":10,"arrived_items":[{"market":"Portland","gear_type":"Socks","order":6,"qty":138}],"shipped_items":[{"market":"Portland","gear_type":"Socks","order":6,"qty":161,"tn":"1Z7456493117"},{"market":"Portland","gear_type":"Socks","order":1,"qty":317,"tn":"1Z4041864571"}],"in_production_items":[{"market":"Portland","gear_type":"Socks","order":2,"qty":62},{"market":"Portland","gear_type":"Socks","order":8,"qty":103}],"error_items":[{"market":"Portland","gear_type":"Socks","order":6,"qty":10,"reason":"Torn seam"}]},{"gear_type":"Caps","total":717,"arrived":423,"shipped":126,"in_production":168,"error":0,"arrived_items":[{"market":"Portland","gear_type":"Caps","order":8,"qty":423}],"shipped_items":[{"market":"Portland","gear_type":"Caps","order":4,"qty":126,"tn":"1Z7687773690"}],"in_production_items":[{"market":"Portland","gear_type":"Caps","order":7,"qty":78},{"market":"Portland","gear_type":"Caps","order":7,"qty":90}],"error_items":[]},{"gear_type":"Bags","total":554,"arrived":414,"shipped":1,"in_production":139,"error":0,"arrived_items":[{"market":"Portland","gear_type":"Bags","order":5,"qty":414}],"shipped_items":[{"market":"Portland","gear_type":"Bags","order":7,"qty":1,"tn":"1Z7374403648"}],"in_production_items":[{"market":"Portland","gear_type":"Bags","order":2,"qty":139}],"error_items":[]},{"gear_type":"Jerseys","total":490,"arrived":350,"shipped":102,"in_production":38,"error":0,"arrived_items":[{"market":"Portland","gear_type":"Jerseys","order":2,"qty":150},{"market":"Portland","gear_type":"Jerseys","order":7,"qty":200}],"shipped_items":[{"market":"Portland","gear_type":"Jerseys","order":4,"qty":67,"tn":"1Z3860429237"},{"market":"Portland","gear_type":"Jerseys","order":7,"qty":35,"tn":"1Z6497169206"}],"in_production_items":[{"market":"Portland","gear_type":"Jerseys","order":5,"qty":38}],"error_items":[]}]},"Sacramento":{"total":1846,"arrived":1116,"shipped":437,"in_production":293,"error":23,"arrived_pct":60,"shipped_pct":24,"in_production_pct":16,"gear":[{"gear_type":"Hoodies","total":666,"arrived":275,"shipped":303,"in_production":88,"error":0,"arrived_items":[{"market":"Sacramento","gear_type":"Hoodies","order":1,"qty":83},{"market":"Sacramento","gear_type":"Hoodies","order":5,"qty":192}],"shipped_items":[{"market":"Sacramento","gear_type":"Hoodies","order":7,"qty":106,"tn":"1Z7679919909"},{"market":"Sacramento","gear_type":"Hoodies","order":7,"qty":197,"tn":"1Z4393602361"}],"in_production_items":[{"market":"Sacramento","gear_type":"Hoodies","order":4,"qty":88}],"error_items":[]},{"gear_type":"Bags","total":233,"arrived":22,"shipped":65,"in_production":146,"error":0,"arrived_items":[{"market":"Sacramento","gear_type":"Bags","order":2,"qty":22}],"shipped_items":[{"market":"Sacramento","gear_type":"Bags","order":8,"qty":65,"tn":"1Z3174411826"}],"in_production_items":[{"market":"Sacramento","gear_type":"Bags","order":5,"qty":146}],"error_items":[]},{"gear_type":"Socks","total":127,"arrived":109,"shipped":9,"in_production":9,"error":0,"arrived_items":[{"market":"Sacramento","gear_type":"Socks","order":4,"qty":44},{"market":"Sacramento","gear_type":"Socks","order":2,"qty":27},{"market":"Sacramento","gear_type":"Socks","order":5,"qty":38}],"shipped_items":[{"market":"Sacramento","gear_type":"Socks","order":7,"qty":4,"tn":"1Z2554008730"},{"market":"Sacramento","gear_type":"Socks","order":2,"qty":5,"tn":"1Z2130863877"}],"in_production_items":[{"market":"Sacramento","gear_type":"Socks","order":6,"qty":9}],"error_items":[]},{"gear_type":"Jerseys","total":820,"arrived":710,"shipped":60,"in_production":50,"error":23,"arrived_items":[{"market":"Sacramento","gear_type":"Jerseys","order":2,"qty":710}],"shipped_items":[{"market":"Sacramento","gear_type":"Jerseys","order":4,"qty":60,"tn":"1Z4370222077"}],"in_production_items":[{"market":"Sacramento","gear_type":"Jerseys","order":2,"qty":50}],"error_items":[{"market":"Sacramento","gear_type":"Jerseys","order":8,"qty":23,"reason":"Wrong size run"}]}]}}};
+
+let _allOrders = DEMO.orders, _markets = DEMO.markets;
+let _season='All', _year='All', _sport='All';
+let _excluded = new Set(), _expandedMarkets = new Set();
+
+const u   = n => n.toLocaleString();
+const avg = (arr,k) => { const v=arr.map(o=>o[k]).filter(x=>x!==null&&x!==undefined); return v.length? v.reduce((a,b)=>a+b,0)/v.length : null; };
+const fmtDays = v => v!==null&&v!==undefined ? v.toFixed(1)+' d' : '\u2014';
+const fmtPct  = v => v!==null&&v!==undefined ? v.toFixed(0)+'%'  : '\u2014';
+const delayClass = v => v===null||v===undefined ? 'text-gray-400' : (v>0?'text-red-600 font-semibold':'text-green-600 font-semibold');
+const errorClass = delayClass;
+function pctDelayed(a){ const w=a.filter(o=>o.is_delayed!==null&&o.is_delayed!==undefined); return w.length? w.filter(o=>o.is_delayed).length/w.length*100 : null; }
+
+const ACTIVE = 'px-4 py-2 bg-purple-600 text-white font-semibold text-sm';
+const IDLE   = 'px-4 py-2 bg-white text-gray-600 hover:bg-gray-50 font-semibold text-sm';
+
+function buildToggle(wrapId, values, current, onPick){
+  const wrap=document.getElementById(wrapId); wrap.innerHTML='';
+  ['All',...values].forEach(v=>{
+    const b=document.createElement('button');
+    b.textContent=v; b.className = String(v)===String(current)?ACTIVE:IDLE;
+    b.onclick=()=>onPick(v);
+    wrap.appendChild(b);
+  });
+}
+function buildToggles(){
+  buildToggle('year-toggle',  [...new Set(_allOrders.map(o=>o.year))].sort(),  _year,  v=>{_year=v;  buildToggles(); render();});
+  buildToggle('season-toggle',['Summer','Fall'],                               _season,v=>{_season=v;buildToggles(); render();});
+  buildToggle('sport-toggle', [...new Set(_allOrders.map(o=>o.sport))].sort(), _sport, v=>{_sport=v; buildToggles(); render();});
+}
+
+document.addEventListener('click', e=>{
+  if(!document.getElementById('exclude-wrap').contains(e.target))
+    document.getElementById('exclude-menu').classList.add('hidden');
+});
+function toggleExclude(){ document.getElementById('exclude-menu').classList.toggle('hidden'); }
+function buildExcludeList(){
+  const el=document.getElementById('exclude-list'); el.innerHTML='';
+  _allOrders.forEach(o=>{
+    const row=document.createElement('label');
+    row.className='flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer rounded-lg text-sm text-gray-700';
+    const cb=document.createElement('input'); cb.type='checkbox'; cb.className='rounded'; cb.checked=_excluded.has(o.id);
+    cb.onchange=()=>{ cb.checked?_excluded.add(o.id):_excluded.delete(o.id); updateExcludeLabel(); render(); };
+    row.appendChild(cb); row.appendChild(document.createTextNode(o.label)); el.appendChild(row);
+  });
+}
+function updateExcludeLabel(){
+  const n=_excluded.size;
+  document.getElementById('exclude-label').textContent = n===0?'Exclude orders':`Excluding ${n} order${n>1?'s':''}`;
+}
+const filtered = () => _allOrders.filter(o =>
+  !_excluded.has(o.id) &&
+  (_season==='All'||o.season===_season) &&
+  (_year==='All'||String(o.year)===String(_year)) &&
+  (_sport==='All'||o.sport===_sport));
+
+function statusGroups(arr){
+  const g={total:arr,ahead:[],onschedule:[],behind:[]};
+  arr.forEach(o=>{ if(o.order_status===0)g.ahead.push(o.label); else if(o.order_status===1)g.onschedule.push(o.label); else if(o.order_status===2)g.behind.push(o.label); });
+  return g;
+}
+function setStatusCell(id,val){
+  const el=document.getElementById(id); if(!el) return;
+  const arr=Array.isArray(val)?val:[];
+  el.textContent=arr.length;
+  if(arr.length){ el.dataset.tip=arr.join('\n'); el.classList.add('cursor-help'); }
+  else { delete el.dataset.tip; el.classList.remove('cursor-help'); }
+}
+function renderStatusBreakdown(data){
+  const og=statusGroups(data.filter(o=>(o.current_phase??-1)<4));
+  const dl=statusGroups(data.filter(o=>(o.current_phase??-1)>=4));
+  const tt=statusGroups(data);
+  [['ongoing',og],['delivered',dl],['total',tt]].forEach(([k,g])=>{
+    setStatusCell(`st-${k}-total`,g.total); setStatusCell(`st-${k}-behind`,g.behind);
+    setStatusCell(`st-${k}-ahead`,g.ahead); setStatusCell(`st-${k}-onschedule`,g.onschedule);
+  });
+}
+
+const fmtItemRows = (items,showTn) => (items||[]).map(i =>
+  `  ${i.market} ${i.gear_type} Order ${i.order}: ${u(i.qty)}` + (showTn&&i.tn?`  ${i.tn}`:'')).join('\n');
+const gearTooltip = (label,qty,items,showTn) => [label, fmtItemRows(items,showTn)].filter(Boolean).join('\n');
+const fmtErrorItem = i => `${i.market} ${i.gear_type} Order ${i.order} (Remake) \u2014 ${i.reason||'issue'}: ${u(i.qty)}`;
+
+function toggleGearMarket(m){ _expandedMarkets.has(m)?_expandedMarkets.delete(m):_expandedMarkets.add(m); renderGearStatus(); }
+
+function gearStatusHTML(market,d){
+  const isExpanded=_expandedMarkets.has(market);
+  const errorTip=d.gear.flatMap(g=>(g.error_items||[]).map(fmtErrorItem)).join('\n').trim();
+  const gearRows=d.gear.map(g=>{
+    const ap=g.total?Math.floor(g.arrived/g.total*100):0;
+    const sp=g.total?Math.round(g.shipped/g.total*100):0;
+    const ip=g.total?Math.round(g.in_production/g.total*100):0;
+    const allTotal=g.total+(g.error||0);
+    const ep=allTotal?Math.round((g.error||0)/allTotal*100):0;
+    const label = (ep>0&&ap===0&&sp===0&&ip===0)?'\u26a0 Issue' : (ep>0)?`\u26a0 ${ep}% issue`
+                : (ip===100)?'Not shipped' : (ap===100)?'100% arrived'
+                : (ap===0&&sp>0)?'In transit' : `${ap}% arrived`;
+    const labelCls=(ep>0)?'text-red-500':(ip===100)?'text-gray-400':(ap===100)?'text-green-600':'text-orange-500';
+    let tip='';
+    if(g.arrived>0)       tip+=gearTooltip('Arrived',g.arrived,g.arrived_items,false)+'\n';
+    if(g.shipped>0)       tip+=gearTooltip('In Transit',g.shipped,g.shipped_items,true)+'\n';
+    if(g.in_production>0) tip+=gearTooltip('In Production',g.in_production,g.in_production_items,false)+'\n';
+    if(g.error>0)         tip+=(g.error_items||[]).map(fmtErrorItem).join('\n')+'\n';
+    tip=tip.trim();
+    const tipAttr=tip?` data-tip="${tip.replace(/"/g,'&quot;')}"`:'';
+    return `<div class="flex items-center gap-2 py-1">
+      <span class="text-gray-600 text-xs w-24 shrink-0 truncate">${g.gear_type}</span>
+      <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden flex cursor-help"${tipAttr}>
+        ${ap>0?`<div class="h-full bg-green-500" style="width:${ap}%"></div>`:''}
+        ${sp>0?`<div class="h-full bg-orange-400" style="width:${sp}%"></div>`:''}
+        ${ip>0?`<div class="h-full bg-gray-300" style="width:${ip}%"></div>`:''}
+      </div>
+      <span class="text-xs w-20 text-right shrink-0 ${labelCls} cursor-help"${tipAttr}>${label}</span>
+    </div>`;
+  }).join('');
+  return `<div class="border border-gray-200 rounded-xl p-4">
+    <button class="w-full flex items-center justify-between mb-3 text-left" onclick="toggleGearMarket('${market}')">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="font-semibold text-gray-800 text-sm">${market}</span>
+        ${d.arrived>0?`<span class="text-xs text-green-600">${u(d.arrived)} arrived</span>`:''}
+        ${d.shipped>0?`<span class="text-xs text-orange-500">${u(d.shipped)} in transit</span>`:''}
+        ${d.error>0?`<span class="text-xs text-red-500 cursor-help" data-tip="${errorTip.replace(/"/g,'&quot;')}">${u(d.error)} issue${d.error>1?'s':''}</span>`:''}
+        ${d.in_production>0?`<span class="text-xs text-gray-400">${u(d.in_production)} in production</span>`:''}
+      </div>
+      <span class="text-gray-400 text-xs">${isExpanded?'\u25b2':'\u25bc'}</span>
+    </button>
+    <div class="h-2.5 bg-gray-100 rounded-full overflow-hidden flex mb-3">
+      ${d.arrived_pct>0?`<div class="h-full bg-green-500" style="width:${d.arrived_pct}%"></div>`:''}
+      ${d.shipped>0?`<div class="h-full bg-orange-400" style="width:${Math.max(d.shipped_pct,0.5)}%"></div>`:''}
+      ${d.in_production_pct>0?`<div class="h-full bg-gray-300" style="width:${d.in_production_pct}%"></div>`:''}
+    </div>
+    ${isExpanded?gearRows:''}
+  </div>`;
+}
+
+function renderGearStatus(){
+  const markets=_markets;
+  let totArr=0,totShp=0,totPrd=0,totAll=0,totErr=0;
+  for(const d of Object.values(markets)){ totArr+=d.arrived; totShp+=d.shipped; totPrd+=d.in_production; totAll+=d.total; totErr+=d.error; }
+  const fmtP=(n,t)=>t?Math.round(n/t*100)+'%':'\u2014';
+  document.getElementById('card-gear-arrived').textContent=fmtP(totArr,totAll);
+  document.getElementById('card-gear-shipped').textContent=fmtP(totShp,totAll);
+  document.getElementById('card-gear-production').textContent=fmtP(totPrd,totAll);
+  const errPct=(totAll+totErr)?Math.round(totErr/(totAll+totErr)*100):0;
+  const errEl=document.getElementById('card-error');
+  errEl.textContent=errPct+'%';
+  errEl.className='text-2xl font-bold cursor-help '+(errPct>0?'text-red-600':'text-green-600');
+  const allErr=Object.values(markets).flatMap(d=>d.gear||[]).flatMap(g=>(g.error_items||[]).map(fmtErrorItem));
+  errEl.dataset.tip=allErr.length?allErr.join('\n'):'No flagged issues';
+  document.getElementById('gear-status-body').innerHTML =
+    Object.keys(markets).sort((a,b)=>markets[b].arrived_pct-markets[a].arrived_pct)
+      .map(m=>gearStatusHTML(m,markets[m])).join('');
+  document.getElementById('gear-status-updated').textContent='Updated just now';
+}
+
+function render(){
+  const data=filtered();
+  document.getElementById('card-proofs').textContent           = fmtDays(avg(data,'days_to_proofs'));
+  document.getElementById('card-ship').textContent             = fmtDays(avg(data,'days_to_ship'));
+  document.getElementById('card-delivery').textContent         = fmtDays(avg(data,'days_to_delivery'));
+  document.getElementById('card-ship-to-delivery').textContent = fmtDays(avg(data,'days_ship_to_delivery'));
+  const dp=pctDelayed(data), delayEl=document.getElementById('card-delay');
+  delayEl.textContent=fmtPct(dp); delayEl.className='text-2xl font-bold '+delayClass(dp);
+  renderStatusBreakdown(data);
+  const markets={};
+  data.forEach(o=>{ (markets[o.market]=markets[o.market]||[]).push(o); });
+  const tbody=document.getElementById('market-table');
+  if(!Object.keys(markets).length){
+    tbody.innerHTML='<tr><td colspan="8" class="px-6 py-8 text-center text-gray-400 text-sm">No data for selected filters.</td></tr>';
+    return;
+  }
+  tbody.innerHTML=Object.entries(markets).sort(([a],[b])=>a.localeCompare(b)).map(([market,rows])=>{
+    const gd=_markets[market]||{gear:[]};
+    const errItems=(gd.gear||[]).flatMap(g=>(g.error_items||[]).map(fmtErrorItem));
+    const totalUnits=(gd.total||0), errUnits=(gd.error||0);
+    const ep2=(totalUnits+errUnits)?errUnits/(totalUnits+errUnits)*100:null;
+    const dp2=pctDelayed(rows);
+    const et=errItems.join('\n');
+    return `<tr class="hover:bg-gray-50">
+      <td class="px-6 py-3 font-semibold text-gray-800">${market}</td>
+      <td class="px-4 py-3 text-center text-gray-500">${rows.length}</td>
+      <td class="px-4 py-3 text-center text-gray-700">${fmtDays(avg(rows,'days_to_proofs'))}</td>
+      <td class="px-4 py-3 text-center text-gray-700">${fmtDays(avg(rows,'days_to_ship'))}</td>
+      <td class="px-4 py-3 text-center text-gray-700">${fmtDays(avg(rows,'days_to_delivery'))}</td>
+      <td class="px-4 py-3 text-center text-gray-700">${fmtDays(avg(rows,'days_ship_to_delivery'))}</td>
+      <td class="px-4 py-3 text-center ${delayClass(dp2)}">${fmtPct(dp2)}</td>
+      <td class="px-4 py-3 text-center ${errorClass(ep2)}${et?' cursor-help':''}"${et?` data-tip="${et.replace(/"/g,'&quot;')}"`:''}>${fmtPct(ep2)}</td>
+    </tr>`;
+  }).join('');
+}
+
+const tipEl=document.getElementById('gear-tip');
+document.addEventListener('mouseover',e=>{
+  const t=e.target.closest('[data-tip]');
+  if(!t){ tipEl.style.display='none'; return; }
+  tipEl.textContent=t.dataset.tip; tipEl.style.display='block';
+});
+document.addEventListener('mousemove',e=>{
+  if(tipEl.style.display==='none') return;
+  const pad=14; let x=e.clientX+pad, y=e.clientY+pad;
+  const r=tipEl.getBoundingClientRect();
+  if(x+r.width>innerWidth-8)  x=e.clientX-r.width-pad;
+  if(y+r.height>innerHeight-8) y=e.clientY-r.height-pad;
+  tipEl.style.left=x+'px'; tipEl.style.top=y+'px';
+});
+
+function reload(){
+  const icon=document.getElementById('refresh-icon');
+  icon.classList.add('spin');
+  setTimeout(()=>{ icon.classList.remove('spin'); stamp(); },600);
+}
+function stamp(){
+  document.getElementById('last-loaded').textContent =
+    'Sample data \u00b7 loaded ' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+}
+
+buildToggles(); buildExcludeList(); updateExcludeLabel();
+renderGearStatus(); render(); stamp();
+</script>
+</body>
+</html>
