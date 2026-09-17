@@ -108,6 +108,23 @@ header{border-bottom:1px solid var(--ring);background:var(--surface);margin-bott
 .tile.alert{border-color:var(--critical)}
 .tile.alert .v{color:var(--critical)}
 
+
+/* ---------------- summary bullets ---------------- */
+.sum{list-style:none;margin:0;padding:2px 0 4px}
+.sum li{display:flex;gap:11px;padding:9px 0;border-bottom:1px solid var(--grid);
+        align-items:flex-start;font-size:14px;line-height:1.5}
+.sum li:last-child{border-bottom:0}
+.sum .mark{flex:0 0 auto;width:18px;height:18px;margin-top:1px;border-radius:50%;
+           display:flex;align-items:center;justify-content:center;font-size:11px;
+           font-weight:700;color:#fff}
+.sum .mark.bad{background:var(--critical)}
+.sum .mark.warn{background:var(--serious)}
+.sum .mark.good{background:var(--good)}
+.sum .mark.info{background:var(--ink-3)}
+.sum .txt{min-width:0;flex:1}
+.sum .who{font-weight:600}
+.sum .ctx{color:var(--ink-3);font-size:12.5px;margin-top:2px}
+
 /* ---------------- panels ---------------- */
 .panel{background:var(--surface);border:1px solid var(--ring);border-radius:10px;
        margin-bottom:18px;overflow:hidden}
@@ -460,12 +477,41 @@ function renderMain(){
   });
   host.appendChild(grid);
 
+  host.appendChild(summaryPanel(ins));
   host.appendChild(chartPanel(wk, meta));
   host.appendChild(replyPanel(ins));
   host.appendChild(duePanel(ins));
   host.appendChild(mondayPanel(wk.monday||[]));
   host.appendChild(trelloPanel(wk.trello||[]));
   host.appendChild(mailPanel(wk.gmail||[]));
+}
+
+
+/* ---- the week in bullets, straight after the cards ---- */
+function summaryPanel(ins){
+  var list = ins.highlights || [];
+  var p = el('<div class="panel"><div class="phead"><h2>Summary</h2>'+
+             '<span class="count">'+plural(list.length,'item')+'</span></div>'+
+             '<div class="pbody"></div></div>');
+  var body = p.querySelector('.pbody');
+  if(!list.length){
+    body.innerHTML='<p class="empty" style="padding:14px 0">Nothing stood out this week.</p>';
+    return p;
+  }
+  var ul = el('<ul class="sum"></ul>');
+  var GLYPH = {bad:'!', warn:'!', good:'\u2713', info:'\u00b7'};
+  list.forEach(function(h){
+    var where = h.where && h.where !== 'email' ? esc(h.where) : '';
+    ul.appendChild(el(
+      '<li><span class="mark '+esc(h.tone)+'">'+GLYPH[h.tone]+'</span>'+
+        '<span class="txt">'+
+          (h.who ? '<span class="who">'+esc(h.who)+'</span> &middot; ' : '')+
+          esc(h.what)+
+          '<div class="ctx">'+(where?where+' &middot; ':'')+esc(when(h.when))+'</div>'+
+        '</span></li>'));
+  });
+  body.appendChild(ul);
+  return p;
 }
 
 /* ---- daily activity chart: grouped bars, 3 series ---- */
