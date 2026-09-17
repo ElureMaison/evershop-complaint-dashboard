@@ -1,0 +1,7 @@
+# Public profile site at the root; everything else is internal tooling.
+User-agent: *
+Allow: /$
+Disallow: /Evershop-
+Disallow: /OKOT-Update
+
+Sitemap: https://yourbadassvaronceph.com/sitemap.xml
