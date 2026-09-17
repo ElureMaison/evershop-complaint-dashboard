@@ -259,8 +259,12 @@ function decrypt(env, key){
     .then(function(buf){ return JSON.parse(new TextDecoder().decode(buf)); });
 }
 function fetchEnvelope(bust){
+  // Always revalidate. The host sends cache-control: max-age=600, so a plain
+  // fetch will happily serve a ten-minute-old digest — and after a password
+  // rotation that looks exactly like a wrong password. 'no-cache' still gets
+  // a cheap 304 when nothing has changed.
   var url='data.json' + (bust ? ('?t='+Date.now()) : '');
-  return fetch(url,{cache: bust?'reload':'default'})
+  return fetch(url,{cache: bust?'reload':'no-cache'})
     .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); });
 }
 
@@ -315,7 +319,15 @@ pw.addEventListener('keydown',function(e){if(e.key==='Enter')tryUnlock();});
 pw.addEventListener('input',function(){document.getElementById('gateErr').textContent='';});
 // Within a tab, don't re-ask; a new tab or window starts locked again.
 var saved=null; try{saved=sessionStorage.getItem(GK);}catch(e){}
-if(saved){ pw.value=saved; tryUnlock(); } else { pw.focus(); }
+if(saved){
+  pw.value=saved;
+  tryUnlock();
+  // A remembered password that no longer decrypts means the digest was
+  // re-encrypted; drop it so the next attempt starts clean.
+  setTimeout(function(){
+    if(!DATA){ try{sessionStorage.removeItem(GK);}catch(e){} pw.value=''; pw.focus(); }
+  }, 4000);
+} else { pw.focus(); }
 
 /* ============ theme ============ */
 var tBtn=document.getElementById('themeBtn');
