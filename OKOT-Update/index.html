@@ -173,6 +173,24 @@ table.dt th{color:var(--ink-3);font-weight:600;font-size:11px;letter-spacing:.05
 .grp{margin:14px 0 6px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;
      color:var(--ink-3)}
 
+
+/* ---------------- email conversations ---------------- */
+.conv{padding:13px 0;border-bottom:1px solid var(--grid)}
+.conv:last-child{border-bottom:0}
+.conv .line1{display:flex;gap:9px;align-items:baseline;flex-wrap:wrap;margin-bottom:4px}
+.conv .who{font-weight:600;font-size:14px}
+.conv .subj{color:var(--ink-2);font-size:13.5px;min-width:0}
+.conv .when{margin-left:auto;font-size:12px;color:var(--ink-3);white-space:nowrap;
+            font-variant-numeric:tabular-nums}
+.conv .ask{font-size:13.5px;line-height:1.5;margin:5px 0 7px;color:var(--ink-1)}
+.conv .tags{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;
+     font-size:11.5px;border:1px solid var(--ring);color:var(--ink-2);white-space:nowrap}
+.tag.topic{background:var(--wash)}
+.tag.okot{border-color:var(--critical);color:var(--critical);font-weight:600}
+.tag.them{border-color:var(--axis)}
+.tag.fyi{border-color:var(--serious);color:var(--serious)}
+
 /* ---------------- source status ---------------- */
 .srcs{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
 .src{border:1px solid var(--ring);border-radius:9px;padding:13px 14px;background:var(--plane)}
@@ -487,6 +505,7 @@ function renderMain(){
 
   host.appendChild(summaryPanel(ins));
   host.appendChild(chartPanel(wk, meta));
+  host.appendChild(convPanel(ins));
   host.appendChild(replyPanel(ins));
   host.appendChild(duePanel(ins));
   host.appendChild(mondayPanel(wk.monday||[]));
@@ -604,6 +623,42 @@ function chartPanel(wk, meta){
     var showTable=tb.hidden;
     tb.hidden=!showTable; ch.hidden=showTable;
     btn.textContent=showTable?'Chart view':'Table view';
+  });
+  return p;
+}
+
+
+/* ---- email conversations: what it is about, and who it is waiting on ---- */
+function convPanel(ins){
+  var rows = ins.conversations || [];
+  var mine = rows.filter(function(r){return r.waiting==='okot';}).length;
+  var p = el('<div class="panel"><div class="phead">'+
+             '<h2><span class="dot" style="background:var(--s-gmail)"></span>Email conversations</h2>'+
+             '<span class="count">'+plural(rows.length,'thread')+
+             (mine?' &middot; '+mine+' on OKOT':'')+'</span></div>'+
+             '<div class="pbody"></div></div>');
+  var body = p.querySelector('.pbody');
+  if(!rows.length){
+    body.innerHTML='<p class="empty" style="padding:14px 0">No live conversations this week.</p>';
+    return p;
+  }
+  var WAIT = {okot:'Waiting on OKOT', them:'With them', fyi:'For information'};
+  rows.forEach(function(r){
+    body.appendChild(el(
+      '<div class="conv">'+
+        '<div class="line1">'+
+          '<span class="who">'+esc(r.who)+'</span>'+
+          '<span class="subj">'+esc(r.subject)+'</span>'+
+          '<span class="when" title="'+esc(clock(r.when))+'">'+esc(stamp(r.last_in))+'</span>'+
+        '</div>'+
+        (r.ask?'<div class="ask">&ldquo;'+esc(r.ask)+'&rdquo;</div>':'')+
+        '<div class="tags">'+
+          '<span class="tag topic">'+esc(r.topic)+'</span>'+
+          '<span class="tag '+esc(r.waiting)+'">'+esc(WAIT[r.waiting]||r.waiting)+'</span>'+
+          '<span class="tag">'+esc(r.state)+'</span>'+
+          (r.messages>1?'<span class="tag">'+plural(r.messages,'message')+'</span>':'')+
+        '</div>'+
+      '</div>'));
   });
   return p;
 }
