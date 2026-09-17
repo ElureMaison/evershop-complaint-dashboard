@@ -397,7 +397,7 @@
   .shot-feed img{ width:100%; height:auto; display:block; border-radius:14px; border:1px solid var(--line); box-shadow:0 20px 40px -28px var(--shadow); }
   .shot-scroller{ padding:26px; align-items:flex-start; }
   .shot-card{ scroll-snap-align:start; flex:0 0 100%; margin:0; border:1px solid var(--line); border-radius:14px; overflow:hidden; background:#fff; display:flex; flex-direction:column; align-items:center; }
-  .shot-card img{ display:block; width:100%; height:min(70vh,560px); object-fit:contain; background:#fff; }
+  .shot-card img{ display:block; width:100%; height:auto; max-height:min(70vh,560px); object-fit:contain; background:#fff; }
   .shot-card figcaption{ width:100%; }
   .shot-card figcaption{ padding:12px 14px; font-family:"IBM Plex Mono",monospace; font-size:0.74rem; color:var(--ink-soft); background:var(--surface); border-top:1px solid var(--line); }
 
@@ -1367,7 +1367,7 @@
     });
   });
 
-  function wireScroller(scrollerId, dotsId, prevId, nextId, label){
+  function wireScroller(scrollerId, dotsId, prevId, nextId, label, onActive){
     var scroller = document.getElementById(scrollerId);
     if(!scroller) return;
     var cards = Array.from(scroller.children);
@@ -1385,6 +1385,7 @@
         var idx = cards.indexOf(entry.target);
         if(entry.isIntersecting && idx > -1){
           dots.forEach(function(d,i){ d.classList.toggle('active', i === idx); });
+          if(onActive) onActive(entry.target);
         }
       });
     }, { root: scroller, threshold: 0.6 });
@@ -1408,7 +1409,39 @@
     }
   }
 
-  wireScroller('shotScroller', 'shotDots', 'shotPrev', 'shotNext', 'result');
+  // Each assessment screenshot has its own aspect ratio, so the scroller is sized
+  // to whichever slide is in view rather than to the tallest one.
+  function fitShot(card){
+    var sc = document.getElementById('shotScroller');
+    if(!sc) return;
+    if(!card){
+      var scLeft = sc.getBoundingClientRect().left, bestD = Infinity;
+      Array.from(sc.children).forEach(function(c){
+        var d = Math.abs(c.getBoundingClientRect().left - scLeft);
+        if(d < bestD){ bestD = d; card = c; }
+      });
+    }
+    if(!card) return;
+    var cs = getComputedStyle(sc);
+    sc.style.height = (card.offsetHeight + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom)) + 'px';
+  }
+
+  wireScroller('shotScroller', 'shotDots', 'shotPrev', 'shotNext', 'result', fitShot);
+
+  (function(){
+    var sc = document.getElementById('shotScroller');
+    if(!sc) return;
+    if(!reduceMotion) sc.style.transition = 'height .35s cubic-bezier(.2,.7,.2,1)';
+    var t;
+    function queue(delay){ clearTimeout(t); t = setTimeout(function(){ fitShot(null); }, delay); }
+    sc.addEventListener('scroll', function(){ queue(80); }, {passive:true});
+    window.addEventListener('resize', function(){ queue(120); });
+    Array.from(sc.children).forEach(function(c){
+      var im = c.querySelector('img');
+      if(im && !im.complete) im.addEventListener('load', function(){ queue(0); });
+    });
+    fitShot(null);
+  })();
 
   if(!reduceMotion){
     var revealEls = [];
@@ -1429,6 +1462,5 @@
 })();
 </script>
 
-</body></html>
 </body>
 </html>
