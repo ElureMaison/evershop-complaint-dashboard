@@ -52,9 +52,15 @@ a{color:inherit}
 .gatecard h1{margin:0 0 4px;font-size:19px;letter-spacing:-0.01em}
 .gatecard p{margin:0 0 18px;color:var(--ink-2);font-size:13px}
 .pwrow{display:flex;gap:8px}
-.pwrow input{flex:1;min-width:0;padding:10px 12px;border:1px solid var(--axis);border-radius:7px;
+.pwfield{position:relative;flex:1;min-width:0}
+.pwfield input{width:100%;padding:10px 40px 10px 12px;border:1px solid var(--axis);border-radius:7px;
              background:var(--plane);color:var(--ink-1);font:14px var(--ui)}
-.pwrow input:focus{outline:2px solid var(--s-gmail);outline-offset:1px;border-color:transparent}
+.pwfield input:focus{outline:2px solid var(--s-gmail);outline-offset:1px;border-color:transparent}
+.eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:32px;height:32px;
+     display:flex;align-items:center;justify-content:center;padding:0;border:0;border-radius:6px;
+     background:transparent;color:var(--ink-3);cursor:pointer}
+.eye:hover{color:var(--ink-1);background:var(--wash)}
+.eye:focus-visible{outline:2px solid var(--s-gmail);outline-offset:1px}
 .btn{padding:10px 15px;border:1px solid var(--axis);border-radius:7px;background:var(--surface);
      color:var(--ink-1);font:600 13px var(--ui);cursor:pointer;white-space:nowrap}
 .btn:hover{background:var(--wash)}
@@ -180,8 +186,12 @@ table.dt th{color:var(--ink-3);font-weight:600;font-size:11px;letter-spacing:.05
     <h1>OKOT Updates</h1>
     <p>Weekly digest for Outdoor Kids OT. The report is encrypted; the password decrypts it in your browser.</p>
     <div class="pwrow">
-      <input id="gatePw" type="password" autocomplete="current-password" placeholder="Password"
-             aria-label="Password">
+      <div class="pwfield">
+        <input id="gatePw" type="password" autocomplete="current-password" placeholder="Password"
+               aria-label="Password">
+        <button type="button" id="gateShow" class="eye" aria-pressed="false"
+                aria-label="Show password" title="Show password"></button>
+      </div>
       <button class="btn primary" id="gateBtn" type="button">Open</button>
     </div>
     <p id="gateErr" role="alert"></p>
@@ -280,6 +290,26 @@ function tryUnlock(){
     })
     .finally(function(){ gateBtn.disabled=false; gateBtn.textContent='Open'; });
 }
+var showEl=document.getElementById('gateShow');
+var EYE_ON='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" '+
+  'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+  '<path d="M1.5 12S5.5 4.5 12 4.5 22.5 12 22.5 12 18.5 19.5 12 19.5 1.5 12 1.5 12z"/>'+
+  '<circle cx="12" cy="12" r="3.2"/></svg>';
+var EYE_OFF='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" '+
+  'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+  '<path d="M1.5 12S5.5 4.5 12 4.5c1.7 0 3.2.5 4.5 1.2M22.5 12s-1.6 3-4.6 4.9M9.9 9.9a3.2 3.2 0 004.2 4.2"/>'+
+  '<line x1="3" y1="3" x2="21" y2="21"/></svg>';
+showEl.innerHTML=EYE_ON;
+showEl.addEventListener('click',function(){
+  var showing = pw.type==='text';
+  pw.type = showing ? 'password' : 'text';
+  showEl.innerHTML = showing ? EYE_ON : EYE_OFF;
+  showEl.setAttribute('aria-pressed', showing ? 'false' : 'true');
+  var label = showing ? 'Show password' : 'Hide password';
+  showEl.setAttribute('aria-label', label); showEl.title = label;
+  pw.focus();
+  var n = pw.value.length; try{ pw.setSelectionRange(n,n); }catch(e){}
+});
 gateBtn.addEventListener('click',tryUnlock);
 pw.addEventListener('keydown',function(e){if(e.key==='Enter')tryUnlock();});
 pw.addEventListener('input',function(){document.getElementById('gateErr').textContent='';});
