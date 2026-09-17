@@ -271,12 +271,14 @@ function ageDays(o){
 }
 const KINDS = {
   courier: "At local carrier", address: "Address needed", returned: "Returned to warehouse",
+  reship_fee: "Returned — reship costs money",
   stock: "Out of stock", product: "Confirm product", shipping_method: "Shipping method",
   tracking_update: "Tracking updated", other: "Other",
 };
 const FILTERS = [
   ["open","Awaiting our reply"], ["all","All"],
-  ["courier","At local carrier"], ["address","Address needed"], ["returned","Returned"],
+  ["courier","At local carrier"], ["address","Address needed"],
+  ["reship_fee","Reship (fee)"], ["returned","Returned"],
   ["age7","0-7 days"], ["age30","8-30 days"], ["age30plus","30+ days"],
   ["Clarendale","Clarendale"], ["Lark & Clover","Lark & Clover"],
   ["Miyora","Miyora"], ["Lume Haven","Lume Haven"],
@@ -295,7 +297,8 @@ function match(o){
   switch(filter){
     case "all": return true;
     case "open": return !!o.open;
-    case "courier": case "address": case "returned": return o.kind === filter;
+    case "courier": case "address": case "returned": case "reship_fee":
+      return o.kind === filter;
     case "age7":     { const a = ageDays(o); return a !== null && a <= 7; }
     case "age30":    { const a = ageDays(o); return a !== null && a > 7 && a <= 30; }
     case "age30plus":{ const a = ageDays(o); return a !== null && a > 30; }
@@ -305,7 +308,7 @@ function match(o){
   }
 }
 function dotClass(o){
-  if (o.checkin === "Cancelled" || o.kind === "returned") return "stop";
+  if (o.checkin === "Cancelled" || o.kind === "returned" || o.kind === "reship_fee") return "stop";
   if (o.open) return "open";
   return "done";
 }
@@ -386,6 +389,10 @@ function renderDetail(o){
         <div class="facts" style="margin-top:13px">
           ${o.reference ? `<div class="fact"><span>Local reference</span><span><span class="ref">${esc(o.reference)}</span><button class="cp" data-cp="${esc(o.reference)}">COPY</button></span></div>` : ""}
           ${fact("Carrier contact",o.carrier_contact)}
+          ${o.destroy_by ? `<div class="fact"><span>Held until</span><span><b style="color:var(--red)">${esc(o.destroy_by)}</b> — destroyed after this</span></div>` : ""}
+          ${o.reship_fee ? `<div class="fact"><span>Reship fee (customer)</span><span><span class="ref">${esc(o.reship_fee)}</span><button class="cp" data-cp="${esc(o.reship_fee)}">COPY</button> <span class="muted">SOP band ${esc(o.reship_fee_band||"")}</span></span></div>` : ""}
+          ${fact("WIIO charges us",o.supplier_fee)}
+          ${o.fee_note ? `<div class="fact"><span></span><span style="color:var(--orange)">${esc(o.fee_note)}</span></div>` : ""}
           ${fact("Raised on",o.reported)}${fact("We replied",o.updated)}
           ${fact("WIIO reply / result",o.note)}
         </div>
@@ -395,9 +402,21 @@ function renderDetail(o){
       ${processLink(o)}<button class="copy" data-copy="s">Copy</button></div>
       <div class="section"><pre class="draft" id="d-s">${esc(o.to_supplier)}</pre></div></div>
 
-    <div class="panel"><div class="panel-head"><span class="grow">Proposed email to customer</span>
+    <div class="panel"><div class="panel-head"><span class="grow">${
+        o.to_customer_next ? "Proposed email to customer — step 1 of 2: confirm the address"
+                           : (o.kind === "reship_fee" ? "Proposed email to customer — step 2 of 2: the reshipment plan"
+                                                      : "Proposed email to customer")}</span>
       ${reamazeLink(o)}<button class="copy" data-copy="c">Copy</button></div>
       <div class="section"><pre class="draft" id="d-c">${esc(o.to_customer)}</pre></div></div>
+
+    ${o.to_customer_next ? `<div class="panel"><details>
+      <summary>Step 2 of 2 — send only once they have confirmed the address</summary>
+      <div class="panel-head"><span class="grow">Proposed email to customer — the reshipment plan</span>
+        <button class="copy" data-copy="n">Copy</button></div>
+      <div class="section"><pre class="draft" id="d-n">${esc(o.to_customer_next)}</pre>
+        <div class="warn">Don't send this yet. Tick &ldquo;Emailed customer&rdquo; once step 1 has
+        gone out; the next rebuild then promotes this to the main draft.</div>
+      </div></details></div>` : ""}
 
     <div class="panel"><div class="panel-head">Order</div><div class="section"><div class="facts">
       ${fact("Order no.",o.order)}${fact("Customer",o.customer)}
