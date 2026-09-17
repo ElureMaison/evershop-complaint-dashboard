@@ -123,7 +123,8 @@ header{border-bottom:1px solid var(--ring);background:var(--surface);margin-bott
 .sum .mark.info{background:var(--ink-3)}
 .sum .txt{min-width:0;flex:1}
 .sum .who{font-weight:600}
-.sum .ctx{color:var(--ink-3);font-size:12.5px;margin-top:2px}
+.sum .ctx{color:var(--ink-3);font-size:12.5px;margin-top:3px}
+.sum .ctx .on{color:var(--ink-2);font-weight:600;font-variant-numeric:tabular-nums}
 
 /* ---------------- panels ---------------- */
 .panel{background:var(--surface);border:1px solid var(--ring);border-radius:10px;
@@ -385,6 +386,13 @@ function clock(iso){
   return new Date(iso).toLocaleString(undefined,
     {weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
 }
+// "Thu Sep 17, 11:57 PM" — the summary answers *when*, not "a while back".
+function stamp(iso){
+  if(!iso) return '';
+  var d=new Date(iso);
+  return d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})+
+         ', '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
+}
 
 /* ============ data ============ */
 var DATA=null, WEEK=null;
@@ -507,7 +515,8 @@ function summaryPanel(ins){
         '<span class="txt">'+
           (h.who ? '<span class="who">'+esc(h.who)+'</span> &middot; ' : '')+
           esc(h.what)+
-          '<div class="ctx">'+(where?where+' &middot; ':'')+esc(when(h.when))+'</div>'+
+          '<div class="ctx"><span class="on">'+esc(stamp(h.when))+'</span>'+
+            ' &middot; '+esc(when(h.when))+(where?' &middot; '+where:'')+'</div>'+
         '</span></li>'));
   });
   body.appendChild(ul);
@@ -619,7 +628,7 @@ function replyPanel(ins){
         '<div class="stripe" style="background:var(--critical)"></div>'+
         '<div class="body">'+
           '<div class="top"><span class="title">'+esc(m.subject)+'</span>'+
-            '<span class="when">'+esc(when(m.when))+'</span></div>'+
+            '<span class="when" title="'+esc(clock(m.when))+'">'+esc(when(m.when))+'</span></div>'+
           '<div class="meta">'+esc(m.from)+' &middot; '+esc(m.addr)+
             ' &middot; <span class="chip">'+esc(m.category)+'</span>'+
             (m.thread_size>1?' <span class="chip">'+plural(m.thread_size,'message')+'</span>':'')+
@@ -690,7 +699,7 @@ function mondayPanel(items){
             '<div class="body">'+
               '<div class="top"><span class="title">'+
                 (i.url?'<a href="'+esc(i.url)+'" target="_blank" rel="noopener">'+head+'</a>':head)+
-                '</span><span class="when">'+esc(when(i.when))+'</span></div>'+
+                '</span><span class="when" title="'+esc(clock(i.when))+'">'+esc(when(i.when))+'</span></div>'+
               '<div class="meta">'+(i.group?esc(i.group)+' &middot; ':'')+
                 esc(i.workspace||'')+' '+cols+'</div>'+
               (i.text?'<div class="snip">'+esc(i.text)+'</div>':'')+
@@ -727,7 +736,7 @@ function trelloPanel(items){
               '<div class="top"><span class="title">'+
                 (i.url?'<a href="'+esc(i.url)+'" target="_blank" rel="noopener">'+esc(i.text)+'</a>'
                       :esc(i.text))+
-                '</span><span class="when">'+esc(when(i.when))+'</span></div>'+
+                '</span><span class="when" title="'+esc(clock(i.when))+'">'+esc(when(i.when))+'</span></div>'+
               (i.comment?'<div class="snip">&ldquo;'+esc(i.comment)+'&rdquo;</div>':'')+
             '</div>'+
           '</div>'));
