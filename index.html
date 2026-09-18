@@ -603,6 +603,16 @@
     .section-head, .cert-head{ break-inside:avoid; break-after:avoid; page-break-after:avoid; }
     .doc-shot, .cert-shot{ break-after:avoid; page-break-after:avoid; }
     p, li{ orphans:3; widows:3; }
+    /* keep the whole Contact block on one page */
+    #contact, #contact .contact-grid, .contact-list, .contact-list li, .why-row{
+      break-inside:avoid !important; page-break-inside:avoid !important;
+    }
+    #contact{ padding:22px 0 !important; }
+    /* small self-contained sections read badly when split, and each is well
+       under a page, so keep them whole */
+    #stats, #expertise, #education, #fit, #client-feedback, #references{
+      break-inside:avoid !important; page-break-inside:avoid !important;
+    }
     .case-card, .doc-card, .demo-card, .guardrails, .edu-card, .exp-item, .fit-card{ box-shadow:none !important; }
     h1,h2,h3,h4{ break-after:avoid; page-break-after:avoid; break-inside:avoid; page-break-inside:avoid; }
     .t-scroller{ overflow:visible !important; height:auto !important; display:block !important; }
@@ -699,7 +709,7 @@
         <p class="lede">14+ years of keeping customers happy, books balanced, inventory accurate, and inboxes at zero — and a year now spent building the AI automations that do the repetitive and time-consuming half of it — for e-commerce brands and NDIS service providers across four time zones.</p>
         <div class="cta-row">
           <a class="btn btn-ghost" href="#experience">View experience</a>
-            <a class="btn btn-primary" href="/Rona-Shella-Cacao.pdf?v=20260918b" download>Download PDF &darr;</a>
+            <a class="btn btn-primary" href="/Rona-Shella-Cacao.pdf?v=20260918c" download>Download PDF &darr;</a>
         </div>
         <div class="clock-strip mono" id="clockStrip">
           <div class="clock-cell"><div class="city">Manila</div><div class="time" data-tz="Asia/Manila">--:--</div></div>
