@@ -612,6 +612,29 @@
   }
   @page{ size:A4; margin:14mm 12mm; }
 
+  .cert-head{ margin:56px 0 28px; }
+  .cert-head h3{ font-size:1.5rem; margin:8px 0 0; }
+  .cert-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+  @media (max-width:900px){ .cert-grid{ grid-template-columns:1fr; } }
+  .cert-card{
+    display:flex; flex-direction:column; text-decoration:none; color:inherit;
+    border:1px solid var(--line); border-radius:14px; overflow:hidden;
+    background:var(--surface); transition:transform .22s ease, border-color .22s ease;
+  }
+  .cert-card:hover{ transform:translateY(-3px); border-color:var(--rose); }
+  .cert-shot{ display:block; background:#fff; border-bottom:1px solid var(--line); }
+  .cert-shot img{ display:block; width:100%; height:180px; object-fit:contain; }
+  .cert-body{ display:block; padding:16px 18px 18px; }
+  .cert-title{ display:block; font-weight:600; font-size:0.95rem; line-height:1.4; }
+  .cert-meta{
+    display:block; margin-top:7px; font-family:"IBM Plex Mono",monospace;
+    font-size:0.68rem; letter-spacing:0.04em; color:var(--ink-soft);
+  }
+  /* passion statement, inline inside Contact */
+  .passion-inline{ margin:30px 0 34px; }
+  .passion-inline .passion-line{ font-size:clamp(2rem,4.4vw,3.2rem); text-align:left; }
+  .passion-inline .passion-sub{ margin-top:12px; text-align:left; }
+
   footer{ padding:28px 0 40px; text-align:center; color:var(--ink-soft); font-size:0.85rem; font-family:"IBM Plex Mono",monospace; }
 </style>
 </head>
@@ -646,13 +669,13 @@
         <h1>Rona Shella <em>Cacao</em></h1>
         <div class="role-line" aria-label="Roles">
           <span class="role">Customer Happiness Expert</span>
-          <span class="role">Virtual Assistant</span>
+          <span class="role">World-Class Virtual Assistant</span>
           <span class="role">Shopify &amp; Amazon Logistics &amp; Inventory Manager</span>
           <span class="role">Bookkeeper</span>
           <span class="role">AI Integrator</span>
           <span class="role">NDIS Administrative Support</span>
         </div>
-        <p class="lede">14+ years of keeping customers happy, books balanced, inventory accurate, and inboxes at zero — and a year now spent building the AI automations that do the repetitive half of it — for e-commerce brands and NDIS service providers across four time zones.</p>
+        <p class="lede">14+ years of keeping customers happy, books balanced, inventory accurate, and inboxes at zero — and a year now spent building the AI automations that do the repetitive and time-consuming half of it — for e-commerce brands and NDIS service providers across four time zones.</p>
         <div class="cta-row">
           <a class="btn btn-ghost" href="#experience">View experience</a>
             <a class="btn btn-primary" href="/Rona-Shella-Cacao.pdf" download>Download PDF &darr;</a>
@@ -1388,9 +1411,53 @@
             </div>
           </article>
 
+          <article class="doc-card">
+            <a class="doc-shot" href="/bookkeeping/payroll-run.png" aria-label="Open the full payroll run screenshot">
+              <img src="/bookkeeping/payroll-run.png" loading="lazy"
+                   alt="Payroll run screen showing gross pay, employee taxes, net pay and employer contributions for three employees">
+            </a>
+            <div class="doc-body">
+              <span class="doc-tag">Client file &middot; redacted</span>
+              <h4>Semi-monthly payroll run</h4>
+              <p>Three employees, 240 hours, gross through to net with employer taxes and contributions reconciling to the total. Employee names are blacked out &mdash; the pay stubs behind this screen carry home addresses and partial SSNs, which is exactly the sort of thing that never belongs on a public page.</p>
+            </div>
+          </article>
+
         </div>
 
         <p class="nda-note" style="margin-top:28px">Real client files are shown only with identifying details removed. Everything else here is produced from QuickBooks' sample company rather than anyone's actual books.</p>
+
+        <div class="cert-head">
+          <p class="eyebrow">Trained and certified</p>
+          <h3>Three certificates, all 2025.</h3>
+        </div>
+
+        <div class="cert-grid">
+          <a class="cert-card" href="/bookkeeping/cert-xero-qbo.jpg">
+            <span class="cert-shot"><img src="/bookkeeping/cert-xero-qbo.jpg" loading="lazy"
+              alt="Certificate of completion: Virtual Bookkeeping with Xero and QuickBooks Online"></span>
+            <span class="cert-body">
+              <span class="cert-title">Virtual Bookkeeping with Xero &amp; QuickBooks Online</span>
+              <span class="cert-meta">AZE Vector Global Training Corporation &middot; October 2025 &middot; 16 hours</span>
+            </span>
+          </a>
+          <a class="cert-card" href="/bookkeeping/cert-xero-au-payroll.jpg">
+            <span class="cert-shot"><img src="/bookkeeping/cert-xero-au-payroll.jpg" loading="lazy"
+              alt="Certificate of completion: Australian Taxation, Bookkeeping and Payroll with Xero"></span>
+            <span class="cert-body">
+              <span class="cert-title">Australian Taxation, Bookkeeping &amp; Payroll with Xero</span>
+              <span class="cert-meta">EZACC Training Center &middot; October 2025 &middot; 15 hours</span>
+            </span>
+          </a>
+          <a class="cert-card" href="/bookkeeping/cert-qbo-surge.png">
+            <span class="cert-shot"><img src="/bookkeeping/cert-qbo-surge.png" loading="lazy"
+              alt="Certificate of completion: Online Bookkeeping Using QuickBooks"></span>
+            <span class="cert-body">
+              <span class="cert-title">Online Bookkeeping Using QuickBooks</span>
+              <span class="cert-meta">Surge Marketplace (FVA) &middot; November 2025 &middot; 12.3 hours</span>
+            </span>
+          </a>
+        </div>
       </div>
 
     </div>
@@ -1513,12 +1580,6 @@
     </div>
   </section>
 
-  <section id="passion" class="passion">
-    <div class="wrap">
-      <p class="passion-line">Powered by <em>Passion</em>.</p>
-      <p class="passion-sub">&mdash; Ronce</p>
-    </div>
-  </section>
   <section id="contact">
     <div class="wrap">
       <div class="contact-grid">
@@ -1526,6 +1587,10 @@
           <p class="eyebrow">Get in touch</p>
           <h2>Let's work together.</h2>
           <p style="color:var(--ink-soft); margin-top:16px; max-width:48ch;">Whether it's inbox zero, reconciled books, tracked inventory, or a calmer patient schedule — I'm ready to plug in.</p>
+          <div class="passion-inline">
+            <p class="passion-line">Powered by <em>Passion</em>.</p>
+            <p class="passion-sub">&mdash; Ronce</p>
+          </div>
           <div class="why-row">
             <div class="why-item"><span class="why-ico">⚡</span><div><div class="why-h">Fast, warm communication</div><div class="why-p">Replies that keep customers and teams in the loop, not guessing.</div></div></div>
             <div class="why-item"><span class="why-ico">✓</span><div><div class="why-h">Numbers that reconcile</div><div class="why-p">Books, invoices, and inventory that match — every time, on time.</div></div></div>
