@@ -592,18 +592,26 @@
     .reveal{ opacity:1 !important; transform:none !important; }
     section{ padding:26px 0 !important; break-inside:auto; }
     .wrap{ max-width:100% !important; padding:0 !important; }
-    .case-card, .doc-card, .guardrails, .edu-card, .fit-card{
+    .case-card, .doc-card, .cert-card, .guardrails, .edu-card, .fit-card,
+    .shot-card, .demo-card, .why-item, .doc-body, .cert-body{
       break-inside:avoid; page-break-inside:avoid;
     }
-    .demo-card, .exp-item, .shot-card, .t-scroller{ break-inside:auto !important; page-break-inside:auto !important; }
+    /* long text blocks may split, but never right after their heading */
+    .exp-item, .t-scroller{ break-inside:auto !important; page-break-inside:auto !important; }
+    .exp-item h3, .exp-item h4, .exp-head{ break-after:avoid; page-break-after:avoid; }
+    .section-head, .cert-head{ break-inside:avoid; break-after:avoid; page-break-after:avoid; }
+    .doc-shot, .cert-shot{ break-after:avoid; page-break-after:avoid; }
+    p, li{ orphans:3; widows:3; }
     .case-card, .doc-card, .demo-card, .guardrails, .edu-card, .exp-item, .fit-card{ box-shadow:none !important; }
-    h1,h2,h3,h4{ break-after:avoid; page-break-after:avoid; }
+    h1,h2,h3,h4{ break-after:avoid; page-break-after:avoid; break-inside:avoid; page-break-inside:avoid; }
     .t-scroller{ overflow:visible !important; height:auto !important; display:block !important; }
     .shot-card{ break-inside:avoid; margin-bottom:12px; }
     a{ text-decoration:none; color:inherit; }
     .passion{ padding:60px 0 !important; }
     /* keep image-heavy blocks from eating a page each */
-    .shot-card img{ height:auto !important; max-height:78mm !important; }
+    .shot-card img{ height:auto !important; max-height:150mm !important; object-fit:contain !important; }
+    .shot-card{ margin-bottom:10mm !important; border:1px solid var(--line) !important; }
+    .t-scroller{ gap:0 !important; }
     .doc-shot img{ height:auto !important; max-height:105mm !important; object-fit:contain !important; }
     #testimonials img, #client-feedback img{ max-height:95mm !important; width:auto !important; }
     .about-grid img, .setup-grid img, #setup img{ max-height:80mm !important; width:auto !important; }
@@ -1423,13 +1431,37 @@
             </div>
           </article>
 
+          <article class="doc-card">
+            <a class="doc-shot" href="/bookkeeping/chart-of-accounts.png" aria-label="Open the full chart of accounts">
+              <img src="/bookkeeping/chart-of-accounts.png" loading="lazy"
+                   alt="Chart of accounts listing assets, liabilities, equity, income and expense accounts with their detail types">
+            </a>
+            <div class="doc-body">
+              <span class="doc-tag">Client file &middot; redacted</span>
+              <h4>Chart of accounts, set up from scratch</h4>
+              <p>Assets, liabilities, equity, income and expenses, each mapped to its detail type. Get this wrong at the start and every report afterwards is wrong too, which is why it is the first thing I build.</p>
+            </div>
+          </article>
+
+          <article class="doc-card">
+            <a class="doc-shot" href="/bookkeeping/inventory-valuation.png" aria-label="Open the full inventory valuation detail">
+              <img src="/bookkeeping/inventory-valuation.png" loading="lazy"
+                   alt="Inventory valuation detail showing quantities, rates, inventory cost, quantity on hand and asset value">
+            </a>
+            <div class="doc-body">
+              <span class="doc-tag">Client file &middot; redacted</span>
+              <h4>Inventory valuation detail</h4>
+              <p>627 units tracked through starting values, quantity adjustments and sales receipts to a $101,550 asset value. This is where bookkeeping meets the inventory work &mdash; the stock count and the balance sheet have to agree.</p>
+            </div>
+          </article>
+
         </div>
 
         <p class="nda-note" style="margin-top:28px">Real client files are shown only with identifying details removed. Everything else here is produced from QuickBooks' sample company rather than anyone's actual books.</p>
 
         <div class="cert-head">
           <p class="eyebrow">Trained and certified</p>
-          <h3>Three certificates, all 2025.</h3>
+          <h3>Certified in Xero and QuickBooks.</h3>
         </div>
 
         <div class="cert-grid">
