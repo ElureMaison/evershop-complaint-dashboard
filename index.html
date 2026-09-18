@@ -610,8 +610,19 @@
     a{ text-decoration:none; color:inherit; }
     .passion{ padding:60px 0 !important; }
     /* keep image-heavy blocks from eating a page each */
+    /* the fake browser window has nothing to say on paper, and its header was
+       stranding itself at the foot of a page with an empty body underneath */
+    .inbox-bar{ display:none !important; }
+    .inbox-frame{
+      border:none !important; border-radius:0 !important;
+      background:transparent !important; break-inside:auto !important;
+    }
+    .inbox-frame .t-scroller{ padding:0 !important; }
     .shot-card img{ height:auto !important; max-height:150mm !important; object-fit:contain !important; }
-    .shot-card{ margin-bottom:10mm !important; border:1px solid var(--line) !important; }
+    .shot-card{
+      margin-bottom:9mm !important; border:1px solid var(--line) !important;
+      border-radius:6px !important;
+    }
     .t-scroller{ gap:0 !important; }
     .doc-shot img{ height:auto !important; max-height:105mm !important; object-fit:contain !important; }
     #testimonials img, #client-feedback img{ max-height:95mm !important; width:auto !important; }
