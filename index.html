@@ -543,6 +543,28 @@
     color:var(--ink-soft); letter-spacing:0.03em;
   }
 
+  /* ---- Bookkeeping exhibits ---- */
+  .work-split{ margin-top:76px; padding-top:64px; border-top:1px solid var(--line); }
+  .doc-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+  @media (max-width:900px){ .doc-grid{ grid-template-columns:1fr; } }
+  .doc-card{
+    border:1px solid var(--line); border-radius:16px; overflow:hidden;
+    background:var(--surface); display:flex; flex-direction:column;
+  }
+  .doc-shot{ display:block; background:#fff; border-bottom:1px solid var(--line); overflow:hidden; }
+  .doc-shot img{
+    display:block; width:100%; height:290px; object-fit:cover; object-position:top center;
+    transition:transform .3s ease;
+  }
+  .doc-card:hover .doc-shot img{ transform:scale(1.02); }
+  .doc-body{ padding:20px 22px 22px; }
+  .doc-tag{
+    display:inline-block; margin-bottom:9px; font-family:"IBM Plex Mono",monospace;
+    font-size:0.63rem; letter-spacing:0.11em; text-transform:uppercase; color:var(--rose-deep);
+  }
+  .doc-body h4{ margin:0 0 8px; font-size:1.02rem; }
+  .doc-body p{ margin:0; font-size:0.87rem; color:var(--ink-soft); line-height:1.6; }
+
   footer{ padding:28px 0 40px; text-align:center; color:var(--ink-soft); font-size:0.85rem; font-family:"IBM Plex Mono",monospace; }
 </style>
 </head>
@@ -1271,6 +1293,56 @@
           <li>There are jobs I won't hand to AI. Ask me which ones, and why.</li>
         </ul>
         <p class="nda-note">Client names withheld under NDA &mdash; happy to walk through any of these in detail on a call.</p>
+      </div>
+
+      <div class="work-split">
+        <div class="section-head">
+          <p class="eyebrow">Bookkeeping</p>
+          <h2>Books that reconcile.</h2>
+          <p>Two years in QuickBooks Online: daily transactions, bank reconciliation, invoicing, payables and receivables, and the month-end reports someone actually has to make decisions from.</p>
+        </div>
+
+        <div class="doc-grid">
+
+          <article class="doc-card">
+            <a class="doc-shot" href="/bookkeeping/reconciliation.png" aria-label="Open the full reconciliation report">
+              <img src="/bookkeeping/reconciliation.png" loading="lazy"
+                   alt="Bank reconciliation report showing a statement ending balance and register balance of 0.00">
+            </a>
+            <div class="doc-body">
+              <span class="doc-tag">Client file &middot; redacted</span>
+              <h4>Bank reconciliation, closed to 0.00</h4>
+              <p>14 payments and 6 deposits cleared against a PayPal statement, ending balance and register balance both 0.00. The business name and every payee are blacked out &mdash; the summary is the part that matters, and the rest was never mine to publish.</p>
+            </div>
+          </article>
+
+          <article class="doc-card">
+            <a class="doc-shot" href="/bookkeeping/profit-and-loss.png" aria-label="Open the full profit and loss report">
+              <img src="/bookkeeping/profit-and-loss.png" loading="lazy"
+                   alt="Profit and loss report with income, cost of goods sold, gross profit and itemised expenses">
+            </a>
+            <div class="doc-body">
+              <span class="doc-tag">Sample company</span>
+              <h4>Profit &amp; Loss</h4>
+              <p>Income through to gross profit and itemised expenses, built the way I set one up for a client. Produced from QuickBooks' own sample company, so nobody's real figures are on display here.</p>
+            </div>
+          </article>
+
+          <article class="doc-card">
+            <a class="doc-shot" href="/bookkeeping/ar-ageing.png" aria-label="Open the full accounts receivable ageing report">
+              <img src="/bookkeeping/ar-ageing.png" loading="lazy"
+                   alt="Accounts receivable ageing summary with balances bucketed from current through 91 days and over">
+            </a>
+            <div class="doc-body">
+              <span class="doc-tag">Sample company</span>
+              <h4>A/R Ageing Summary</h4>
+              <p>Receivables bucketed current through 91-plus days, which is how you spot the invoice that quietly went unpaid two months ago. Sample company again.</p>
+            </div>
+          </article>
+
+        </div>
+
+        <p class="nda-note" style="margin-top:28px">Real client files are shown only with identifying details removed. Everything else here is produced from QuickBooks' sample company rather than anyone's actual books.</p>
       </div>
 
     </div>
