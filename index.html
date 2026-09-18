@@ -565,6 +565,53 @@
   .doc-body h4{ margin:0 0 8px; font-size:1.02rem; }
   .doc-body p{ margin:0; font-size:0.87rem; color:var(--ink-soft); line-height:1.6; }
 
+  /* ---- Powered by Passion statement ---- */
+  .passion{ text-align:center; padding:130px 0; }
+  .passion-line{
+    font-family:"Fraunces",serif; font-weight:500; margin:0;
+    font-size:clamp(2.6rem,10vw,7rem); line-height:0.96; letter-spacing:-0.02em;
+    color:var(--ink);
+  }
+  .passion-line em{ font-style:italic; color:var(--rose-deep); }
+  .passion-sub{
+    margin:26px 0 0; font-family:"IBM Plex Mono",monospace; font-size:0.74rem;
+    letter-spacing:0.18em; text-transform:uppercase; color:var(--ink-soft);
+  }
+
+  /* ---- Print / PDF ---- */
+  @media print{
+    :root{
+      --paper:#fff; --surface:#fff; --ink:#1C1712; --ink-soft:#4a433c;
+      --line:#d9d2c8; --rose:#B76A56; --rose-deep:#8F4C3B; --rose-tint:#f3e9e2;
+      --gold:#9C7B3F; --shadow:rgba(0,0,0,.08); --accent-on-rose:#fff;
+    }
+    html{ color-scheme:light !important; }
+    body{ background:#fff !important; }
+    header, .theme-toggle, #themeBtn, #burgerBtn, .t-nav, .t-dots,
+    #shotPrev, #shotNext, #shotDots, .cta-row, .clock-strip, footer{ display:none !important; }
+    .reveal{ opacity:1 !important; transform:none !important; }
+    section{ padding:26px 0 !important; break-inside:auto; }
+    .wrap{ max-width:100% !important; padding:0 !important; }
+    .case-card, .doc-card, .guardrails, .edu-card, .fit-card{
+      break-inside:avoid; page-break-inside:avoid;
+    }
+    .demo-card, .exp-item, .shot-card, .t-scroller{ break-inside:auto !important; page-break-inside:auto !important; }
+    .case-card, .doc-card, .demo-card, .guardrails, .edu-card, .exp-item, .fit-card{ box-shadow:none !important; }
+    h1,h2,h3,h4{ break-after:avoid; page-break-after:avoid; }
+    .t-scroller{ overflow:visible !important; height:auto !important; display:block !important; }
+    .shot-card{ break-inside:avoid; margin-bottom:12px; }
+    a{ text-decoration:none; color:inherit; }
+    .passion{ padding:60px 0 !important; }
+    /* keep image-heavy blocks from eating a page each */
+    .shot-card img{ height:auto !important; max-height:78mm !important; }
+    .doc-shot img{ height:auto !important; max-height:105mm !important; object-fit:contain !important; }
+    #testimonials img, #client-feedback img{ max-height:95mm !important; width:auto !important; }
+    .about-grid img, .setup-grid img, #setup img{ max-height:80mm !important; width:auto !important; }
+    *{ box-shadow:none !important; }
+    .portrait-frame{ width:min(240px,46%) !important; }
+  }
+  @page{ size:A4; margin:14mm 12mm; }
+
   footer{ padding:28px 0 40px; text-align:center; color:var(--ink-soft); font-size:0.85rem; font-family:"IBM Plex Mono",monospace; }
 </style>
 </head>
@@ -580,7 +627,7 @@
       <a href="#expertise"><span class="idx">02</span>Skills</a>
       <a href="#tools"><span class="idx">03</span>Toolkit</a>
       <a href="#experience"><span class="idx">04</span>Experience</a>
-      <a href="#work"><span class="idx">05</span>Work</a>
+      <a href="#work"><span class="idx">05</span>Portfolio</a>
       <a href="#testimonials"><span class="idx">06</span>Feedback</a>
       <a href="#contact"><span class="idx">07</span>Contact</a>
     </nav>
@@ -608,6 +655,7 @@
         <p class="lede">14+ years of keeping customers happy, books balanced, inventory accurate, and inboxes at zero — and a year now spent building the AI automations that do the repetitive half of it — for e-commerce brands and NDIS service providers across four time zones.</p>
         <div class="cta-row">
           <a class="btn btn-ghost" href="#experience">View experience</a>
+            <a class="btn btn-primary" href="/Rona-Shella-Cacao.pdf" download>Download PDF &darr;</a>
         </div>
         <div class="clock-strip mono" id="clockStrip">
           <div class="clock-cell"><div class="city">Manila</div><div class="time" data-tz="Asia/Manila">--:--</div></div>
@@ -1465,6 +1513,12 @@
     </div>
   </section>
 
+  <section id="passion" class="passion">
+    <div class="wrap">
+      <p class="passion-line">Powered by <em>Passion</em>.</p>
+      <p class="passion-sub">&mdash; Ronce</p>
+    </div>
+  </section>
   <section id="contact">
     <div class="wrap">
       <div class="contact-grid">
