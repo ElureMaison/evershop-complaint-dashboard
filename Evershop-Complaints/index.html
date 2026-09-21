@@ -647,15 +647,35 @@ function getFilteredRows() {
 }
 
 // ---------------- granularity bucketing ----------------
+// The tracker numbers its own weeks in the actions sheet's "Week Implemented"
+// column: week 1 starts Jan 1 and every week after it is a 7-day block from
+// there, so weeks run Thu–Wed in 2026. 940 of the 945 numbered rows fit that
+// exactly (the five that don't are hand-entry slips), so it is the convention
+// the team actually writes down. Follow it here rather than counting weeks from
+// whichever complaint happens to be earliest: a week on this chart is then the
+// same week they mean in the sheet, and no single stray date can renumber the
+// whole axis.
+function egWeekNum(d) {
+  const jan1 = Date.UTC(d.getUTCFullYear(), 0, 1);
+  return Math.floor((d.getTime() - jan1) / 86400000 / 7) + 1;
+}
+function egWeekKey(d) {
+  return d.getUTCFullYear() + '-W' + String(egWeekNum(d)).padStart(2, '0');
+}
 function bucketKey(dayOffset, gran) {
   const d = new Date(minDate.getTime() + dayOffset * 86400000);
-  if (gran === 'week') { return 'W' + (Math.floor(dayOffset / 7) + 1); }
+  if (gran === 'week') return egWeekKey(d);
   if (gran === 'month') { return d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0'); }
   if (gran === 'quarter') { const q = Math.floor(d.getUTCMonth() / 3) + 1; return d.getUTCFullYear() + '-Q' + q; }
   return String(d.getUTCFullYear());
 }
 function bucketLabel(key, gran) {
-  if (gran === 'week') return key;
+  if (gran === 'week') {
+    const [y, w] = key.split('-');
+    // Week numbers restart each Jan 1, so they only need the year once the
+    // visible range actually crosses one.
+    return (minDate.getUTCFullYear() === maxDate.getUTCFullYear() ? '' : y + ' ') + 'W' + String(+w.slice(1));
+  }
   if (gran === 'month') { const [y,m] = key.split('-'); return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m-1]; }
   if (gran === 'quarter') return key;
   return key;
@@ -888,8 +908,7 @@ function renderTrend(filtered) {
 
   const footEl = document.getElementById('trendFootnote');
   if (gran === 'week') {
-    const w1 = minDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
-    footEl.textContent = 'Order-week 1 = week of ' + w1 + '. Weeks that dip sharply below their neighbors in the unfiltered, all-store view are usually ticket-logging gaps rather than real improvements. The final bucket may be a partial period still filling in.';
+    footEl.textContent = 'Week numbers match the tracker\u2019s own \u201cWeek Implemented\u201d numbering \u2014 week 1 starts Jan 1, so weeks run Thu\u2013Wed. Weeks that dip sharply below their neighbors in the unfiltered, all-store view are usually ticket-logging gaps rather than real improvements. The final bucket may be a partial period still filling in.';
   } else {
     footEl.textContent = 'The final bucket may be a partial period still filling in.';
   }
@@ -1142,7 +1161,7 @@ function insightsAreFiltered() {
 // when there's enough history to spare it.
 const GRAN_WORD = { week: 'week', month: 'month', quarter: 'quarter', year: 'year' };
 function sortBucketKeys(keys, gran) {
-  if (gran === 'week') return keys.slice().sort((a,b) => parseInt(a.slice(1),10) - parseInt(b.slice(1),10));
+  if (gran === 'week') return keys.slice().sort();
   return keys.slice().sort();
 }
 function trendOverPeriod(rowsSubset, gran) {
