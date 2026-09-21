@@ -110,6 +110,31 @@
   .clearall { font-size: 12px; color: var(--text-muted); background: none; border: none; cursor: pointer; text-decoration: underline; padding: 4px; margin-left: auto; }
   .clearall:hover { color: var(--text-primary); }
 
+  .periodsel {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 7px;
+    padding: 5px 9px; font-size: 12.5px; color: var(--text-primary); font-family: inherit;
+    max-width: 230px; cursor: pointer;
+  }
+  .periodsel:focus { border-color: var(--accent); outline: none; }
+
+  .statstrip { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .statstrip .st { flex: 1; min-width: 150px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 9px; padding: 10px 12px; }
+  .statstrip .st .l { font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; }
+  .statstrip .st .v { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .statstrip .st .s { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+  .rca { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .rca-row { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; background: var(--surface-2); }
+  .rca-head { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; margin-bottom: 7px; }
+  .rca-head .sym { font-weight: 800; font-size: 13px; }
+  .rca-head .share { font-size: 11px; font-weight: 700; color: #fff; padding: 1.5px 8px; border-radius: 99px; }
+  .rca-head .meta { font-size: 11px; color: var(--text-muted); }
+  .rca-row dl { margin: 0; display: grid; grid-template-columns: 96px 1fr; gap: 3px 12px; font-size: 12.5px; line-height: 1.58; }
+  .rca-row dt { color: var(--text-muted); font-size: 10px; text-transform: uppercase; letter-spacing: .04em; font-weight: 700; padding-top: 3px; }
+  .rca-row dd { margin: 0; color: var(--text-secondary); }
+  .rca-row dd b { color: var(--text-primary); font-weight: 700; }
+  .prio { display: inline-block; min-width: 18px; text-align: center; font-weight: 800; font-size: 11px; color: #fff; border-radius: 5px; padding: 1px 6px; }
+
   .kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 16px; }
   @media (max-width: 980px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
   .kpi { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 12px 13px; }
@@ -231,8 +256,9 @@
 
     <div class="filterbar">
       <div class="filtergroup">
-        <span class="flabel">Trend by</span>
+        <span class="flabel">Period</span>
         <div class="pillrow" id="granPills"></div>
+        <select id="periodSelect" class="periodsel" aria-label="Period"></select>
       </div>
       <div class="filtergroup">
         <span class="flabel">Store</span>
@@ -283,6 +309,27 @@
     </div>
 
     <div class="panel">
+      <h2>Pareto — how concentrated is the damage?</h2>
+      <p class="desc" id="paretoDesc">Products ranked by complaint count, with the running cumulative share.</p>
+      <div class="statstrip" id="paretoStats"></div>
+      <div id="paretoChart"></div>
+      <p class="footnote" id="paretoFootnote" style="margin-top:10px"></p>
+    </div>
+
+    <div class="panel">
+      <h2>Root-cause analysis</h2>
+      <p class="desc" id="rcaDesc">Each complaint type traced back to the step in our sourcing process that produces it. Percentages follow the filters above.</p>
+      <div class="rca" id="rcaRows"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Action plan</h2>
+      <p class="desc" id="planDesc">Ordered by complaint volume removed per unit of effort. Targets recalculate from the data currently in view.</p>
+      <div id="planTable"></div>
+      <p class="footnote" id="planFootnote" style="margin-top:12px"></p>
+    </div>
+
+    <div class="panel">
       <h2>Out-of-stock &amp; unfulfilled orders</h2>
       <p class="desc" id="stockDesc">Detected from complaint text (not a formal category in the source data) — cases where support noted the order was cancelled or unfulfilled due to a stock-out, separate from the sizing/quality complaint itself.</p>
       <div id="stockPanel"></div>
@@ -290,7 +337,7 @@
 
     <div class="panel">
       <h2>Response activity</h2>
-      <p class="desc" id="responseDesc">Respects the store and product filters above (not the complaint-type filter). Click a bar to isolate it.</p>
+      <p class="desc" id="responseDesc">Respects the period, store, supplier and product filters above (not the complaint-type filter, which these sheets do not record). Click a bar to isolate it.</p>
       <div class="grid2">
         <div>
           <p class="desc" style="margin-bottom:8px" id="stoppedDesc">Products pulled from sale, by month stopped</p>
@@ -331,9 +378,68 @@ let minDate = new Date(DATA.minDate + 'T00:00:00Z');
 let maxDate = new Date(DATA.maxDate + 'T00:00:00Z');
 
 // ---------------- state ----------------
-const state = { gran: 'month', store: null, product: null, type: null, stoppedMonth: null, actionStatus: null, supplier: null };
+const state = { gran: 'month', period: null, store: null, product: null, type: null, stoppedMonth: null, actionStatus: null, supplier: null };
 let CJ_SET = new Set(DATA.cjProductIdx);
-function supplierOf(productIdx) { return CJ_SET.has(productIdx) ? 'CJ' : 'WIIO'; }
+
+// ---------------- product identity ----------------
+// The complaints log, the margins sheet and the actions sheet each spell the
+// same product differently: one of the source tabs is served mis-decoded, so an
+// en dash arrives as three garbage characters, and hand-typed rows drop or add
+// the trademark and "Women's" words. Joined on the raw string, 57% of complaint
+// volume found no margin row at all -- that is every dash in the Net sales
+// column -- and the worst offenders were split across two rows in the ranking.
+// Match on a case- and punctuation-free key instead, and show whichever
+// spelling in the group is cleanest. This is a workaround: the encoding really
+// wants fixing in the pipeline that publishes these sheets.
+let CANON = [];
+let GROUP = new Map();
+function nameKey(name) { return String(name).toLowerCase().replace(/[^a-z0-9]+/g, ''); }
+function buildProductIndex() {
+  const byKey = new Map();
+  DATA.products.forEach((name, i) => {
+    const k = nameKey(name);
+    if (!byKey.has(k)) byKey.set(k, []);
+    byKey.get(k).push(i);
+  });
+  CANON = new Array(DATA.products.length);
+  GROUP = new Map();
+  byKey.forEach(idxs => {
+    const best = idxs.slice().sort((a, b) => {
+      const na = (DATA.products[a].match(/[^\x20-\x7e]/g) || []).length;
+      const nb = (DATA.products[b].match(/[^\x20-\x7e]/g) || []).length;
+      return na - nb || DATA.products[b].length - DATA.products[a].length;
+    })[0];
+    idxs.forEach(i => { CANON[i] = best; });
+    GROUP.set(best, idxs);
+  });
+}
+function canonOf(i) { return CANON[i] === undefined ? i : CANON[i]; }
+function groupOf(i) { return GROUP.get(canonOf(i)) || [i]; }
+function productName(i) { return DATA.products[canonOf(i)]; }
+function marginFor(storeIdx, prodIdx) {
+  const store = DATA.margins[storeIdx] || {};
+  const idxs = groupOf(prodIdx);
+  for (let j = 0; j < idxs.length; j++) if (store[idxs[j]]) return store[idxs[j]];
+  return null;
+}
+function numOf(v) { const n = parseFloat(String(v == null ? '' : v).replace(/[^0-9.\-]/g, '')); return isFinite(n) ? n : null; }
+function unitsFor(storeIdx, prodIdx) { const m = marginFor(storeIdx, prodIdx); const u = m ? numOf(m[2]) : null; return u && u > 0 ? u : null; }
+// Refund dollars are the one number here that is real money rather than a
+// ticket count, so they decide what gets fixed first. The margins tab carries a
+// few nonsense refund rates (one digital product reads 1560%), which would
+// otherwise dominate the ranking -- cap at 100%.
+function refundDollarsFor(storeIdx, prodIdx) {
+  const m = marginFor(storeIdx, prodIdx);
+  if (!m) return null;
+  const sales = numOf(m[0]), pct = numOf(m[1]);
+  if (sales === null || pct === null || pct < 0) return null;
+  return sales * Math.min(pct, 100) / 100;
+}
+function supplierOf(productIdx) {
+  const idxs = groupOf(productIdx);
+  for (let j = 0; j < idxs.length; j++) if (CJ_SET.has(idxs[j])) return 'CJ';
+  return 'WIIO';
+}
 
 // ================================================================
 // LIVE REFRESH — rebuilds DATA in the browser straight from the
@@ -607,9 +713,10 @@ async function refreshData() {
     minDate = new Date(DATA.minDate + 'T00:00:00Z');
     maxDate = new Date(DATA.maxDate + 'T00:00:00Z');
     CJ_SET = new Set(DATA.cjProductIdx);
+    buildProductIndex();
     // Product indices are rebuilt fresh each refresh, so any filter pinned to a
     // specific product/index no longer reliably points at the same product.
-    state.gran = 'month'; state.store = null; state.product = null; state.type = null;
+    state.gran = 'month'; state.period = null; state.store = null; state.product = null; state.type = null;
     state.stoppedMonth = null; state.actionStatus = null; state.supplier = null;
     document.getElementById('productInput').value = '';
     renderAll();
@@ -638,6 +745,11 @@ document.getElementById('refreshBtn').addEventListener('click', refreshData);
 
 function fmt(n) { return n.toLocaleString('en-US'); }
 function fmtMoney(cents) { return '$' + fmt(Math.round(cents/100)); }
+function esc(v) {
+  return String(v == null ? '' : v)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
 
 const tooltip = document.getElementById('tooltip');
 function showTooltip(evt, html) { tooltip.innerHTML = html; tooltip.classList.add('show'); positionTooltip(evt); }
@@ -659,7 +771,7 @@ function stoppedProductIdxSet(month) {
     if (item.productIdx === null) return;
     if (month !== null && month !== 'ANY' && item.month !== month) return;
     if (state.store !== null && !item.storeIdxs.includes(state.store)) return;
-    s.add(item.productIdx);
+    s.add(canonOf(item.productIdx));
   });
   return s;
 }
@@ -671,20 +783,26 @@ function actionProductIdxSet(status) {
     if (pIdx === null) return;
     if (status !== null && status !== 'ANY' && st !== status) return;
     if (state.store !== null && !storeIdxs.includes(state.store)) return;
-    s.add(pIdx);
+    s.add(canonOf(pIdx));
   });
   return s;
 }
-function getFilteredRows() {
+// opts.ignorePeriod returns the rows the period filter would be applied TO --
+// the trend chart needs the whole timeline so the period you picked is still
+// visible in context. Everything else takes the period-filtered set.
+function getFilteredRows(opts) {
+  const ignorePeriod = !!(opts && opts.ignorePeriod);
   const stoppedSet = state.stoppedMonth !== null ? stoppedProductIdxSet(state.stoppedMonth) : null;
   const actionSet = state.actionStatus !== null ? actionProductIdxSet(state.actionStatus) : null;
+  const prodCanon = state.product === null ? null : canonOf(state.product);
   return DATA.rows.filter(r => {
+    if (!ignorePeriod && state.period !== null && bucketKey(r[0], state.gran) !== state.period) return false;
     if (state.store !== null && r[1] !== state.store) return false;
-    if (state.product !== null && r[2] !== state.product) return false;
+    if (prodCanon !== null && canonOf(r[2]) !== prodCanon) return false;
     if (state.type !== null && r[3] !== state.type) return false;
     if (state.supplier !== null && supplierOf(r[2]) !== state.supplier) return false;
-    if (stoppedSet && !stoppedSet.has(r[2])) return false;
-    if (actionSet && !actionSet.has(r[2])) return false;
+    if (stoppedSet && !stoppedSet.has(canonOf(r[2]))) return false;
+    if (actionSet && !actionSet.has(canonOf(r[2]))) return false;
     return true;
   });
 }
@@ -734,12 +852,122 @@ function allBucketKeysInOrder(gran) {
   return keys;
 }
 
+// ---------------- period selection ----------------
+// The Week/Month/Quarter/Year pills used to re-bucket the trend chart and
+// nothing else, so picking "Week" left every card, table and insight below it
+// showing all-time numbers. A granularity on its own is not a filter: it only
+// becomes one once you also say WHICH week. state.period holds that choice and
+// every panel honours it.
+const GRAN_RANK = { week: 0, month: 1, quarter: 2, year: 3 };
+function periodLabel(key, gran) {
+  if (gran === 'week') {
+    const parts = key.split('-');
+    const w = +parts[1].slice(1);
+    const start = new Date(Date.UTC(+parts[0], 0, 1) + (w - 1) * 7 * 86400000);
+    const end = new Date(start.getTime() + 6 * 86400000);
+    const MN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return 'Week ' + w + ' \u00b7 ' + MN[start.getUTCMonth()] + ' ' + start.getUTCDate() + '\u2013' + MN[end.getUTCMonth()] + ' ' + end.getUTCDate();
+  }
+  if (gran === 'month') { const parts = key.split('-'); return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+parts[1] - 1] + ' ' + parts[0]; }
+  if (gran === 'quarter') { const parts = key.split('-'); return parts[1] + ' ' + parts[0]; }
+  return key;
+}
+function firstDayOfPeriod(key, gran) {
+  const totalDays = Math.floor((maxDate - minDate) / 86400000) + 1;
+  for (let day = 0; day <= totalDays; day++) if (bucketKey(day, gran) === key) return day;
+  return null;
+}
+// Only offer periods that actually contain complaints under the OTHER filters,
+// and show the count you will get, so nobody picks a week and lands on an empty
+// dashboard wondering what broke.
+function periodOptions() {
+  const counts = {};
+  getFilteredRows({ ignorePeriod: true }).forEach(r => {
+    const k = bucketKey(r[0], state.gran);
+    counts[k] = (counts[k] || 0) + 1;
+  });
+  return allBucketKeysInOrder(state.gran).filter(k => counts[k]).map(k => [k, counts[k]]);
+}
+// A date string from the actions or stopped tabs -> offset in days from
+// minDate, tolerating the two shapes those tabs actually contain: a full
+// ISO date (a few rows carry the year twice, "2026-2026-08-14") and a bare
+// MM-DD whose year is implied by the range the data covers.
+function dayOffsetOf(dateStr) {
+  if (!dateStr) return null;
+  const str = String(dateStr).trim();
+  let iso = null;
+  const full = str.match(/(\d{4})-(\d{1,2})-(\d{1,2})\s*$/);
+  if (full) iso = full[1] + '-' + String(+full[2]).padStart(2, '0') + '-' + String(+full[3]).padStart(2, '0');
+  else {
+    const md = str.match(/^(\d{1,2})-(\d{1,2})$/);
+    if (md) iso = minDate.getUTCFullYear() + '-' + String(+md[1]).padStart(2, '0') + '-' + String(+md[2]).padStart(2, '0');
+  }
+  if (!iso) return null;
+  const t = Date.parse(iso + 'T00:00:00Z');
+  if (isNaN(t)) return null;
+  return Math.round((t - minDate.getTime()) / 86400000);
+}
+function inSelectedPeriod(dateStr) {
+  if (state.period === null) return true;
+  const day = dayOffsetOf(dateStr);
+  return day !== null && bucketKey(day, state.gran) === state.period;
+}
+// The stopped/actions panels and the two KPI tiles that count them have to
+// agree, so both read these.
+function filteredStopped() {
+  return DATA.stoppedList.filter(item => {
+    if (state.store !== null && !item.storeIdxs.includes(state.store)) return false;
+    if (state.product !== null && (item.productIdx === null || canonOf(item.productIdx) !== canonOf(state.product))) return false;
+    if (state.supplier !== null && (item.productIdx === null || supplierOf(item.productIdx) !== state.supplier)) return false;
+    if (!inSelectedPeriod(item.date)) return false;
+    return true;
+  });
+}
+function filteredActions() {
+  return DATA.actionsList.filter(a => {
+    const pIdx = a[0], storeIdxs = a[2];
+    if (state.store !== null && !storeIdxs.includes(state.store)) return false;
+    if (state.product !== null && (pIdx === null || canonOf(pIdx) !== canonOf(state.product))) return false;
+    if (state.supplier !== null && (pIdx === null || supplierOf(pIdx) !== state.supplier)) return false;
+    if (!inSelectedPeriod(a[3])) return false;
+    return true;
+  });
+}
+
 // ---------------- render: pills ----------------
 function renderGranPills() {
   const el = document.getElementById('granPills');
   const opts = [['week','Week'],['month','Month'],['quarter','Quarter'],['year','Year']];
   el.innerHTML = opts.map(([k,l]) => `<button class="pill${state.gran===k?' active':''}" data-gran="${k}">${l}</button>`).join('');
-  el.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { state.gran = b.getAttribute('data-gran'); renderAll(); }));
+  el.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    const next = b.getAttribute('data-gran');
+    if (next === state.gran) return;
+    // Keep the stretch of time you were looking at when the new granularity is
+    // coarser (a week rolls up into its month). Drop it when it is finer,
+    // rather than silently narrowing "August" to one arbitrary week of August.
+    if (state.period !== null) {
+      if (GRAN_RANK[next] > GRAN_RANK[state.gran]) {
+        const day = firstDayOfPeriod(state.period, state.gran);
+        state.period = day === null ? null : bucketKey(day, next);
+      } else {
+        state.period = null;
+      }
+    }
+    state.gran = next;
+    renderAll();
+  }));
+}
+function renderPeriodSelect() {
+  const el = document.getElementById('periodSelect');
+  const opts = periodOptions();
+  const total = opts.reduce((sum, o) => sum + o[1], 0);
+  // A period with nothing left in it after the other filters changed cannot
+  // stay selected, or the dashboard shows zeros with no way back.
+  if (state.period !== null && !opts.some(o => o[0] === state.period)) state.period = null;
+  el.innerHTML = '<option value="">All time \u00b7 ' + fmt(total) + '</option>' +
+    opts.map(o => '<option value="' + o[0] + '"' + (state.period === o[0] ? ' selected' : '') + '>' +
+      periodLabel(o[0], state.gran) + ' \u00b7 ' + fmt(o[1]) + '</option>').join('');
+  el.onchange = () => { state.period = el.value || null; renderAll(); };
 }
 function renderStorePills() {
   const el = document.getElementById('storePills');
@@ -770,7 +998,8 @@ function productCountsForStore() {
   DATA.rows.forEach(r => {
     if (state.store !== null && r[1] !== state.store) return;
     if (state.supplier !== null && supplierOf(r[2]) !== state.supplier) return;
-    counts.set(r[2], (counts.get(r[2]) || 0) + 1);
+    const c = canonOf(r[2]);
+    counts.set(c, (counts.get(c) || 0) + 1);
   });
   return counts;
 }
@@ -781,12 +1010,12 @@ function setupProductCombo() {
     const counts = productCountsForStore();
     let entries = Array.from(counts.entries());
     const q = (query || '').trim().toLowerCase();
-    if (q) entries = entries.filter(([idx]) => DATA.products[idx].toLowerCase().includes(q));
+    if (q) entries = entries.filter(([idx]) => productName(idx).toLowerCase().includes(q));
     entries.sort((a,b) => b[1]-a[1]);
     entries = entries.slice(0, 40);
     if (!entries.length) { list.innerHTML = '<div class="combo-item" style="color:var(--text-muted)">No matches</div>'; }
     else {
-      list.innerHTML = entries.map(([idx,count]) => `<div class="combo-item" data-idx="${idx}"><span class="nm">${DATA.products[idx]}</span><span class="cnt">${count}</span></div>`).join('');
+      list.innerHTML = entries.map(([idx,count]) => `<div class="combo-item" data-idx="${idx}"><span class="nm">${productName(idx)}</span><span class="cnt">${count}</span></div>`).join('');
     }
     list.querySelectorAll('.combo-item[data-idx]').forEach(item => {
       item.addEventListener('click', () => {
@@ -795,7 +1024,7 @@ function setupProductCombo() {
         if (state.store === null) {
           // infer store from a row that has this product, if unambiguous within filtered rows
         }
-        input.value = DATA.products[idx];
+        input.value = productName(idx);
         list.classList.remove('open');
         renderAll();
       });
@@ -811,6 +1040,9 @@ const MONTH_NAMES = { '01':'Jan','02':'Feb','03':'Mar','04':'Apr','05':'May','06
 function renderChips() {
   const el = document.getElementById('activeChips');
   const chips = [];
+  if (state.period !== null) {
+    chips.push('<span class="chip" style="background:var(--s1)">' + periodLabel(state.period, state.gran) + '<button data-clear="period">\u2715</button></span>');
+  }
   if (state.type !== null) {
     const t = TYPE_META[state.type];
     chips.push(`<span class="chip" style="background:var(${t.varName})">Type: ${t.label}<button data-clear="type">✕</button></span>`);
@@ -831,7 +1063,7 @@ function renderChips() {
 }
 
 document.getElementById('clearAll').addEventListener('click', () => {
-  state.gran = 'month'; state.store = null; state.product = null; state.type = null;
+  state.gran = 'month'; state.period = null; state.store = null; state.product = null; state.type = null;
   state.stoppedMonth = null; state.actionStatus = null; state.supplier = null;
   document.getElementById('productInput').value = '';
   renderAll();
@@ -840,18 +1072,22 @@ document.getElementById('clearAll').addEventListener('click', () => {
 // ---------------- KPIs ----------------
 function renderKPIs(filtered) {
   const el = document.getElementById('kpis');
-  const distinctProducts = new Set(filtered.map(r => r[2])).size;
+  const distinctProducts = new Set(filtered.map(r => canonOf(r[2]))).size;
   let gmv = 0, gmvCount = 0;
   filtered.forEach(r => { if (r[4] != null) { gmv += r[4]; gmvCount++; } });
 
   const stoppedActive = state.stoppedMonth === 'ANY';
   const actionsActive = state.actionStatus === 'ANY';
+  const stoppedItems = filteredStopped();
+  const actionItems = filteredActions();
+  const activeFixes = actionItems.filter(a => a[1] === 'Active').length;
+  const periodNote = state.period === null ? '' : periodLabel(state.period, state.gran) + ' \u00b7 ';
   const tiles = [
-    { label: 'Complaints (filtered)', value: fmt(filtered.length), sub: filtered.length === DATA.rows.length ? 'all data' : ((filtered.length/DATA.rows.length*100).toFixed(1) + '% of all ' + fmt(DATA.rows.length)) },
+    { label: 'Complaints (filtered)', value: fmt(filtered.length), sub: filtered.length === DATA.rows.length ? 'all data' : (periodNote + (filtered.length/DATA.rows.length*100).toFixed(1) + '% of all ' + fmt(DATA.rows.length)) },
     { label: 'Products involved', value: fmt(distinctProducts), sub: 'distinct products in view' },
     { label: 'GMV exposed', value: fmtMoney(gmv), sub: fmt(gmvCount) + ' complaint-linked orders' },
-    { label: 'Products stopped', value: fmt(DATA.stoppedList.length), sub: 'click to filter · pulled from sale', click: 'stopped', active: stoppedActive },
-    { label: 'Fix attempts logged', value: fmt(DATA.actionsTotal), sub: 'click to filter · ' + fmt(DATA.statusCounts['Active']||0) + ' still active', click: 'actions', active: actionsActive },
+    { label: 'Products stopped', value: fmt(stoppedItems.length), sub: 'click to filter \u00b7 ' + (stoppedItems.length === DATA.stoppedList.length ? 'pulled from sale' : 'of ' + fmt(DATA.stoppedList.length) + ' all-time'), click: 'stopped', active: stoppedActive },
+    { label: 'Fix attempts logged', value: fmt(actionItems.length), sub: 'click to filter \u00b7 ' + fmt(activeFixes) + ' still active', click: 'actions', active: actionsActive },
   ];
   el.innerHTML = tiles.map(t => `
     <div class="kpi${t.click ? ' clickable' : ''}${t.active ? ' active' : ''}"${t.click ? ` data-kpi="${t.click}"` : ''}><div class="label">${t.label}</div><div class="value">${t.value}</div><div class="sub${t.cls?' '+t.cls:''}">${t.sub}</div></div>
@@ -877,12 +1113,15 @@ function renderTrendLegend() {
   }));
 }
 
-function renderTrend(filtered) {
+// trendRows deliberately ignores the period filter: the chart is where you PICK
+// a period, so it has to keep showing the whole timeline with the chosen bucket
+// highlighted rather than collapsing to the single bar you already selected.
+function renderTrend(trendRows) {
   const gran = state.gran;
   const keys = allBucketKeysInOrder(gran);
   const buckets = {};
   keys.forEach(k => { buckets[k] = { total: 0 }; TYPE_META.forEach(t => buckets[k][t.key] = 0); });
-  filtered.forEach(r => {
+  trendRows.forEach(r => {
     const k = bucketKey(r[0], gran);
     if (!buckets[k]) return;
     buckets[k].total++;
@@ -911,24 +1150,29 @@ function renderTrend(filtered) {
   data.forEach((d, i) => {
     const x = padL + i * (barW + gap);
     let yCursor = padT + plotH;
+    const isSel = state.period !== null && d.key === state.period;
+    const dimBar = state.period !== null && !isSel;
     const tipRows = TYPE_META.map(t => `<div class="t-row"><span><i class="t-swatch" style="background:var(${t.varName})"></i>${t.label}</span><span>${d[t.key]||0}</span></div>`).join('');
-    const tip = `<div class="t-title">${bucketLabel(d.key, gran)} (${d.key}) · ${d.total}</div>${tipRows}`;
-    // bar-hit is drawn FIRST so the segments paint (and hit-test) on top of it —
-    // otherwise this full-height hover/tooltip layer would swallow every click
-    // meant for the individual colored segments beneath it.
+    const hint = isSel ? 'Click to clear this filter' : 'Click to filter everything to this ' + GRAN_WORD[gran];
+    const tip = `<div class="t-title">${periodLabel(d.key, gran)} · ${d.total}</div>${tipRows}<div class="t-row" style="margin-top:5px;opacity:.65"><span>${hint}</span></div>`;
+    // bar-hit is drawn FIRST so the segments paint on top of it; both sit inside
+    // the same <g data-bucket>, which is what carries the click.
     let segHtml = `<rect class="bar-hit" x="${x}" y="${padT}" width="${barW}" height="${plotH}" data-tip='${tip}'></rect>`;
     TYPE_META.forEach((t, ti) => {
       const v = d[t.key] || 0;
       const segH = maxV ? (v / maxV) * plotH : 0;
       yCursor -= segH;
-      const dim = state.type !== null && state.type !== ti;
+      const dim = (state.type !== null && state.type !== ti) || dimBar;
       if (segH > 0.3) {
-        segHtml += `<rect class="seg" data-type="${ti}" data-tip='${tip}' x="${x}" y="${yCursor}" width="${barW}" height="${Math.max(segH-0.6,0)}" fill="var(${t.varName})" opacity="${dim?0.28:1}" rx="1"/>`;
+        segHtml += `<rect data-tip='${tip}' x="${x}" y="${yCursor}" width="${barW}" height="${Math.max(segH-0.6,0)}" fill="var(${t.varName})" opacity="${dim?0.22:1}" rx="1"/>`;
       }
     });
-    const showLabel = (i % labelEvery === 0) || i === n - 1;
-    const labelSvg = showLabel ? `<text class="axis-label" x="${x + barW/2}" y="${H-6}" text-anchor="middle">${bucketLabel(d.key, gran)}</text>` : '';
-    bars += `<g>${segHtml}${labelSvg}</g>`;
+    if (isSel) {
+      segHtml += `<rect x="${x-1.5}" y="${padT}" width="${barW+3}" height="${plotH}" fill="none" stroke="var(--accent)" stroke-width="1.4" rx="2"/>`;
+    }
+    const showLabel = (i % labelEvery === 0) || i === n - 1 || isSel;
+    const labelSvg = showLabel ? `<text class="axis-label" x="${x + barW/2}" y="${H-6}" text-anchor="middle" style="${isSel?'fill:var(--text-primary);font-weight:700':''}">${bucketLabel(d.key, gran)}</text>` : '';
+    bars += `<g class="seg" data-bucket="${d.key}">${segHtml}${labelSvg}</g>`;
   });
 
   const svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">
@@ -937,17 +1181,21 @@ function renderTrend(filtered) {
   const container = document.getElementById('trendChart');
   container.innerHTML = svg;
   wireHitLayer(container);
-  container.querySelectorAll('.seg').forEach(seg => {
-    seg.addEventListener('click', () => {
-      const i = +seg.getAttribute('data-type');
-      state.type = state.type === i ? null : i;
+  container.querySelectorAll('g[data-bucket]').forEach(g => {
+    g.addEventListener('click', () => {
+      const k = g.getAttribute('data-bucket');
+      state.period = state.period === k ? null : k;
       renderAll();
     });
   });
 
   document.getElementById('trendDesc').textContent =
-    (state.type !== null ? ('Showing "' + TYPE_META[state.type].label + '" only. ') : 'Stacked by complaint type. ') +
-    'Click a legend chip or a bar segment to isolate a type — click again to clear. Hover any bar for the breakdown.';
+    (state.period !== null
+      ? 'Filtered to ' + periodLabel(state.period, gran) + ' — every card, chart and table below counts only that ' + GRAN_WORD[gran] + '. Click the highlighted bar again to clear. '
+      : 'Click any bar to filter the whole dashboard to that ' + GRAN_WORD[gran] + '. ') +
+    (state.type !== null
+      ? 'Showing "' + TYPE_META[state.type].label + '" only — use the legend to clear.'
+      : 'Stacked by complaint type; use the legend above to isolate one.');
 
   const footEl = document.getElementById('trendFootnote');
   if (gran === 'week') {
@@ -997,11 +1245,11 @@ function renderTypeChart(filtered) {
 
 // ---------------- top products ----------------
 function renderTopProducts(filtered) {
-  const key = (storeIdx, prodIdx) => storeIdx + ':' + prodIdx;
+  const key = (storeIdx, prodIdx) => storeIdx + ':' + canonOf(prodIdx);
   const agg = new Map();
   filtered.forEach(r => {
     const k = key(r[1], r[2]);
-    if (!agg.has(k)) agg.set(k, { storeIdx: r[1], prodIdx: r[2], count: 0, types: [0,0,0,0,0], ovSum: 0, ovCount: 0 });
+    if (!agg.has(k)) agg.set(k, { storeIdx: r[1], prodIdx: canonOf(r[2]), count: 0, types: [0,0,0,0,0], ovSum: 0, ovCount: 0 });
     const a = agg.get(k);
     a.count++; a.types[r[3]]++;
     if (r[4] != null) { a.ovSum += r[4]; a.ovCount++; }
@@ -1014,14 +1262,17 @@ function renderTopProducts(filtered) {
   const rows = top.map((p, i) => {
     const topTypeIdx = p.types.reduce((best, v, idx) => v > p.types[best] ? idx : best, 0);
     const t = TYPE_META[topTypeIdx];
-    const margin = (DATA.margins[p.storeIdx] || {})[p.prodIdx];
+    const margin = marginFor(p.storeIdx, p.prodIdx);
     const netSales = margin ? margin[0] : null;
     const refundsPct = margin ? margin[1] : null;
+    const units = unitsFor(p.storeIdx, p.prodIdx);
+    const rate = units ? (p.count / units * 100) : null;
     const avgOv = p.ovCount ? fmtMoney(p.ovSum / p.ovCount) : '—';
     return `<tr class="clickable" data-store="${p.storeIdx}" data-prod="${p.prodIdx}">
       <td><span class="rank">${i+1}</span></td>
-      <td><span class="pname">${DATA.products[p.prodIdx]}</span><br><span class="storetag">${DATA.stores[p.storeIdx]} · ${supplierOf(p.prodIdx)}</span></td>
+      <td><span class="pname">${productName(p.prodIdx)}</span><br><span class="storetag">${DATA.stores[p.storeIdx]} · ${supplierOf(p.prodIdx)}</span></td>
       <td class="num">${fmt(p.count)}</td>
+      <td class="num" style="${rate !== null && rate >= 10 ? 'color:var(--critical);font-weight:700' : ''}">${rate === null ? '—' : rate.toFixed(1) + '%'}</td>
       <td><span class="type-pill" style="background:var(${t.varName})">${t.label} · ${p.types[topTypeIdx]}</span></td>
       <td class="num">${netSales || '—'}</td>
       <td class="num">${refundsPct || '—'}</td>
@@ -1030,7 +1281,7 @@ function renderTopProducts(filtered) {
   }).join('');
 
   container.innerHTML = `<table class="data"><thead><tr>
-    <th></th><th>Product</th><th style="text-align:right">Complaints</th><th>Top complaint</th>
+    <th></th><th>Product</th><th style="text-align:right">Complaints</th><th style="text-align:right">Per 100 sold</th><th>Top complaint</th>
     <th style="text-align:right">Net sales</th><th style="text-align:right">Refund %</th><th style="text-align:right">Avg order</th>
   </tr></thead><tbody>${rows}</tbody></table>`;
 
@@ -1038,7 +1289,7 @@ function renderTopProducts(filtered) {
     tr.addEventListener('click', () => {
       state.store = +tr.getAttribute('data-store');
       state.product = +tr.getAttribute('data-prod');
-      document.getElementById('productInput').value = DATA.products[state.product];
+      document.getElementById('productInput').value = productName(state.product);
       renderAll();
     });
   });
@@ -1046,12 +1297,7 @@ function renderTopProducts(filtered) {
 
 // ---------------- response activity (store + product aware, clickable) ----------------
 function renderStopped() {
-  const items = DATA.stoppedList.filter(item => {
-    if (state.store !== null && !item.storeIdxs.includes(state.store)) return false;
-    if (state.product !== null && item.productIdx !== state.product) return false;
-    if (state.supplier !== null && (item.productIdx === null || supplierOf(item.productIdx) !== state.supplier)) return false;
-    return true;
-  });
+  const items = filteredStopped();
   const container = document.getElementById('stoppedChart');
   document.getElementById('stoppedDesc').textContent = `Products pulled from sale, by month stopped (${items.length} in view)`;
   if (!items.length) { container.innerHTML = '<div class="empty-note">No matching stopped products.</div>'; return; }
@@ -1071,7 +1317,7 @@ function renderStopped() {
     const y = padT + plotH - h;
     const active = state.stoppedMonth === d.key || state.stoppedMonth === 'ANY';
     const dim = state.stoppedMonth !== null && state.stoppedMonth !== 'ANY' && !active;
-    const nameList = d.names.slice(0,4).join(', ') + (d.names.length > 4 ? ' +' + (d.names.length-4) + ' more' : '');
+    const nameList = esc(d.names.slice(0,4).join(', ')) + (d.names.length > 4 ? ' +' + (d.names.length-4) + ' more' : '');
     bars += `<g class="seg" data-month="${d.key}">
       <rect x="${x}" y="${y}" width="${barW}" height="${Math.max(h,1)}" fill="var(--s2)" opacity="${dim?0.3:1}" stroke="${active?'var(--text-primary)':'none'}" stroke-width="1.5" rx="3"/>
       <text class="axis-label" x="${x+barW/2}" y="${H-6}" text-anchor="middle">${MONTH_NAMES[d.key]||d.key}</text>
@@ -1092,12 +1338,7 @@ function renderStopped() {
 }
 
 function renderStatus() {
-  const items = DATA.actionsList.filter(([pIdx, st, storeIdxs]) => {
-    if (state.store !== null && !storeIdxs.includes(state.store)) return false;
-    if (state.product !== null && pIdx !== state.product) return false;
-    if (state.supplier !== null && (pIdx === null || supplierOf(pIdx) !== state.supplier)) return false;
-    return true;
-  });
+  const items = filteredActions();
   const container = document.getElementById('statusChart');
   document.getElementById('statusDesc').textContent = `Logged fix attempts by status (${items.length} in view)`;
   if (!items.length) { container.innerHTML = '<div class="empty-note">No matching fix attempts.</div>'; return; }
@@ -1137,8 +1378,9 @@ function renderStatus() {
 // ---------------- out-of-stock / unfulfilled panel ----------------
 function renderStockPanel() {
   const items = DATA.stockIssues.filter(r => {
+    if (state.period !== null && bucketKey(r[0], state.gran) !== state.period) return false;
     if (state.store !== null && r[1] !== state.store) return false;
-    if (state.product !== null && r[2] !== state.product) return false;
+    if (state.product !== null && canonOf(r[2]) !== canonOf(state.product)) return false;
     if (state.supplier !== null && supplierOf(r[2]) !== state.supplier) return false;
     return true;
   });
@@ -1176,7 +1418,7 @@ function renderStockPanel() {
 
   const topRows = top.map((p,i) => {
     const topReason = Object.entries(p.reasons).sort((a,b)=>b[1]-a[1])[0][0];
-    return `<tr><td><span class="rank">${i+1}</span></td><td><span class="pname">${DATA.products[p.prodIdx]}</span><br><span class="storetag">${DATA.stores[p.storeIdx]}</span></td><td class="num">${p.count}</td><td style="font-size:11.5px; color:var(--text-secondary)">${topReason}</td></tr>`;
+    return `<tr><td><span class="rank">${i+1}</span></td><td><span class="pname">${productName(p.prodIdx)}</span><br><span class="storetag">${DATA.stores[p.storeIdx]}</span></td><td class="num">${p.count}</td><td style="font-size:11.5px; color:var(--text-secondary)">${topReason}</td></tr>`;
   }).join('');
 
   container.innerHTML = `${kpiHtml}<div class="grid2">
@@ -1191,9 +1433,325 @@ function renderStockPanel() {
     </div>`;
 }
 
+// ---------------- Pareto ----------------
+// The question this panel answers is "is this 20 bad products or 3,000?",
+// because the answer changes the entire remedy. Ranked by complaint count with
+// the running cumulative share on top; the 80% line is where the tail starts.
+function paretoAgg(filtered) {
+  const agg = new Map();
+  filtered.forEach(r => {
+    const prodIdx = canonOf(r[2]);
+    const k = r[1] + ':' + prodIdx;
+    if (!agg.has(k)) agg.set(k, { storeIdx: r[1], prodIdx: prodIdx, count: 0 });
+    agg.get(k).count++;
+  });
+  const items = Array.from(agg.values()).sort((a, b) => b.count - a.count);
+  const total = items.reduce((sum, i) => sum + i.count, 0);
+  let cum = 0;
+  items.forEach(it => { cum += it.count; it.cumPct = total ? cum / total * 100 : 0; });
+  return { items: items, total: total };
+}
+function countUpTo(items, pct) {
+  for (let i = 0; i < items.length; i++) if (items[i].cumPct >= pct) return i + 1;
+  return items.length;
+}
+function renderPareto(filtered) {
+  const container = document.getElementById('paretoChart');
+  const statsEl = document.getElementById('paretoStats');
+  const agg = paretoAgg(filtered);
+  const items = agg.items, total = agg.total;
+  if (!items.length) {
+    statsEl.innerHTML = '';
+    container.innerHTML = '<div class="empty-note">No complaints match the current filters.</div>';
+    document.getElementById('paretoFootnote').textContent = '';
+    return;
+  }
+  const n50 = countUpTo(items, 50), n80 = countUpTo(items, 80);
+  // Refund dollars sitting inside the 80% group — the number that says what the
+  // ranking is worth in money rather than in tickets.
+  let refund80 = 0, refund80Known = 0;
+  items.slice(0, n80).forEach(it => {
+    const rd = refundDollarsFor(it.storeIdx, it.prodIdx);
+    if (rd !== null) { refund80 += rd; refund80Known++; }
+  });
+  const pctOfSkus = (n80 / items.length * 100);
+
+  statsEl.innerHTML = [
+    { l: 'Listings in view', v: fmt(items.length), s: fmt(total) + ' complaints \u00b7 a product sold by both stores counts once per store' },
+    { l: 'Carry half the volume', v: fmt(n50), s: (n50 / items.length * 100).toFixed(1) + '% of listings = 50% of complaints' },
+    { l: 'Carry 80%', v: fmt(n80), s: pctOfSkus.toFixed(1) + '% of listings = 80% of complaints' },
+    { l: 'Refunds in that 80%', v: '$' + fmt(Math.round(refund80)), s: fmt(refund80Known) + ' of ' + fmt(n80) + ' matched to a margin row' },
+  ].map(st => '<div class="st"><div class="l">' + st.l + '</div><div class="v">' + st.v + '</div><div class="s">' + st.s + '</div></div>').join('');
+
+  const show = items.slice(0, 40);
+  const W = 1120, H = 250, padL = 42, padR = 40, padT = 10, padB = 20;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const maxV = Math.max(1, show[0].count);
+  const n = show.length, gap = 4;
+  const barW = Math.max((plotW - gap * (n - 1)) / n, 1);
+
+  let grid = '';
+  for (let i = 0; i <= 4; i++) {
+    const v = Math.round(maxV * i / 4);
+    const y = padT + plotH - (v / maxV) * plotH;
+    grid += '<line class="gridline" x1="' + padL + '" x2="' + (W - padR) + '" y1="' + y + '" y2="' + y + '"/>';
+    grid += '<text class="axis-label" x="' + (padL - 6) + '" y="' + (y + 3) + '" text-anchor="end">' + fmt(v) + '</text>';
+    grid += '<text class="axis-label" x="' + (W - padR + 6) + '" y="' + (y + 3) + '">' + (i * 25) + '%</text>';
+  }
+  const y80 = padT + plotH - 0.8 * plotH;
+  grid += '<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + y80 + '" y2="' + y80 + '" stroke="var(--critical)" stroke-width="1" stroke-dasharray="4 3" opacity="0.7"/>';
+  grid += '<text class="axis-label" x="' + (W - padR - 4) + '" y="' + (y80 - 5) + '" text-anchor="end" style="fill:var(--critical);font-weight:700">80% of complaints in view</text>';
+
+  let bars = '', pts = [];
+  show.forEach((it, i) => {
+    const x = padL + i * (barW + gap);
+    const h = (it.count / maxV) * plotH;
+    const y = padT + plotH - h;
+    const selected = state.product !== null && canonOf(state.product) === it.prodIdx;
+    const inHead = it.cumPct <= 80;
+    const units = unitsFor(it.storeIdx, it.prodIdx);
+    const rate = units ? (it.count / units * 100) : null;
+    const rd = refundDollarsFor(it.storeIdx, it.prodIdx);
+    const tip = '<div class="t-title">' + esc(productName(it.prodIdx)) + '</div>' +
+      '<div class="t-row"><span>Store</span><span>' + esc(DATA.stores[it.storeIdx]) + '</span></div>' +
+      '<div class="t-row"><span>Supplier</span><span>' + supplierOf(it.prodIdx) + '</span></div>' +
+      '<div class="t-row"><span>Complaints</span><span>' + fmt(it.count) + '</span></div>' +
+      (units ? '<div class="t-row"><span>Units sold</span><span>' + fmt(units) + '</span></div>' : '') +
+      (rate !== null ? '<div class="t-row"><span>Complaint rate</span><span>' + rate.toFixed(1) + '%</span></div>' : '') +
+      (rd !== null ? '<div class="t-row"><span>Refunds</span><span>$' + fmt(Math.round(rd)) + '</span></div>' : '') +
+      '<div class="t-row"><span>Running share</span><span>' + it.cumPct.toFixed(1) + '%</span></div>';
+    bars += '<g class="seg" data-prod="' + it.prodIdx + '" data-store="' + it.storeIdx + '">' +
+      '<rect x="' + x + '" y="' + y + '" width="' + barW + '" height="' + Math.max(h, 1) + '" rx="2" ' +
+        'fill="var(' + (inHead ? '--s2' : '--s1') + ')" opacity="' + (state.product !== null && !selected ? 0.3 : 1) + '" ' +
+        'stroke="' + (selected ? 'var(--text-primary)' : 'none') + '" stroke-width="1.5"/>' +
+      '<rect class="bar-hit" x="' + x + '" y="' + padT + '" width="' + barW + '" height="' + plotH + '" data-tip=\'' + tip + '\'></rect></g>';
+    pts.push([x + barW / 2, padT + plotH - (it.cumPct / 100) * plotH]);
+  });
+  const line = '<polyline points="' + pts.map(pt => pt[0].toFixed(1) + ',' + pt[1].toFixed(1)).join(' ') + '" fill="none" stroke="var(--text-secondary)" stroke-width="1.6" opacity="0.85"/>';
+
+  container.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" height="' + H + '">' +
+    grid + '<line class="baseline" x1="' + padL + '" x2="' + (W - padR) + '" y1="' + (padT + plotH) + '" y2="' + (padT + plotH) + '"/>' +
+    bars + line + '</svg>';
+  wireHitLayer(container);
+  container.querySelectorAll('.seg').forEach(seg => {
+    seg.addEventListener('click', () => {
+      const prodIdx = +seg.getAttribute('data-prod');
+      const already = state.product !== null && canonOf(state.product) === prodIdx;
+      state.product = already ? null : prodIdx;
+      state.store = already ? state.store : +seg.getAttribute('data-store');
+      document.getElementById('productInput').value = already ? '' : productName(prodIdx);
+      renderAll();
+    });
+  });
+
+  document.getElementById('paretoDesc').textContent =
+    'Top 40 listings by complaint count (orange = inside the 80% head, blue = tail). The grey line is the running cumulative share against the right-hand axis. Click a bar to filter the dashboard to that product.';
+  const headShare = show.length ? show[0].cumPct : 0;
+  document.getElementById('paretoFootnote').innerHTML =
+    'Read it this way: fixing the top <b>' + fmt(n50) + '</b> listings removes half the complaint volume, and the worst single one alone accounts for <b>' +
+    headShare.toFixed(1) + '%</b>. The remaining <b>' + fmt(items.length - n80) + '</b> generate the last 20% between them — individually too small to chase, which is why they need a process fix rather than a per-product one.';
+}
+
+// ---------------- root-cause analysis ----------------
+// Detection lag is the number that turns a complaint list into a management
+// problem: how long a product sits at the top of that list before anyone logs
+// anything against it. Measured per product, first complaint to first logged
+// fix, over products with enough volume that nobody could have missed them.
+function detectionLag(filtered) {
+  const inView = new Set(filtered.map(r => canonOf(r[2])));
+  const firstDay = new Map(), counts = new Map();
+  DATA.rows.forEach(r => {
+    const c = canonOf(r[2]);
+    if (!inView.has(c)) return;
+    if (!firstDay.has(c) || r[0] < firstDay.get(c)) firstDay.set(c, r[0]);
+    counts.set(c, (counts.get(c) || 0) + 1);
+  });
+  const firstAction = new Map();
+  DATA.actionsList.forEach(a => {
+    if (a[0] === null) return;
+    const c = canonOf(a[0]);
+    const day = dayOffsetOf(a[3]);
+    if (day === null) return;
+    if (!firstAction.has(c) || day < firstAction.get(c)) firstAction.set(c, day);
+  });
+  const THRESHOLD = 20;
+  const big = Array.from(counts.entries()).filter(e => e[1] >= THRESHOLD).map(e => e[0]);
+  const lags = [], unaddressed = [];
+  let complaintsBeforeFix = 0, complaintsOnFixed = 0;
+  big.forEach(c => {
+    if (!firstAction.has(c)) { unaddressed.push(c); return; }
+    const lag = firstAction.get(c) - firstDay.get(c);
+    if (lag >= 0) lags.push(lag);
+    let before = 0, all = 0;
+    DATA.rows.forEach(r => {
+      if (canonOf(r[2]) !== c) return;
+      all++;
+      if (r[0] < firstAction.get(c)) before++;
+    });
+    complaintsBeforeFix += before; complaintsOnFixed += all;
+  });
+  lags.sort((a, b) => a - b);
+  return {
+    threshold: THRESHOLD,
+    bigCount: big.length,
+    bigComplaints: big.reduce((sum, c) => sum + counts.get(c), 0),
+    medianLag: lags.length ? lags[Math.floor(lags.length / 2)] : null,
+    maxLag: lags.length ? lags[lags.length - 1] : null,
+    unaddressed: unaddressed.length,
+    beforeFixShare: complaintsOnFixed ? complaintsBeforeFix / complaintsOnFixed * 100 : null,
+  };
+}
+
+function renderRCA(filtered) {
+  const el = document.getElementById('rcaRows');
+  const planEl = document.getElementById('planTable');
+  const n = filtered.length;
+  if (!n) {
+    el.innerHTML = '<div class="empty-note">No complaints match the current filters.</div>';
+    planEl.innerHTML = '';
+    document.getElementById('planFootnote').textContent = '';
+    return;
+  }
+  const typeCounts = TYPE_META.map(() => 0);
+  filtered.forEach(r => typeCounts[r[3]]++);
+  const pct = i => typeCounts[i] / n * 100;
+  const sizing = pct(0) + pct(1);
+  const smallOverLarge = typeCounts[1] ? (typeCounts[0] / typeCounts[1]) : null;
+  const lag = detectionLag(filtered);
+  const agg = paretoAgg(filtered);
+  const n80 = countUpTo(agg.items, 80);
+  const stockInView = DATA.stockIssues.filter(r => {
+    if (state.period !== null && bucketKey(r[0], state.gran) !== state.period) return false;
+    if (state.store !== null && r[1] !== state.store) return false;
+    return true;
+  }).length;
+
+  const causes = [
+    {
+      sym: 'Wrong size on arrival', share: sizing, color: '--s1',
+      meta: fmt(typeCounts[0]) + ' too small · ' + fmt(typeCounts[1]) + ' too large' +
+        (smallOverLarge ? ' · ' + smallOverLarge.toFixed(1) + ':1 skew to "too small"' : ''),
+      cause: 'The size chart on the listing is the supplier’s chart, converted to US labels, and nobody has measured a garment that actually shipped. A ' + (smallOverLarge && smallOverLarge > 1.5 ? 'skew this heavy toward "too small"' : 'skew like this') + ' is not random error — it means the whole grid sits one step below what a US buyer expects from that label.',
+      model: 'We list from the 1688/168 product photo and the supplier’s spec sheet, and we only ask CJ or WIIO for real sizing at the 5-order mark. By then the listing has been selling for days with a chart nobody verified.',
+      fix: 'Order one sample per apparel SKU before scaling. Publish garment measurements (chest / waist / length, cm and inches) instead of S/M/L alone, and add an explicit "runs small — size up" line wherever the complaint skew says so.',
+    },
+    {
+      sym: 'Not what the photo showed', share: pct(3), color: '--s4',
+      meta: fmt(typeCounts[3]) + ' tickets',
+      cause: 'The listing image is an AI render built to resemble the item, not a photograph of the item that ships. Fabric sheen, drape, print scale and colour saturation are exactly what a generative image gets wrong, and they are exactly what the customer checks when the parcel opens.',
+      model: 'Our flow is: supplier photo → AI reinterpretation → listing. The render is a design intent; the factory output is something else, and the customer only ever saw the intent.',
+      fix: 'Hero image and at least two gallery images must be the real received sample, on a plain background, unretouched for colour. Keep AI for lifestyle and background scenes that do not define the product. This is also the category with real outside risk — it is what a chargeback reviewer, an ad-platform policy check or an FTC deceptive-imagery complaint looks at first, and it is the one root cause here that can cost more than refunds.',
+    },
+    {
+      sym: 'Poor quality', share: pct(2), color: '--s3',
+      meta: fmt(typeCounts[2]) + ' tickets',
+      cause: 'Supplier chosen on quote and turnaround at the 5-order mark, with no physical inspection. Many 1688/168 listings are resellers sharing one photo set across several factories, so "same photo" does not mean same goods.',
+      model: 'The 5-order trigger is a demand test, not a quality test. Nothing in the current flow ever inspects an item before volume builds.',
+      fix: 'Make a sample sign-off a gate, not a courtesy: photograph it, check stitching/fabric weight/hardware against the listing, keep it on file. Ask CJ and WIIO for the factory name, not just the price, and hold a second source for anything past 200 units.',
+    },
+    {
+      sym: 'Filed as "Other"', share: pct(4), color: '--s5',
+      meta: fmt(typeCounts[4]) + ' tickets with no usable cause',
+      cause: 'The tag list has no home for late delivery, wrong item shipped, damaged in transit, customs, or missing parts, so agents fall back to Other. Nearly a third of the evidence is therefore unusable for deciding anything.',
+      model: 'The taxonomy was built around product defects, but a China-to-US dropship generates at least as many transit and fulfilment complaints as product ones.',
+      fix: 'Add: late delivery, wrong item, damaged in transit, missing parts, customs/duties, stock-out. Make the field required, and re-tag a 100-ticket sample of the existing Other pile to see what has been hiding in it.',
+    },
+    {
+      sym: 'Nobody acted for weeks', share: null, color: '--critical',
+      meta: lag.medianLag === null
+        ? lag.bigCount + ' products past ' + lag.threshold + ' complaints in view'
+        : 'median ' + lag.medianLag + ' days to first logged fix · worst ' + lag.maxLag + ' days',
+      cause: 'There is no per-product alarm. A product becomes visible when someone notices it in a list, so the products that get attention are the loudest, not the fastest-growing. ' +
+        (lag.unaddressed ? lag.unaddressed + ' of the ' + lag.bigCount + ' products past ' + lag.threshold + ' complaints in this view still have no fix logged at all.' : '') +
+        (lag.beforeFixShare !== null ? ' Across the ones that were addressed, ' + lag.beforeFixShare.toFixed(0) + '% of their complaints had already been filed before the first fix was logged.' : ''),
+      model: 'Complaint volume is tracked per store, but the decision it should drive — pause this SKU, re-source it, rewrite its listing — is per SKU.',
+      fix: 'Weekly automatic flag: any SKU over 3% complaints-per-unit with 50+ units sold goes on a review list with a named owner and a decision (fix listing / re-source / stop) due within 7 days. The data to compute it is already in these sheets.',
+    },
+    {
+      sym: 'Ordered, never shipped', share: null, color: '--warning',
+      meta: fmt(stockInView) + ' stock / fulfilment cases in view',
+      cause: 'We hold no stock, so the storefront cannot know the supplier is out. The customer finds out after paying, and in several logged cases the refund was still not processed after the cancellation.',
+      model: 'Inherent to dropshipping: Shopify inventory is a guess about someone else’s warehouse.',
+      fix: 'Weekly stock confirmation from CJ/WIIO on the top 50 SKUs by volume; auto-pause a SKU the moment a supplier reports out-of-stock. Refund within 24h of a cancellation, automatically — an unrefunded cancellation is the single fastest route to a chargeback.',
+    },
+  ];
+
+  el.innerHTML = causes.map(c =>
+    '<div class="rca-row">' +
+      '<div class="rca-head">' +
+        '<span class="sym">' + c.sym + '</span>' +
+        (c.share !== null ? '<span class="share" style="background:var(' + c.color + ')">' + c.share.toFixed(1) + '% of complaints in view</span>' : '') +
+        '<span class="meta">' + c.meta + '</span>' +
+      '</div>' +
+      '<dl>' +
+        '<dt>Root cause</dt><dd>' + c.cause + '</dd>' +
+        '<dt>Where it enters</dt><dd>' + c.model + '</dd>' +
+        '<dt>Counter-measure</dt><dd><b>' + c.fix + '</b></dd>' +
+      '</dl>' +
+    '</div>'
+  ).join('');
+
+  // ---- action plan, ordered by complaint volume removed per unit of effort ----
+  const top10 = agg.items.slice(0, 10);
+  const top10Share = top10.length ? top10[top10.length - 1].cumPct : 0;
+  const top10Names = top10.slice(0, 3).map(it => productName(it.prodIdx).split(/[–—-]/)[0].trim()).join(', ');
+  const photoBatch = Math.min(countUpTo(agg.items, 50), 50);
+  const plan = [
+    ['1', 'Freeze and re-source the top ' + top10.length + ' offenders',
+      'Pause paid traffic to them, pull one sample each, decide re-source vs. stop. Starts with ' + top10Names + '.',
+      'Sourcing + CX lead', 'This week',
+      'Removes up to ' + top10Share.toFixed(0) + '% of complaint volume'],
+    ['2', 'Real photos on the top ' + fmt(photoBatch) + ' products',
+      'Replace AI hero and gallery images with photographs of the received sample. Highest-volume products first.',
+      'Listing / creative', '2 weeks',
+      'Targets the ' + pct(3).toFixed(0) + '% filed as "not as pictured"'],
+    ['3', 'Measured size charts on every apparel SKU',
+      'Garment measurements in cm and inches from a physical sample, plus a "runs small" note where the data says so.',
+      'Sourcing', '2–4 weeks',
+      'Targets the ' + sizing.toFixed(0) + '% filed as wrong size'],
+    ['4', 'Sample gate before scaling',
+      'No SKU passes the 5-order mark without an inspected sample, a named factory and photos on file.',
+      'Sourcing', 'Process change, now',
+      'Stops new offenders entering the catalogue'],
+    ['5', 'Weekly complaint-rate flag',
+      'Any SKU over 3% complaints-per-unit with 50+ units sold goes to a named owner with a 7-day decision.',
+      'Ops', '1 week to set up',
+      'Cuts the ' + (lag.medianLag === null ? 'weeks-long' : lag.medianLag + '-day') + ' median detection lag'],
+    ['6', 'Fix the complaint taxonomy',
+      'Add late delivery, wrong item, damaged in transit, missing parts, customs, stock-out. Make it required. Re-tag 100 old "Other" tickets.',
+      'CX lead', '1 week',
+      'Recovers the ' + pct(4).toFixed(0) + '% currently unusable'],
+    ['7', 'Automatic refund on cancellation',
+      'Any cancelled or unfulfillable order refunds within 24h without a human step.',
+      'Ops', '1 week',
+      'Removes the worst chargeback trigger'],
+    ['8', 'Weekly supplier stock check',
+      'Top 50 SKUs confirmed with CJ/WIIO each week; auto-pause on an out-of-stock report.',
+      'Ops', 'Ongoing from next week',
+      'Targets the ' + fmt(stockInView) + ' stock-out cases'],
+  ];
+  const prioColor = i => i < 2 ? 'var(--critical)' : (i < 5 ? 'var(--warning)' : 'var(--s1)');
+  planEl.innerHTML = '<table class="data"><thead><tr>' +
+    '<th></th><th>Action</th><th>What it means</th><th>Owner</th><th>When</th><th>Expected effect</th>' +
+    '</tr></thead><tbody>' +
+    plan.map((row, i) =>
+      '<tr><td><span class="prio" style="background:' + prioColor(i) + '">' + row[0] + '</span></td>' +
+      '<td><span class="pname">' + row[1] + '</span></td>' +
+      '<td style="color:var(--text-secondary);font-size:12px">' + row[2] + '</td>' +
+      '<td style="font-size:12px">' + row[3] + '</td>' +
+      '<td style="font-size:12px">' + row[4] + '</td>' +
+      '<td style="font-size:12px;font-weight:600">' + row[5] + '</td></tr>'
+    ).join('') + '</tbody></table>';
+
+  document.getElementById('planFootnote').innerHTML =
+    'Sequencing logic: items 1–3 are one-off clean-ups that take volume off the board now; items 4–8 are process changes that stop it coming back. ' +
+    'Doing only 1–3 buys a few months — the Pareto head refills, because the process that produced it is unchanged. ' +
+    'The one measure worth reporting weekly is <b>complaints per 100 units sold, per SKU</b>: raw complaint counts rise whenever sales rise, which is why a growing store can look like a failing one.';
+}
+
 // ---------------- insights (dynamic: curated default, generated when filtered) ----------------
 function insightsAreFiltered() {
-  return state.store !== null || state.product !== null || state.type !== null || state.stoppedMonth !== null || state.actionStatus !== null || state.supplier !== null;
+  return state.period !== null || state.store !== null || state.product !== null || state.type !== null || state.stoppedMonth !== null || state.actionStatus !== null || state.supplier !== null;
 }
 
 // ---------------- shared period-over-period trend helper ----------------
@@ -1211,7 +1769,15 @@ function trendOverPeriod(rowsSubset, gran) {
   const byBucket = {};
   rowsSubset.forEach(r => { const k = bucketKey(r[0], gran); byBucket[k] = (byBucket[k] || 0) + 1; });
   let keys = sortBucketKeys(Object.keys(byBucket), gran);
-  if (keys.length >= 3) keys = keys.slice(0, -1); // drop the still-in-progress trailing period
+  if (state.period !== null) {
+    // With a period pinned, the comparison people want is that period against
+    // the one before it — not the last two periods in the data.
+    const at = keys.indexOf(state.period);
+    if (at < 1) return null;
+    keys = keys.slice(0, at + 1);
+  } else if (keys.length >= 3) {
+    keys = keys.slice(0, -1); // drop the still-in-progress trailing period
+  }
   if (keys.length < 2) return null;
   const prevKey = keys[keys.length-2], lastKey = keys[keys.length-1];
   const prevCount = byBucket[prevKey], lastCount = byBucket[lastKey];
@@ -1238,16 +1804,16 @@ function defaultInsightGroups() {
 
   // Top single product overall — whoever it is right now, not a hardcoded name.
   const byProduct = new Map();
-  DATA.rows.forEach(r => { const key = r[1] + ':' + r[2]; byProduct.set(key, (byProduct.get(key) || 0) + 1); });
+  DATA.rows.forEach(r => { const key = r[1] + ':' + canonOf(r[2]); byProduct.set(key, (byProduct.get(key) || 0) + 1); });
   const topEntry = Array.from(byProduct.entries()).sort((a,b) => b[1] - a[1])[0];
   let topProductBullet = '';
   if (topEntry) {
     const [key, count] = topEntry;
     const [sIdx, pIdx] = key.split(':').map(Number);
     const share = (count / n * 100);
-    const productActions = DATA.actionsList.filter(([p]) => p === pIdx);
+    const productActions = DATA.actionsList.filter(([p]) => p !== null && canonOf(p) === pIdx);
     const actionsNote = productActions.length ? `${productActions.length} fix${productActions.length>1?'es':''} logged` : 'no fixes logged yet';
-    topProductBullet = `<b>${DATA.products[pIdx]} (${DATA.stores[sIdx]}): ${fmt(count)} complaints, ${share.toFixed(0)}% of all.</b> <span class="m">${actionsNote}.</span>`;
+    topProductBullet = `<b>${productName(pIdx)} (${DATA.stores[sIdx]}): ${fmt(count)} complaints, ${share.toFixed(0)}% of all.</b> <span class="m">${actionsNote}.</span>`;
   }
 
   // Stock-out / unfulfilled cases.
@@ -1292,7 +1858,7 @@ function defaultInsightGroups() {
   ];
 }
 
-function generateFilteredInsights(filtered) {
+function generateFilteredInsights(filtered, trendRows) {
   const items = [];
   const n = filtered.length;
   if (!n) {
@@ -1303,6 +1869,7 @@ function generateFilteredInsights(filtered) {
 
   // context line
   const ctxParts = [];
+  if (state.period !== null) ctxParts.push(periodLabel(state.period, state.gran));
   if (state.store !== null) ctxParts.push(DATA.stores[state.store]);
   if (state.product !== null) ctxParts.push(`"${DATA.products[state.product]}"`);
   if (state.type !== null) ctxParts.push(`"${TYPE_META[state.type].label}" complaints`);
@@ -1316,7 +1883,7 @@ function generateFilteredInsights(filtered) {
   items.push(`<b>${fmt(n)} complaints</b> <span class="m">— ${share.toFixed(1)}% of all ${fmt(globalN)}.</span>`);
 
   // trend within filtered set, at whatever granularity is currently selected
-  const t = trendOverPeriod(filtered, state.gran);
+  const t = trendOverPeriod(trendRows, state.gran);
   if (t) {
     items.push(`<b>${t.prevLabel}→${t.lastLabel}: ${t.verb} ${Math.abs(t.pct).toFixed(0)}%</b> <span class="m">(${fmt(t.prevCount)} → ${fmt(t.lastCount)}, per ${GRAN_WORD[state.gran]}).</span>`);
   } else {
@@ -1335,11 +1902,11 @@ function generateFilteredInsights(filtered) {
   // concentration: product (skip if product already pinned)
   if (state.product === null) {
     const byProduct = new Map();
-    filtered.forEach(r => byProduct.set(r[2], (byProduct.get(r[2]) || 0) + 1));
+    filtered.forEach(r => byProduct.set(canonOf(r[2]), (byProduct.get(canonOf(r[2])) || 0) + 1));
     const topEntry = Array.from(byProduct.entries()).sort((a,b) => b[1]-a[1])[0];
     if (topEntry) {
       const topShare = (topEntry[1] / n * 100);
-      items.push(`<b>Top product:</b> <span class="m">"${DATA.products[topEntry[0]]}" — ${fmt(topEntry[1])} (${topShare.toFixed(0)}%).</span>`);
+      items.push(`<b>Top product:</b> <span class="m">"${productName(topEntry[0])}" — ${fmt(topEntry[1])} (${topShare.toFixed(0)}%).</span>`);
     }
   }
 
@@ -1393,8 +1960,8 @@ function generateFilteredInsights(filtered) {
   return [{ key: 'info', label: 'In this view', dot: 'var(--accent)', items }];
 }
 
-function renderInsights(filtered) {
-  const groups = insightsAreFiltered() ? generateFilteredInsights(filtered) : defaultInsightGroups();
+function renderInsights(filtered, trendRows) {
+  const groups = insightsAreFiltered() ? generateFilteredInsights(filtered, trendRows) : defaultInsightGroups();
   document.getElementById('insightsDesc').textContent = insightsAreFiltered()
     ? 'Generated from the filters currently active above.'
     : 'The full-picture view — clear filters above to always see this. Click any chart or row to drill in and these update automatically.';
@@ -1410,22 +1977,27 @@ function renderInsights(filtered) {
 // ---------------- master render ----------------
 function renderAll() {
   renderGranPills();
+  renderPeriodSelect();
   renderStorePills();
   renderSupplierPills();
   renderChips();
+  const trendRows = getFilteredRows({ ignorePeriod: true });
   const filtered = getFilteredRows();
   renderKPIs(filtered);
   renderTrendLegend();
-  renderTrend(filtered);
+  renderTrend(trendRows);
   renderTypeChart(filtered);
   renderTopProducts(filtered);
+  renderPareto(filtered);
   renderStopped();
   renderStatus();
   renderStockPanel();
-  renderInsights(filtered);
+  renderRCA(filtered);
+  renderInsights(filtered, trendRows);
 }
 
 document.getElementById('refreshStatus').textContent = 'Loaded ' + LOADED_AT;
+buildProductIndex();
 setupProductCombo();
 renderAll();
 </script>
