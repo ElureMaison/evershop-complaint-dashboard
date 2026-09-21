@@ -392,6 +392,20 @@ function egDataWindow(times) {
   while (hi > lo && u[hi] - u[hi - 1] > gap) hi--;
   return [u[lo], u[hi]];
 }
+function egIsoDay(d) { return d.toISOString().slice(0, 10); }
+// Re-date an out-of-range day by trying each year the real data spans, keeping
+// the first that lands inside it. The month/day check catches Feb 29 silently
+// rolling into Mar 1 on a non-leap year; anything that still doesn't fit is left
+// for the caller to drop.
+function egRepairYear(d, minT, maxT) {
+  const firstY = new Date(minT).getUTCFullYear(), lastY = new Date(maxT).getUTCFullYear();
+  for (let y = firstY; y <= lastY; y++) {
+    const c = new Date(Date.UTC(y, d.getUTCMonth(), d.getUTCDate()));
+    if (c.getUTCMonth() !== d.getUTCMonth()) continue;
+    if (c.getTime() >= minT && c.getTime() <= maxT) return c;
+  }
+  return null;
+}
 const EG_TYPES = ['too_small','too_large','poor_quality','not_as_pictured','other'];
 const EG_STOCK_RX = /out of stock|unfulfilled|not fulfilled|backorder|no stock|sold out|not in stock|inventory issue|no restock|restock date|cancelled.*(stock|inventory)/i;
 function egStockReason(detail) {
@@ -500,22 +514,43 @@ async function buildFreshData() {
     });
   });
 
-  // Every bucket is an offset from the earliest date, so one mistyped year in the
-  // source sheet (a 2020-09-19 that should read 2026-09-19) used to drag the start
-  // of the window back six years and label every real complaint W280+. Anchor the
-  // window on the main cluster instead: walk in from either end and drop dates that
-  // sit more than a quarter away from the rest of the data. Only the ends are
-  // trimmed, so a genuine quiet stretch inside the range is left alone.
+  // A mistyped year used to drag the whole window back with it: one Clarendale
+  // row dated 2020-09-19 put the start of the range six years early and labelled
+  // every real complaint W280+. So find the real range first -- walk in from
+  // either end of the dates and ignore any that sit more than a quarter away from
+  // the rest of the data, trimming only the ends so a genuine quiet stretch
+  // inside the range survives.
   const window = egDataWindow(rawRows.map(r => r.day.getTime()));
   if (!window) throw new Error('No complaints with a usable date found in the source sheets');
   const [minT, maxT] = window;
-  const inWindow = r => r.day.getTime() >= minT && r.day.getTime() <= maxT;
-  const droppedDates = rawRows.filter(r => !inWindow(r))
-    .map(r => r.day.toISOString().slice(0,10)).sort();
+
+  // Then keep those rows rather than discarding them. A date outside the range is
+  // a typing slip, not history -- that 2020 row is a 2026 complaint (its own order
+  // date reads 2026-09-10) with one digit wrong -- so re-date it into the range
+  // when its day and month already fit. The complaint itself is real and still
+  // counts; only the year was wrong.
+  const repairedDates = [], droppedDates = [];
+  function egFitToWindow(list, report) {
+    const out = [];
+    list.forEach(r => {
+      const t = r.day.getTime();
+      if (t >= minT && t <= maxT) { out.push(r); return; }
+      const fixed = egRepairYear(r.day, minT, maxT);
+      if (report) {
+        const was = egIsoDay(r.day);
+        if (fixed) repairedDates.push(was + ' \u2192 ' + egIsoDay(fixed)); else droppedDates.push(was);
+      }
+      if (fixed) out.push({ day: fixed, storeIdx: r.storeIdx, productIdx: r.productIdx, typeIdx: r.typeIdx, ovCents: r.ovCents, reason: r.reason });
+    });
+    return out;
+  }
+  const fittedRows = egFitToWindow(rawRows, true);
+  const fittedStock = egFitToWindow(stockIssuesRaw, false);
+  repairedDates.sort(); droppedDates.sort();
   const minD = new Date(minT), maxD = new Date(maxT);
 
-  const rows = rawRows.filter(inWindow).map(r => [Math.floor((r.day - minD)/86400000), r.storeIdx, r.productIdx, r.typeIdx, r.ovCents]);
-  const stockIssues = stockIssuesRaw.filter(inWindow).map(r => [Math.floor((r.day - minD)/86400000), r.storeIdx, r.productIdx, r.ovCents, r.reason]);
+  const rows = fittedRows.map(r => [Math.floor((r.day - minD)/86400000), r.storeIdx, r.productIdx, r.typeIdx, r.ovCents]);
+  const stockIssues = fittedStock.map(r => [Math.floor((r.day - minD)/86400000), r.storeIdx, r.productIdx, r.ovCents, r.reason]);
 
   const statusCounts = {};
   const actionsList = [];
@@ -545,7 +580,7 @@ async function buildFreshData() {
     stores: STORES.map(s => s.key), types: EG_TYPES, products: productDisplay, rows,
     margins: [marginsByStoreProduct[0], marginsByStoreProduct[1]],
     statusCounts, actionsList, stoppedList, actionsTotal: actions.length, stockIssues,
-    cjProductIdx: Array.from(cjSet), droppedDates,
+    cjProductIdx: Array.from(cjSet), droppedDates, repairedDates,
   };
 }
 
@@ -579,10 +614,18 @@ async function refreshData() {
     document.getElementById('productInput').value = '';
     renderAll();
     const now = new Date();
-    const dropped = DATA.droppedDates || [];
-    status.className = dropped.length ? 'refresh-status err' : 'refresh-status ok';
+    // Re-dated and dropped rows both mean a bad Date in the sheet, so say so
+    // rather than quietly absorbing it — the point is that someone fixes it there.
+    const repaired = DATA.repairedDates || [], dropped = DATA.droppedDates || [];
+    const note = (list, verb) => list.length
+      ? ' · ' + verb + ' ' + list.length + ' row' + (list.length > 1 ? 's' : '')
+        + ' (' + list.slice(0, 3).join(', ') + (list.length > 3 ? '…' : '') + ')'
+      : '';
+    const flagged = repaired.length || dropped.length;
+    status.className = flagged ? 'refresh-status err' : 'refresh-status ok';
     status.textContent = 'Updated ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + ' — ' + fmt(DATA.rows.length) + ' complaints'
-      + (dropped.length ? ' · ignored ' + dropped.length + ' row' + (dropped.length > 1 ? 's' : '') + ' with an out-of-range Date (' + dropped.slice(0, 4).join(', ') + (dropped.length > 4 ? '…' : '') + ') — fix the date in the sheet' : '');
+      + note(repaired, 're-dated') + note(dropped, 'ignored')
+      + (flagged ? ' — fix the Date in the sheet' : '');
   } catch (err) {
     status.className = 'refresh-status err';
     status.textContent = 'Refresh failed — showing last-loaded data (' + (err.message || err) + ')';
