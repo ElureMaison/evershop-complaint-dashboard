@@ -357,6 +357,7 @@
         <b>Stores:</b> Clarendale and Lark &amp; Clover keep separate complaint logs and separate product catalogs (different Shopify product IDs), so "per product" filtering is store-specific — the same physical item can appear under different names/IDs on each storefront and is not merged here.<br>
         <b>Lark &amp; Clover's</b> complaint log starts 2026-04-30 (vs Clarendale's 2026-02-11) — it appears to be a newer or more recently-tracked storefront, which matters when comparing raw volumes between stores.<br>
         <b>"GMV exposed"</b> is the sum of order values for orders that generated a complaint — an exposure figure, not confirmed lost revenue.<br>
+        <b>Mistyped years are corrected on the fly:</b> one Clarendale row (Glowkin – Transparent Zippered Pumpkin Favor Bags, order #2775927, placed 2026-09-10) is logged as <b>2020</b>-09-19. Refresh re-dates any such row to the only year in the data's own range where that month and day fit, so it is counted in the right week rather than dropped. The cell in the sheet is still wrong; nothing on this page depends on it being fixed.<br>
         <b>Response activity and out-of-stock detection</b> are matched to complaint-log products by name, best-effort (not every row matches — shared ops sheets sometimes name products slightly differently than the complaint log); a miss just means that row is left out of these two sections, not double-counted elsewhere.
       </p>
     </div>
@@ -721,18 +722,21 @@ async function refreshData() {
     document.getElementById('productInput').value = '';
     renderAll();
     const now = new Date();
-    // Re-dated and dropped rows both mean a bad Date in the sheet, so say so
-    // rather than quietly absorbing it — the point is that someone fixes it there.
+    // A mistyped year is corrected here rather than sent back to whoever keeps
+    // the sheet: the complaint is real, only the year is wrong, and the repair
+    // is unambiguous (one year in the data's own range puts that month and day
+    // back inside it). Say it happened, but as a note, not as an error — the
+    // only thing still worth flagging in red is a date we could NOT place,
+    // because that row is silently missing from every number on the page.
     const repaired = DATA.repairedDates || [], dropped = DATA.droppedDates || [];
     const note = (list, verb) => list.length
       ? ' · ' + verb + ' ' + list.length + ' row' + (list.length > 1 ? 's' : '')
         + ' (' + list.slice(0, 3).join(', ') + (list.length > 3 ? '…' : '') + ')'
       : '';
-    const flagged = repaired.length || dropped.length;
-    status.className = flagged ? 'refresh-status err' : 'refresh-status ok';
+    status.className = dropped.length ? 'refresh-status err' : 'refresh-status ok';
     status.textContent = 'Updated ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + ' — ' + fmt(DATA.rows.length) + ' complaints'
-      + note(repaired, 're-dated') + note(dropped, 'ignored')
-      + (flagged ? ' — fix the Date in the sheet' : '');
+      + note(repaired, 'auto-corrected') + note(dropped, 'ignored')
+      + (dropped.length ? ' — fix the Date in the sheet' : '');
   } catch (err) {
     status.className = 'refresh-status err';
     status.textContent = 'Refresh failed — showing last-loaded data (' + (err.message || err) + ')';
