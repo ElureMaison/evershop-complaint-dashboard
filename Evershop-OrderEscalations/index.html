@@ -94,6 +94,7 @@
     color:var(--text-secondary); font-size:11px; cursor:pointer; font-family:inherit;
   }
   .live-status button:hover{ background:var(--surface-2); }
+  .build-tag{ font-size:10.5px; color:var(--text-muted); border:1px solid var(--border); border-radius:4px; padding:1px 5px; letter-spacing:.02em; }
 
   .filters{
     display:flex; gap:8px; align-items:center; flex-wrap:wrap;
@@ -269,6 +270,7 @@
         <span class="live-dot" id="liveDot"></span>
         <span id="liveText">Loading live data…</span>
         <button id="refreshBtn" type="button" title="Refresh now">Refresh</button>
+        <span class="build-tag" title="Which version of this page your browser loaded. If this is older than you expect, hard-refresh (Cmd+Shift+R).">build 2026-09-21b</span>
       </div>
     </div>
     <p id="subhead">Loading…</p>
