@@ -256,7 +256,7 @@
 
     <div class="filterbar">
       <div class="filtergroup">
-        <span class="flabel">Period</span>
+        <span class="flabel" title="Pick a size, then a specific period">Period</span>
         <div class="pillrow" id="granPills"></div>
         <select id="periodSelect" class="periodsel" aria-label="Period"></select>
       </div>
@@ -872,6 +872,19 @@ function periodLabel(key, gran) {
   if (gran === 'quarter') { const parts = key.split('-'); return parts[1] + ' ' + parts[0]; }
   return key;
 }
+// Every bucket at newGran that falls inside one bucket of oldGran -- used when
+// you step from a coarser granularity to a finer one, so "August" becomes the
+// last week OF August rather than jumping somewhere unrelated.
+function bucketsInside(key, oldGran, newGran) {
+  const totalDays = Math.floor((maxDate - minDate) / 86400000) + 1;
+  const out = [], seen = new Set();
+  for (let day = 0; day <= totalDays; day++) {
+    if (bucketKey(day, oldGran) !== key) continue;
+    const k = bucketKey(day, newGran);
+    if (!seen.has(k)) { seen.add(k); out.push(k); }
+  }
+  return out;
+}
 function firstDayOfPeriod(key, gran) {
   const totalDays = Math.floor((maxDate - minDate) / 86400000) + 1;
   for (let day = 0; day <= totalDays; day++) if (bucketKey(day, gran) === key) return day;
@@ -942,18 +955,28 @@ function renderGranPills() {
   el.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
     const next = b.getAttribute('data-gran');
     if (next === state.gran) return;
-    // Keep the stretch of time you were looking at when the new granularity is
-    // coarser (a week rolls up into its month). Drop it when it is finer,
-    // rather than silently narrowing "August" to one arbitrary week of August.
-    if (state.period !== null) {
-      if (GRAN_RANK[next] > GRAN_RANK[state.gran]) {
-        const day = firstDayOfPeriod(state.period, state.gran);
-        state.period = day === null ? null : bucketKey(day, next);
+    const prevGran = state.gran, prevPeriod = state.period;
+    state.gran = next;
+
+    // Clicking Week / Month / Quarter / Year has to visibly do something to the
+    // numbers, so it lands you on the most recent period at that size rather
+    // than sitting on "All time" and only restyling the chart. Widen back out
+    // with the "All time" entry in the dropdown next to these pills.
+    const opts = periodOptions();
+    const latest = opts.length ? opts[opts.length - 1][0] : null;
+    let target = latest;
+    if (prevPeriod !== null) {
+      if (GRAN_RANK[next] > GRAN_RANK[prevGran]) {
+        // coarser: the week you were on rolls up into its month
+        const day = firstDayOfPeriod(prevPeriod, prevGran);
+        target = day === null ? latest : bucketKey(day, next);
       } else {
-        state.period = null;
+        // finer: stay inside the period you were on, at its end
+        const inner = bucketsInside(prevPeriod, prevGran, next).filter(k => opts.some(o => o[0] === k));
+        target = inner.length ? inner[inner.length - 1] : latest;
       }
     }
-    state.gran = next;
+    state.period = opts.some(o => o[0] === target) ? target : latest;
     renderAll();
   }));
 }
