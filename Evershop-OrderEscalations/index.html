@@ -270,7 +270,7 @@
         <span class="live-dot" id="liveDot"></span>
         <span id="liveText">Loading live data…</span>
         <button id="refreshBtn" type="button" title="Refresh now">Refresh</button>
-        <span class="build-tag" title="Which version of this page your browser loaded. If this is older than you expect, hard-refresh (Cmd+Shift+R).">build 2026-09-21b</span>
+        <span class="build-tag" title="Which version of this page your browser loaded. If this is older than you expect, hard-refresh (Cmd+Shift+R).">build 2026-09-21d</span>
       </div>
     </div>
     <p id="subhead">Loading…</p>
@@ -494,15 +494,20 @@
     return `${MONTH_ABBR[d.getUTCMonth()]} ${d.getUTCDate()}`;
   }
   function bucketTooltipLabel(key, gran){ return gran === 'week' ? `Week of ${bucketLabel(key, gran)}` : bucketLabel(key, gran); }
-  // Most recent bucket the data actually contains, at the given granularity.
-  // Keys are lexicographically ordered for every granularity we emit.
+  // Periods are picked from the rows that pass every OTHER filter, not from the
+  // whole sheet. Choosing "Week" while filtered to Miyora used to jump to the
+  // newest week in the file -- a week with no Miyora rows in it -- so every card
+  // went to zero and the page looked broken rather than filtered.
+  function periodScopeRows(){ return applyFilters(ROWS, { ignorePeriod: true }); }
+  // Most recent bucket the rows in scope actually contain, at the given
+  // granularity. Keys are lexicographically ordered for every granularity we emit.
   function latestBucketKey(gran){
     let latest = '';
-    for (const r of ROWS){ if (!r.date) continue; const k = bucketKey(r.date, gran); if (k > latest) latest = k; }
+    for (const r of periodScopeRows()){ if (!r.date) continue; const k = bucketKey(r.date, gran); if (k > latest) latest = k; }
     return latest;
   }
   function bucketExists(key, gran){
-    for (const r of ROWS){ if (r.date && bucketKey(r.date, gran) === key) return true; }
+    for (const r of periodScopeRows()){ if (r.date && bucketKey(r.date, gran) === key) return true; }
     return false;
   }
 
@@ -599,6 +604,11 @@
   }
 
   function renderAll(){
+    if (state.gran !== 'all'){
+      if (state.period && !bucketExists(state.period, state.gran)) state.period = latestBucketKey(state.gran);
+      populatePeriodOptions();
+      periodFilter.value = state.period;
+    }
     const rows = applyFilters(ROWS);
     const total = rows.length;
 
@@ -1052,7 +1062,7 @@
     }
     periodFilter.disabled = false;
     const buckets = new Map();
-    for (const r of ROWS){ if (!r.date) continue; const k = bucketKey(r.date, state.gran); buckets.set(k, (buckets.get(k)||0)+1); }
+    for (const r of periodScopeRows()){ if (!r.date) continue; const k = bucketKey(r.date, state.gran); buckets.set(k, (buckets.get(k)||0)+1); }
     const entries = Array.from(buckets.entries()).sort((a,b)=> a[0] < b[0] ? -1 : 1);
     const opt0 = document.createElement('option'); opt0.value=''; opt0.textContent = `All ${state.gran}s`;
     periodFilter.appendChild(opt0);
