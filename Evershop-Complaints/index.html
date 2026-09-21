@@ -67,6 +67,7 @@
   .refresh-icon.spin { animation: eg-spin 0.9s linear infinite; }
   @keyframes eg-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   .refresh-status { font-size: 11px; color: var(--text-muted); text-align: right; }
+  .build-tag { font-size: 10.5px; color: var(--text-muted); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; letter-spacing: .02em; }
   .refresh-status.err { color: var(--critical); font-weight: 600; }
   .refresh-status.ok { color: var(--good); font-weight: 600; }
 
@@ -250,6 +251,7 @@
         <div class="refresh-block">
           <button class="refresh-btn" id="refreshBtn"><span class="refresh-icon">⟳</span> Refresh data</button>
           <div class="refresh-status" id="refreshStatus">Loaded 2026-09-03</div>
+          <span class="build-tag" title="Which version of this page your browser loaded. If this is older than you expect, hard-refresh (Cmd+Shift+R).">build 2026-09-21c</span>
         </div>
       </div>
     </header>
