@@ -492,6 +492,17 @@
     return `${MONTH_ABBR[d.getUTCMonth()]} ${d.getUTCDate()}`;
   }
   function bucketTooltipLabel(key, gran){ return gran === 'week' ? `Week of ${bucketLabel(key, gran)}` : bucketLabel(key, gran); }
+  // Most recent bucket the data actually contains, at the given granularity.
+  // Keys are lexicographically ordered for every granularity we emit.
+  function latestBucketKey(gran){
+    let latest = '';
+    for (const r of ROWS){ if (!r.date) continue; const k = bucketKey(r.date, gran); if (k > latest) latest = k; }
+    return latest;
+  }
+  function bucketExists(key, gran){
+    for (const r of ROWS){ if (r.date && bucketKey(r.date, gran) === key) return true; }
+    return false;
+  }
 
   // ---- filter state ----
   const state = { q:'', category:'', store:'', supplier:'', resolution:'', product:'', followup:'', gran:'all', period:'', refundOrCredit:false, repeatOnly:false };
@@ -501,7 +512,8 @@
       !state.product && !state.followup && !state.period && !state.refundOrCredit && !state.repeatOnly;
   }
 
-  function applyFilters(rows){
+  function applyFilters(rows, opts){
+    const ignorePeriod = !!(opts && opts.ignorePeriod);
     const base = rows.filter(r => {
       if (state.category && r.category !== state.category) return false;
       if (state.store && r.store !== state.store) return false;
@@ -514,7 +526,7 @@
         if (!m) m = r.status.match(/(\d+)\s+times/i);
         if (!m || m[1] !== state.followup) return false;
       }
-      if (state.period){
+      if (state.period && !ignorePeriod){
         if (!r.date || bucketKey(r.date, state.gran) !== state.period) return false;
       }
       if (state.q){
@@ -647,19 +659,22 @@
     });
 
     // ---- insights ----
-    renderInsights(rows, { total, catCounts, resCounts, supCounts, storeCounts, prodCounts, monthEntries, emailCounts, repeatCustomers });
+    renderInsights(rows, { total, catCounts, resCounts, supCounts, storeCounts, prodCounts, monthEntries, emailCounts, repeatCustomers, trendRows: state.period ? applyFilters(ROWS, { ignorePeriod:true }) : rows });
 
     // ---- trend chart ----
     const trendChart = document.getElementById('trendChart');
+    const trendRows = state.period ? applyFilters(ROWS, { ignorePeriod:true }) : rows;
     trendChart.innerHTML = '';
     document.getElementById('trendSub').textContent =
-      state.gran === 'all' ? 'Rows logged per month' : `Rows logged per ${state.gran} — click a bar to filter to that ${state.gran}`;
-    if (!rows.length){
+      state.gran === 'all' ? 'Rows logged per month'
+        : state.period ? `Rows logged per ${state.gran} — showing ${bucketTooltipLabel(state.period, state.gran)}; click another bar to switch`
+        : `Rows logged per ${state.gran} — click a bar to filter to that ${state.gran}`;
+    if (!trendRows.length){
       trendChart.innerHTML = '<div class="empty">No matching rows</div>';
     } else {
       const effGran = state.gran === 'all' ? 'month' : state.gran;
       const buckets = new Map();
-      for (const r of rows){ if (!r.date) continue; const k = bucketKey(r.date, effGran); buckets.set(k, (buckets.get(k)||0) + 1); }
+      for (const r of trendRows){ if (!r.date) continue; const k = bucketKey(r.date, effGran); buckets.set(k, (buckets.get(k)||0) + 1); }
       const entries = Array.from(buckets.entries()).sort((a,b) => a[0] < b[0] ? -1 : 1);
       const maxN = Math.max(...entries.map(e => e[1]), 1);
       const activeKey = state.period;
@@ -680,9 +695,13 @@
         fill.addEventListener('pointerleave', hideTip);
         const clickIt = () => {
           if (state.gran === 'all') state.gran = effGran;
-          toggleFilter('period', k);
+          state.period = (state.period === k ? '' : k);
           document.querySelectorAll('#granSeg button').forEach(b => b.classList.toggle('active', b.dataset.g === state.gran));
+          // rebuild the period list for the (possibly new) granularity first, then
+          // re-select, or syncControls would write into a stale option list.
           populatePeriodOptions();
+          syncControls();
+          renderAll();
         };
         fill.addEventListener('click', clickIt);
         lbl.addEventListener('click', clickIt);
@@ -829,6 +848,9 @@
     const list = document.getElementById('insightList');
     list.innerHTML = '';
     const { total, catCounts, resCounts, supCounts, storeCounts, emailCounts, repeatCustomers } = ctx;
+    // Period-over-period reads come from the view minus the period filter, so picking
+    // a single week still leaves something to compare it against.
+    const trendRows = ctx.trendRows || rows;
     const headline = [];   // always-on facts, shown first regardless of severity
     const items = [];      // conditional alerts, severity-sorted
 
@@ -844,7 +866,7 @@
     const effGran = state.gran === 'all' ? 'month' : state.gran;
     const periodNoun = GRAN_NOUN[effGran];
     const periodTotals = new Map();
-    for (const r of rows){ if (r.date){ const k = bucketKey(r.date, effGran); periodTotals.set(k, (periodTotals.get(k)||0)+1); } }
+    for (const r of trendRows){ if (r.date){ const k = bucketKey(r.date, effGran); periodTotals.set(k, (periodTotals.get(k)||0)+1); } }
     const periodEntries = Array.from(periodTotals.entries()).sort((a,b)=> a[0] < b[0] ? -1 : 1);
 
     // 1) latest trend — always shown. Detect a still-in-progress latest period from the
@@ -1062,7 +1084,9 @@
     const btn = e.target.closest('button[data-g]');
     if (!btn) return;
     state.gran = btn.dataset.g;
-    state.period = '';
+    // Picking a granularity scopes every card, chart and insight to the most recent
+    // week/month/quarter/year in the data; the dropdown then walks back through them.
+    state.period = state.gran === 'all' ? '' : latestBucketKey(state.gran);
     granSeg.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
     populatePeriodOptions();
     syncControls();
@@ -1229,6 +1253,7 @@
       DATA = fresh;
       ROWS = DATA.rows;
       populateDimensionFilters();
+      if (state.gran !== 'all' && state.period && !bucketExists(state.period, state.gran)) state.period = latestBucketKey(state.gran);
       populatePeriodOptions();
       syncControls();
       renderAll();
