@@ -379,6 +379,19 @@ function egParseDate(d) {
   const [, y, mo, da] = m;
   return new Date(Date.UTC(+y, +mo - 1, +da));
 }
+// Largest gap (days) a date may sit from the rest of the data before it is treated
+// as a typo rather than history. A quarter is comfortably wider than any real
+// logging lull in this tracker and far narrower than a mistyped year.
+const EG_OUTLIER_GAP_DAYS = 90;
+function egDataWindow(times) {
+  const u = Array.from(new Set(times)).sort((a, b) => a - b);
+  if (!u.length) return null;
+  const gap = EG_OUTLIER_GAP_DAYS * 86400000;
+  let lo = 0, hi = u.length - 1;
+  while (lo < hi && u[lo + 1] - u[lo] > gap) lo++;
+  while (hi > lo && u[hi] - u[hi - 1] > gap) hi--;
+  return [u[lo], u[hi]];
+}
 const EG_TYPES = ['too_small','too_large','poor_quality','not_as_pictured','other'];
 const EG_STOCK_RX = /out of stock|unfulfilled|not fulfilled|backorder|no stock|sold out|not in stock|inventory issue|no restock|restock date|cancelled.*(stock|inventory)/i;
 function egStockReason(detail) {
@@ -473,13 +486,10 @@ async function buildFreshData() {
     });
   });
 
-  let minD = null, maxD = null;
   const rawRows = []; const stockIssuesRaw = [];
   STORES.forEach((s, sIdx) => {
     s.complaints.forEach(c => {
       const d = egParseDate(c['Date']); if (!d) return;
-      if (!minD || d < minD) minD = d;
-      if (!maxD || d > maxD) maxD = d;
       let t = (c['Complaint Type']||'other').trim(); if (!EG_TYPES.includes(t)) t = 'other';
       const productIdx = getProductIdx(c['Product Name']);
       const ov = parseFloat((c['Order Value']||'').replace(/[$,]/g,''));
@@ -490,8 +500,22 @@ async function buildFreshData() {
     });
   });
 
-  const rows = rawRows.map(r => [Math.floor((r.day - minD)/86400000), r.storeIdx, r.productIdx, r.typeIdx, r.ovCents]);
-  const stockIssues = stockIssuesRaw.map(r => [Math.floor((r.day - minD)/86400000), r.storeIdx, r.productIdx, r.ovCents, r.reason]);
+  // Every bucket is an offset from the earliest date, so one mistyped year in the
+  // source sheet (a 2020-09-19 that should read 2026-09-19) used to drag the start
+  // of the window back six years and label every real complaint W280+. Anchor the
+  // window on the main cluster instead: walk in from either end and drop dates that
+  // sit more than a quarter away from the rest of the data. Only the ends are
+  // trimmed, so a genuine quiet stretch inside the range is left alone.
+  const window = egDataWindow(rawRows.map(r => r.day.getTime()));
+  if (!window) throw new Error('No complaints with a usable date found in the source sheets');
+  const [minT, maxT] = window;
+  const inWindow = r => r.day.getTime() >= minT && r.day.getTime() <= maxT;
+  const droppedDates = rawRows.filter(r => !inWindow(r))
+    .map(r => r.day.toISOString().slice(0,10)).sort();
+  const minD = new Date(minT), maxD = new Date(maxT);
+
+  const rows = rawRows.filter(inWindow).map(r => [Math.floor((r.day - minD)/86400000), r.storeIdx, r.productIdx, r.typeIdx, r.ovCents]);
+  const stockIssues = stockIssuesRaw.filter(inWindow).map(r => [Math.floor((r.day - minD)/86400000), r.storeIdx, r.productIdx, r.ovCents, r.reason]);
 
   const statusCounts = {};
   const actionsList = [];
@@ -521,7 +545,7 @@ async function buildFreshData() {
     stores: STORES.map(s => s.key), types: EG_TYPES, products: productDisplay, rows,
     margins: [marginsByStoreProduct[0], marginsByStoreProduct[1]],
     statusCounts, actionsList, stoppedList, actionsTotal: actions.length, stockIssues,
-    cjProductIdx: Array.from(cjSet),
+    cjProductIdx: Array.from(cjSet), droppedDates,
   };
 }
 
@@ -555,8 +579,10 @@ async function refreshData() {
     document.getElementById('productInput').value = '';
     renderAll();
     const now = new Date();
-    status.className = 'refresh-status ok';
-    status.textContent = 'Updated ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + ' — ' + fmt(DATA.rows.length) + ' complaints';
+    const dropped = DATA.droppedDates || [];
+    status.className = dropped.length ? 'refresh-status err' : 'refresh-status ok';
+    status.textContent = 'Updated ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + ' — ' + fmt(DATA.rows.length) + ' complaints'
+      + (dropped.length ? ' · ignored ' + dropped.length + ' row' + (dropped.length > 1 ? 's' : '') + ' with an out-of-range Date (' + dropped.slice(0, 4).join(', ') + (dropped.length > 4 ? '…' : '') + ') — fix the date in the sheet' : '');
   } catch (err) {
     status.className = 'refresh-status err';
     status.textContent = 'Refresh failed — showing last-loaded data (' + (err.message || err) + ')';
@@ -862,7 +888,8 @@ function renderTrend(filtered) {
 
   const footEl = document.getElementById('trendFootnote');
   if (gran === 'week') {
-    footEl.textContent = 'Order-week 1 = week of Feb 11, 2026. Weeks 3 and 7 dip sharply below neighbors in the unfiltered, all-store view — likely ticket-logging gaps rather than real improvements. The final bucket may be a partial period still filling in.';
+    const w1 = minDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+    footEl.textContent = 'Order-week 1 = week of ' + w1 + '. Weeks that dip sharply below their neighbors in the unfiltered, all-store view are usually ticket-logging gaps rather than real improvements. The final bucket may be a partial period still filling in.';
   } else {
     footEl.textContent = 'The final bucket may be a partial period still filling in.';
   }
