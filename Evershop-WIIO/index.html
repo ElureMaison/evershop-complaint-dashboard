@@ -414,6 +414,21 @@
   // a returning (already-unlocked) visitor, which threw "Cannot access
   // 'currentPw' before initialization" (a temporal-dead-zone error) when
   // this was declared afterward instead.
+  // How old is the data actually on screen? "Offline snapshot" alone gave no
+  // way to tell a fresh build from one weeks stale, which is the single thing
+  // a reader needs to know before trusting these numbers. Anchored to PHT so
+  // it reads the same on every machine, not the viewer's local zone.
+  function dataStamp(data){
+    const raw = data && data.generated_at;
+    if (!raw) return '';
+    const d = new Date(raw);
+    if (isNaN(d.getTime())) return '';
+    const when = new Intl.DateTimeFormat('en-PH', {timeZone:'Asia/Manila', month:'short',
+      day:'2-digit', year:'numeric', hour:'numeric', minute:'2-digit', hour12:true}).format(d) + ' PHT';
+    const days = Math.floor((Date.now() - d.getTime()) / 86400000);
+    return when + ' · ' + (days <= 0 ? 'today' : days === 1 ? '1 day old' : days + ' days old');
+  }
+
   function parseCSV(text){
     const rows = [];
     let row = [], field = '', inQuotes = false;
@@ -487,13 +502,13 @@
       .then(csvText => {
         const liveData = csvRowsToData(parseCSV(csvText));
         if (liveDot) liveDot.className = 'live-dot live';
-        if (liveText) liveText.textContent = 'Live (Google Sheet)';
+        if (liveText) liveText.textContent = 'Live (Google Sheet) · ' + new Intl.DateTimeFormat('en-PH',{timeZone:'Asia/Manila',month:'short',day:'2-digit',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}).format(new Date())+' PHT';
         init(liveData);
       })
       .catch(err => {
         console.warn('Sheet fetch failed, using embedded snapshot instead:', err);
         if (liveDot) liveDot.className = 'live-dot error';
-        if (liveText) liveText.textContent = 'Offline snapshot';
+        if (liveText) liveText.textContent = 'Snapshot · ' + (dataStamp(embedded) || 'date unknown');
         init(embedded);
       })
       .finally(() => { if (refreshBtn) refreshBtn.disabled = false; });
