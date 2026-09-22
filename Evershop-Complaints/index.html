@@ -251,7 +251,7 @@
         <div class="refresh-block">
           <button class="refresh-btn" id="refreshBtn"><span class="refresh-icon">⟳</span> Refresh data</button>
           <div class="refresh-status" id="refreshStatus">Loaded 2026-09-03</div>
-          <span class="build-tag" title="Which version of this page your browser loaded. If this is older than you expect, hard-refresh (Cmd+Shift+R).">build 2026-09-21c</span>
+          <span class="build-tag" title="Which version of this page your browser loaded. If this is older than you expect, hard-refresh (Cmd+Shift+R).">build 2026-09-23a</span>
         </div>
       </div>
     </header>
@@ -736,7 +736,7 @@ async function refreshData() {
         + ' (' + list.slice(0, 3).join(', ') + (list.length > 3 ? '…' : '') + ')'
       : '';
     status.className = dropped.length ? 'refresh-status err' : 'refresh-status ok';
-    status.textContent = 'Updated ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + ' — ' + fmt(DATA.rows.length) + ' complaints'
+    status.textContent = 'Updated ' + new Intl.DateTimeFormat('en-PH',{timeZone:'Asia/Manila',month:'short',day:'2-digit',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}).format(new Date())+' PHT' + ' — ' + fmt(DATA.rows.length) + ' complaints'
       + note(repaired, 'auto-corrected') + note(dropped, 'ignored')
       + (dropped.length ? ' — fix the Date in the sheet' : '');
   } catch (err) {

@@ -270,7 +270,7 @@
         <span class="live-dot" id="liveDot"></span>
         <span id="liveText">Loading live data…</span>
         <button id="refreshBtn" type="button" title="Refresh now">Refresh</button>
-        <span class="build-tag" title="Which version of this page your browser loaded. If this is older than you expect, hard-refresh (Cmd+Shift+R).">build 2026-09-21d</span>
+        <span class="build-tag" title="Which version of this page your browser loaded. If this is older than you expect, hard-refresh (Cmd+Shift+R).">build 2026-09-23a</span>
       </div>
     </div>
     <p id="subhead">Loading…</p>
@@ -1270,7 +1270,7 @@
       syncControls();
       renderAll();
       liveDot.className = 'live-dot live';
-      liveText.textContent = 'Live · updated ' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+      liveText.textContent = 'Live · updated ' + new Intl.DateTimeFormat('en-PH',{timeZone:'Asia/Manila',month:'short',day:'2-digit',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}).format(new Date())+' PHT';
     } catch (err) {
       liveDot.className = 'live-dot error';
       liveText.textContent = 'Live refresh unavailable — showing last known data';
