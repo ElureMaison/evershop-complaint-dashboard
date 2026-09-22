@@ -94,6 +94,28 @@
     color:var(--text-secondary); font-size:11px; cursor:pointer; font-family:inherit;
   }
   .live-status button:hover{ background:var(--surface-2); }
+  /* ---- Pareto + RCA ---------------------------------------------------- */
+  .pareto-wrap{ width:100%; }
+  .pareto-wrap svg{ width:100%; height:auto; display:block; overflow:visible; }
+  .pareto-legend{ display:flex; flex-wrap:wrap; gap:14px; margin:8px 0 2px; font-size:11px; color:var(--text-secondary); }
+  .pareto-legend span{ display:inline-flex; align-items:center; gap:6px; }
+  .pl-bar{ width:11px; height:11px; border-radius:2px; background:linear-gradient(90deg,var(--cat-oos),var(--cat-ship)); flex:none; }
+  .pl-line{ width:16px; height:0; border-top:2px solid var(--text-primary); flex:none; }
+  .rca-lead{ font-size:13px; line-height:1.55; color:var(--text-primary); margin:0 0 14px;
+    padding:11px 13px; border-radius:7px; background:var(--surface-1); border:1px solid var(--border); }
+  .rca-lead b{ font-weight:650; }
+  .rca-grid{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  .rca-block h3{ font-size:11px; font-weight:650; text-transform:uppercase; letter-spacing:.06em;
+    color:var(--text-muted); margin:0 0 9px; }
+  .rca-block ol{ margin:0; padding-left:18px; }
+  .rca-block li{ font-size:12.5px; line-height:1.5; color:var(--text-secondary); margin-bottom:9px; }
+  .rca-block li b{ color:var(--text-primary); font-weight:600; }
+  .rca-chip{ display:inline-block; margin-left:5px; padding:1px 6px; border-radius:4px; font-size:10.5px;
+    font-weight:600; white-space:nowrap; background:var(--surface-1); border:1px solid var(--border); color:var(--text-primary); }
+  .rca-chip.hot{ background:rgba(208,59,59,.10); border-color:rgba(208,59,59,.32); color:var(--status-critical); }
+  .rca-chip.warn{ background:rgba(250,178,25,.12); border-color:rgba(250,178,25,.38); color:var(--text-primary); }
+  .rca-note{ font-size:11.5px; color:var(--text-muted); margin:14px 0 0; line-height:1.5; }
+  @media (max-width: 860px){ .rca-grid{ grid-template-columns:1fr; gap:16px; } }
   .build-tag{ font-size:10.5px; color:var(--text-muted); border:1px solid var(--border); border-radius:4px; padding:1px 5px; letter-spacing:.02em; }
 
   .filters{
@@ -270,7 +292,7 @@
         <span class="live-dot" id="liveDot"></span>
         <span id="liveText">Loading live data…</span>
         <button id="refreshBtn" type="button" title="Refresh now">Refresh</button>
-        <span class="build-tag" title="Which version of this page your browser loaded. If this is older than you expect, hard-refresh (Cmd+Shift+R).">build 2026-09-23a</span>
+        <span class="build-tag" title="Which version of this page your browser loaded. If this is older than you expect, hard-refresh (Cmd+Shift+R).">build 2026-09-23b</span>
       </div>
     </div>
     <p id="subhead">Loading…</p>
@@ -303,6 +325,26 @@
     <h2>What needs your attention</h2>
     <p class="card-sub">Auto-generated from the orders currently in view — click any chart bar or filter above to narrow it down</p>
     <ul class="insight-list" id="insightList"></ul>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <h2>Root cause Pareto</h2>
+        <p class="card-sub" id="paretoSub">Share of the queue by issue type, worst first — click a bar to filter</p>
+      </div>
+    </div>
+    <div class="pareto-wrap" id="paretoChart"></div>
+    <div class="pareto-legend">
+      <span><i class="pl-bar"></i>Share of queue (coloured by issue type)</span>
+      <span><i class="pl-line"></i>Cumulative share</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>RCA &amp; action plan</h2>
+    <p class="card-sub">Why these orders are stuck and what clears the most of them — recalculated from the orders currently in view</p>
+    <div id="rcaBody"></div>
   </div>
 
   <div class="grid2">
@@ -671,6 +713,8 @@
     });
 
     // ---- insights ----
+    renderPareto(rows, catCounts);
+    renderRCA(rows, catCounts);
     renderInsights(rows, { total, catCounts, resCounts, supCounts, storeCounts, prodCounts, monthEntries, emailCounts, repeatCustomers, trendRows: state.period ? applyFilters(ROWS, { ignorePeriod:true }) : rows });
 
     // ---- trend chart ----
@@ -854,6 +898,242 @@
     for (const r of rowsInBucket){ if (r.date){ const t = new Date(r.date + 'T00:00:00Z').getTime(); if (t > maxMs) maxMs = t; } }
     const daysCovered = maxMs === -Infinity ? 0 : Math.round((maxMs - startMs) / 86400000) + 1;
     return { daysInPeriod, daysCovered };
+  }
+
+  // ---- Pareto + RCA ------------------------------------------------------
+  // Short axis names: the full category strings are too long to sit under a bar.
+  const PARETO_LABEL = {
+    "Out of stock / product unavailable": "Out of stock",
+    "Unfulfilled - awaiting CJ": "Awaiting CJ",
+    "Unfulfilled - awaiting WIIO": "Awaiting WIIO",
+    "Shipping address issue": "Address",
+    "Cancellation": "Cancellation",
+    "Size confirmation needed": "Size confirm",
+    "Customs/ID info missing": "Customs / ID",
+    "Other / misc": "Other",
+  };
+  const DAY_MS = 86400000;
+  function nRows(n){ return n.toLocaleString() + (n === 1 ? " row" : " rows"); }
+  function ageDaysOf(r){
+    if (!r.date) return null;
+    return Math.floor((Date.now() - new Date(r.date + 'T00:00:00Z').getTime()) / DAY_MS);
+  }
+  // Same patterns the follow-up chart counts with, so the two never disagree.
+  function followupsOf(r){
+    let m = r.status.match(/(\d+)\s*[xX](?!\w)/);
+    if (!m) m = r.status.match(/(\d+)\s+times/i);
+    if (!m) m = r.status.match(/(\d+)\s*follow.?ups?/i);
+    return m ? parseInt(m[1], 10) : 0;
+  }
+  function foldCats(catCounts){
+    const folded = new Map();
+    for (const [c, n] of catCounts.entries()){
+      const k = CAT_COLOR[c] ? c : 'Other / misc';
+      folded.set(k, (folded.get(k) || 0) + n);
+    }
+    // "Other / misc" is a residue bucket, not a cause: it always sorts last so it
+    // can never turn up inside the vital few and send someone chasing it.
+    return Array.from(folded.entries()).sort((a,b) => {
+      if (a[0] === "Other / misc") return 1;
+      if (b[0] === "Other / misc") return -1;
+      return b[1] - a[1];
+    });
+  }
+
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  function svgEl(name, attrs){
+    const e = document.createElementNS(SVGNS, name);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  // A Pareto is normally drawn with two y-scales. Both series are expressed as a
+  // percentage of the same total instead, so one 0-100% axis carries both and the
+  // bars and the curve stay directly comparable.
+  function renderPareto(rows, catCounts){
+    const host = document.getElementById('paretoChart');
+    host.innerHTML = '';
+    const total = rows.length;
+    if (!total){ host.innerHTML = '<div class="empty">No matching rows</div>'; return; }
+
+    const entries = foldCats(catCounts);
+    const W = 820, H = 300, L = 44, R = 14, T = 18, B = 62;
+    const plotW = W - L - R, plotH = H - T - B;
+    const y = p => T + plotH - (p / 100) * plotH;
+    const band = plotW / entries.length;
+    const barW = Math.min(64, band * 0.6);
+
+    const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img',
+      'aria-label': 'Pareto of escalation root causes, share and cumulative share of the queue' });
+
+    for (const p of [0, 20, 40, 60, 80, 100]){
+      svg.appendChild(svgEl('line', { x1: L, x2: W - R, y1: y(p), y2: y(p),
+        stroke: p === 0 ? 'var(--baseline)' : 'var(--gridline)', 'stroke-width': p === 0 ? 1.5 : 1 }));
+      const t = svgEl('text', { x: L - 9, y: y(p) + 3.5, 'text-anchor': 'end',
+        fill: 'var(--text-muted)', 'font-size': '10.5' });
+      t.textContent = p + '%';
+      svg.appendChild(t);
+    }
+    // The 80% cut: everything left of where the curve crosses it is the vital few.
+    svg.appendChild(svgEl('line', { x1: L, x2: W - R, y1: y(80), y2: y(80),
+      stroke: 'var(--status-warning)', 'stroke-width': 1.5, 'stroke-dasharray': '5 4', opacity: '.9' }));
+
+    let cum = 0;
+    const pts = [];
+    entries.forEach(([key, n], i) => {
+      const share = n / total * 100;
+      cum += share;
+      const cx = L + band * i + band / 2;
+      const bx = cx - barW / 2, by = y(share), bh = T + plotH - by;
+      const isReal = !!CAT_COLOR[key];
+      const color = isReal ? colorFor(CAT_COLOR, key) : 'var(--cat-other)';
+      const activeCat = state.category;
+      const isDim = activeCat && activeCat !== key;
+      const r = Math.min(4, bh);
+      // Rounded data-end on the top only; the bar stays anchored to the baseline.
+      const d = `M${bx},${by + bh} L${bx},${by + r} Q${bx},${by} ${bx + r},${by}` +
+                ` L${bx + barW - r},${by} Q${bx + barW},${by} ${bx + barW},${by + r}` +
+                ` L${bx + barW},${by + bh} Z`;
+      const bar = svgEl('path', { d, fill: color, opacity: isDim ? '.28' : '1' });
+      if (isReal) bar.style.cursor = 'pointer';
+      const label = PARETO_LABEL[key] || key;
+      const cumNow = cum;
+      bar.addEventListener('pointermove', (e) => showTip(e, label,
+        `${n.toLocaleString()} orders · ${share.toFixed(1)}%`,
+        `cumulative ${cumNow.toFixed(1)}%` + (isReal ? ' · click to filter' : '')));
+      bar.addEventListener('pointerleave', hideTip);
+      if (isReal) bar.addEventListener('click', () => toggleFilter('category', key));
+      svg.appendChild(bar);
+
+      // The cumulative marker sits on the bar top wherever the two values are close
+      // (always true of the first bar); lift the bar label clear of it when they are.
+      const vtY = by - 7 - (Math.abs(y(cum) - by) < 16 ? 13 : 0);
+      const vt = svgEl('text', { x: cx, y: vtY, 'text-anchor': 'middle',
+        fill: 'var(--text-primary)', 'font-size': '11', 'font-weight': '600' });
+      vt.textContent = share >= 1 ? share.toFixed(0) + '%' : '<1%';
+      svg.appendChild(vt);
+
+      const nt = svgEl('text', { x: cx, y: T + plotH + 17, 'text-anchor': 'middle',
+        fill: 'var(--text-secondary)', 'font-size': '10.5' });
+      nt.textContent = label;
+      svg.appendChild(nt);
+      const ct = svgEl('text', { x: cx, y: T + plotH + 31, 'text-anchor': 'middle',
+        fill: 'var(--text-muted)', 'font-size': '10' });
+      ct.textContent = n.toLocaleString();
+      svg.appendChild(ct);
+
+      pts.push([cx, y(cum), cum, label]);
+    });
+
+    svg.appendChild(svgEl('polyline', { points: pts.map(p => `${p[0]},${p[1]}`).join(' '),
+      fill: 'none', stroke: 'var(--text-primary)', 'stroke-width': 2,
+      'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
+    // 2px surface ring so a marker sitting on a bar stays readable.
+    pts.forEach(([cx, cy, c, label]) => {
+      svg.appendChild(svgEl('circle', { cx, cy, r: 4.5, fill: 'var(--text-primary)',
+        stroke: 'var(--surface-2)', 'stroke-width': 2 }));
+    });
+    // Label the curve only where it first clears 80%, plus its end - not every point.
+    const cutIdx = pts.findIndex(p => p[2] >= 80);
+    [cutIdx, pts.length - 1].forEach((i, n) => {
+      if (i < 0 || (n === 1 && i === cutIdx)) return;
+      const p = pts[i];
+      const t = svgEl('text', { x: Math.min(p[0] + 9, W - R - 4), y: p[1] - 9,
+        'text-anchor': p[0] > W - 90 ? 'end' : 'start',
+        fill: 'var(--text-primary)', 'font-size': '11', 'font-weight': '650' });
+      t.textContent = p[2].toFixed(0) + '%';
+      svg.appendChild(t);
+    });
+
+    host.appendChild(svg);
+
+    const sub = document.getElementById('paretoSub');
+    if (cutIdx >= 0){
+      const few = entries.slice(0, cutIdx + 1).map(e => PARETO_LABEL[e[0]] || e[0]);
+      sub.textContent = `${few.length} of ${entries.length} issue types cover ${pts[cutIdx][2].toFixed(0)}% of the queue: ${few.join(', ')} — click a bar to filter`;
+    } else {
+      sub.textContent = 'Share of the queue by issue type, worst first — click a bar to filter';
+    }
+  }
+
+  function renderRCA(rows, catCounts){
+    const host = document.getElementById('rcaBody');
+    host.innerHTML = '';
+    const total = rows.length;
+    if (!total){ host.innerHTML = '<div class="empty">No orders in view — widen the filter.</div>'; return; }
+
+    const entries = foldCats(catCounts);
+    const OOS = "Out of stock / product unavailable";
+    const oos = catCounts.get(OOS) || 0;
+    const waitCJ = catCounts.get("Unfulfilled - awaiting CJ") || 0;
+    const waitWIIO = catCounts.get("Unfulfilled - awaiting WIIO") || 0;
+    const supplierWait = waitCJ + waitWIIO;
+
+    let over90 = 0, oosStalled = 0, dated = 0, ageSum = 0, oldest = 0, unspec = 0;
+    const oosProducts = new Map();
+    const miyoraAddr = { addr: 0, all: 0 };
+    for (const r of rows){
+      const a = ageDaysOf(r);
+      if (a !== null){ dated++; ageSum += a; if (a > oldest) oldest = a; if (a > 90) over90++; }
+      if (r.supplier === 'Unspecified') unspec++;
+      if (r.store === 'Miyora'){ miyoraAddr.all++; if (r.category === 'Shipping address issue') miyoraAddr.addr++; }
+      if (r.category === OOS){
+        if (followupsOf(r) >= 3 && a !== null && a > 30) oosStalled++;
+        if (r.product) oosProducts.set(r.product, (oosProducts.get(r.product) || 0) + 1);
+      }
+    }
+    const avgAge = dated ? Math.round(ageSum / dated) : 0;
+    const topProd = Array.from(oosProducts.entries()).sort((a,b) => b[1] - a[1])[0];
+    const pct = n => total ? Math.round(n / total * 100) : 0;
+
+    let cum = 0, cutIdx = -1;
+    entries.forEach(([, n], i) => { cum += n / total * 100; if (cutIdx < 0 && cum >= 80) cutIdx = i; });
+    const few = entries.slice(0, cutIdx + 1);
+
+    const lead = document.createElement('div');
+    lead.className = 'rca-lead';
+    lead.innerHTML = few.length
+      ? `<b>${few.length} of ${entries.length} issue types account for ${Math.round(few.reduce((s,e)=>s+e[1],0)/total*100)}% of the ${total.toLocaleString()} orders in view.</b> ` +
+        `Average age is ${avgAge} days and the oldest is ${oldest} days. ${few.length === 1 ? "Fixing that one" : "Fixing the top " + few.length} is worth more than everything else combined.`
+      : `<b>${total.toLocaleString()} orders in view</b>, average age ${avgAge} days.`;
+    host.appendChild(lead);
+
+    const grid = document.createElement('div');
+    grid.className = 'rca-grid';
+
+    const why = document.createElement('div');
+    why.className = 'rca-block';
+    const whyItems = [
+      `<b>Nothing is reserved when a listing goes up.</b> Products are listed from supplier catalogue photos, so stock only gets checked once orders exist — by then the variant may be gone. <span class="rca-chip">${nRows(oos)} · ${pct(oos)}%</span>`,
+      `<b>Sourcing starts after the customer has paid.</b> Quoting CJ or WIIO only once a batch of orders builds up puts the whole sourcing lead time inside the customer's wait.`,
+      `<b>Supplier silence has nowhere to go.</b> Once quoted, orders with no ship date sit until someone chases them. <span class="rca-chip">${nRows(supplierWait)} · CJ ${waitCJ}, WIIO ${waitWIIO}</span>`,
+      `<b>The only lever left is an email.</b> "Out of stock, here's a similar item" needs a reply that most customers never send, so rows age instead of closing. <span class="rca-chip ${over90 > 0 ? 'hot' : ''}">${nRows(over90)} over 90 days</span>`,
+    ];
+    why.innerHTML = '<h3>Why they are stuck</h3><ol>' + whyItems.map(t => `<li>${t}</li>`).join('') + '</ol>';
+    grid.appendChild(why);
+
+    const act = document.createElement('div');
+    act.className = 'rca-block';
+    const actItems = [
+      `<b>Close out the silent out-of-stock rows.</b> After 2 follow-ups and 10 days with no reply, ship the closest substitute or issue store credit and close it — leaving it open past the dispute window is the costlier option. <span class="rca-chip ${oosStalled > 0 ? 'hot' : ''}">${nRows(oosStalled)} qualify now</span>`,
+      topProd && topProd[1] >= 3
+        ? `<b>Pre-verify stock on the worst product lines.</b> Re-check availability weekly and hide the variant the day it goes unavailable. <span class="rca-chip warn">${topProd[0]} — ${topProd[1]} of ${oos} out-of-stock rows</span>`
+        : `<b>Pre-verify stock before listing.</b> Re-check availability weekly and hide variants the day they go unavailable.`,
+      `<b>Quote proven sellers before the orders arrive.</b> For any line that sells repeatedly, get the supplier quote and a small buffer up front so sourcing time stops landing inside the customer's wait.`,
+      `<b>Put a ship-by date on every supplier handover.</b> Require an ETA when a quote is accepted, escalate on day 5, and dual-source the top lines so a silent supplier means switching supplier, not emailing the customer. <span class="rca-chip">${nRows(supplierWait)} waiting</span>`,
+      miyoraAddr.all && miyoraAddr.addr / miyoraAddr.all > 0.5
+        ? `<b>Fix address capture at checkout for Miyora.</b> This is a form problem, not a support problem. <span class="rca-chip warn">${miyoraAddr.addr} of ${miyoraAddr.all} Miyora rows</span>`
+        : `<b>Fix address capture at checkout</b> for the stores where wrong addresses keep recurring — a form problem, not a support problem.`,
+      `<b>Record the supplier on every row.</b> Supplier is unknown on most of the queue, which makes per-supplier accountability impossible to measure. <span class="rca-chip">${nRows(unspec)} unattributed · ${pct(unspec)}%</span>`,
+    ];
+    act.innerHTML = '<h3>What clears the most, in order</h3><ol>' + actItems.map(t => `<li>${t}</li>`).join('') + '</ol>';
+    grid.appendChild(act);
+    host.appendChild(grid);
+
+    const note = document.createElement('p');
+    note.className = 'rca-note';
+    note.textContent = 'Counts follow the filters above, so narrowing to a store, supplier or period re-scopes both the Pareto and this plan. Ages are measured from the date on the sheet row.';
+    host.appendChild(note);
   }
 
   function renderInsights(rows, ctx){
