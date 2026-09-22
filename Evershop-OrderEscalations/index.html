@@ -104,6 +104,8 @@
   #tooltip .t-row{ display:flex; justify-content:space-between; gap:14px; line-height:1.55; }
   #tooltip .t-row span:first-child{ color:var(--text-muted); }
   #tooltip .t-row span:last-child{ color:var(--text-primary); font-variant-numeric:tabular-nums; text-align:right; }
+  #tooltip .t-sec{ font-size:9.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted);
+    font-weight:700; margin:6px 0 3px; padding-top:4px; border-top:1px solid var(--gridline); }
   #tooltip .t-row + .t-hint{ margin-top:5px; padding-top:4px; border-top:1px solid var(--gridline); }
   .pareto-wrap{ width:100%; }
   .pareto-wrap svg{ width:100%; height:auto; display:block; overflow:visible; }
@@ -219,7 +221,7 @@
     position:fixed; pointer-events:none; z-index:50; background:var(--surface-2);
     border:1px solid var(--border); border-radius:8px; padding:7px 10px; font-size:11.5px;
     box-shadow:0 4px 16px rgba(0,0,0,.16); opacity:0; transform:translateY(2px);
-    transition:opacity .08s ease; max-width:260px;
+    transition:opacity .08s ease; max-width:320px;
   }
   #tooltip.show{ opacity:1; }
   #tooltip .t-val{ font-weight:700; color:var(--text-primary); display:block; }
@@ -302,7 +304,7 @@
         <span class="live-dot" id="liveDot"></span>
         <span id="liveText">Loading live data…</span>
         <button id="refreshBtn" type="button" title="Refresh now">Refresh</button>
-        <span class="build-tag" title="Which version of this page your browser loaded. If this is older than you expect, hard-refresh (Cmd+Shift+R).">build 2026-09-23c</span>
+        <span class="build-tag" title="Which version of this page your browser loaded. If this is older than you expect, hard-refresh (Cmd+Shift+R).">build 2026-09-23d</span>
       </div>
     </div>
     <p id="subhead">Loading…</p>
@@ -506,6 +508,17 @@
   };
   const SUP_COLOR = { "CJ": "--cat-cj", "WIIO": "--cat-wiio", "Unspecified": "--cat-other" };
 
+  // Tooltip-length names for the resolution column.
+  const RES_SHORT = {
+    "Alternative offered - awaiting customer": "Alternative offered",
+    "Awaiting supplier fulfillment": "Awaiting supplier",
+    "Awaiting customer info": "Awaiting customer",
+    "Store credit offered": "Store credit",
+    "Refund requested": "Refund requested",
+    "Cancelled": "Cancelled",
+    "Payment issue": "Payment issue",
+  };
+  function tinyRes(res){ return RES_SHORT[res] || res; }
   function colorFor(map, key){ return map[key] ? `var(${map[key]})` : `var(--cat-other)`; }
   function shortCat(cat){ return CAT_COLOR[cat] ? cat.replace("Unfulfilled - awaiting ", "Awaiting ") : "Other / misc"; }
   function shortRes(res){ return RES_COLOR[res] ? res : "Other / in progress"; }
@@ -984,6 +997,7 @@
       let a = agg.get(k);
       if (!a){
         a = { key:k, n:0, cats:new Map(), stores:new Map(), sups:new Map(),
+              res:new Map(), resBySup:new Map(), offer:new Map(),
               oldest:0, ageSum:0, dated:0, fuMax:0 };
         agg.set(k, a);
       }
@@ -991,6 +1005,15 @@
       a.cats.set(r.category, (a.cats.get(r.category) || 0) + 1);
       if (r.store) a.stores.set(r.store, (a.stores.get(r.store) || 0) + 1);
       if (r.supplier) a.sups.set(r.supplier, (a.sups.get(r.supplier) || 0) + 1);
+      if (r.resolution){
+        a.res.set(r.resolution, (a.res.get(r.resolution) || 0) + 1);
+        const sup = r.supplier || "Unspecified";
+        if (!a.resBySup.has(sup)) a.resBySup.set(sup, new Map());
+        const m = a.resBySup.get(sup);
+        m.set(r.resolution, (m.get(r.resolution) || 0) + 1);
+      }
+      const kind = offerKind(r.status);
+      if (kind) a.offer.set(kind, (a.offer.get(kind) || 0) + 1);
       const d = ageDaysOf(r);
       if (d !== null){ a.dated++; a.ageSum += d; if (d > a.oldest) a.oldest = d; }
       const f = followupsOf(r); if (f > a.fuMax) a.fuMax = f;
@@ -1000,6 +1023,14 @@
     let cum = 0;
     for (const i of items){ cum += i.n; i.cumPct = named ? cum / named * 100 : 0; }
     return { items, named };
+  }
+  // What the customer was actually offered, read out of the free-text status.
+  function offerKind(s){
+    if (/size confirmation|confirm.{0,12}size/i.test(s)) return "size confirmation asked";
+    if (/alternative colou?r|colou?r.{0,20}(offered|available|unavailable)|no .{0,14}colou?r/i.test(s)) return "colour swap offered";
+    if (/replacement|replace/i.test(s)) return "replacement offered";
+    if (/similar|alternative/i.test(s)) return "similar item offered";
+    return "";
   }
   function countUpTo(items, pct){
     for (let i = 0; i < items.length; i++) if (items[i].cumPct >= pct) return i + 1;
@@ -1013,6 +1044,29 @@
   function listOf(map){
     return Array.from(map.entries()).sort((a,b) => b[1] - a[1])
       .map(([k,v]) => `${k} ${v}`).join(', ');
+  }
+
+  // What is on the table for this product, and which supplier each offer sits with.
+  // The sheet's resolution column is the proposed solution; the status text says
+  // what kind of swap was put to the customer.
+  function solutionBlock(it){
+    const tr = (l, v) => `<div class="t-row"><span>${esc(l)}</span><span>${esc(v)}</span></div>`;
+    let html = '';
+    const res = Array.from(it.res.entries()).sort((a,b) => b[1] - a[1]);
+    if (res.length){
+      html += `<div class="t-sec">Proposed solution</div>`;
+      res.slice(0, 3).forEach(([k, n]) => { html += tr(tinyRes(k), n.toLocaleString()); });
+      const [kind, kn] = topOf(it.offer);
+      if (kind) html += tr('Offer made', `${kind} · ${kn}`);
+    }
+    const bySup = Array.from(it.resBySup.entries())
+      .map(([sup, m]) => { const [r, n] = topOf(m); return [sup, r, n]; })
+      .sort((a,b) => b[2] - a[2]);
+    if (bySup.length){
+      html += `<div class="t-sec">By supplier</div>`;
+      bySup.slice(0, 3).forEach(([sup, r, n]) => { html += tr(sup, `${tinyRes(r)} · ${n}`); });
+    }
+    return html;
   }
 
   function renderPareto(rows, catCounts){
@@ -1113,6 +1167,7 @@
         tr('Supplier', listOf(it.sups)) +
         (avg !== null ? tr('Age', `oldest ${it.oldest}d · avg ${avg}d`) : '') +
         (it.fuMax ? tr('Follow-ups', `up to ${it.fuMax}× sent`) : '') +
+        solutionBlock(it) +
         `<div class="t-hint">Click to filter to this product</div>`;
 
       bar.addEventListener('pointermove', (e) => showRichTip(e, tip));
