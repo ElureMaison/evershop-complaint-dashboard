@@ -304,7 +304,7 @@
         <span class="live-dot" id="liveDot"></span>
         <span id="liveText">Loading live data…</span>
         <button id="refreshBtn" type="button" title="Refresh now">Refresh</button>
-        <span class="build-tag" title="Which version of this page your browser loaded. If this is older than you expect, hard-refresh (Cmd+Shift+R).">build 2026-09-23d</span>
+        <span class="build-tag" title="Which version of this page your browser loaded. If this is older than you expect, hard-refresh (Cmd+Shift+R).">build 2026-09-23e</span>
       </div>
     </div>
     <p id="subhead">Loading…</p>
@@ -1054,17 +1054,10 @@
     let html = '';
     const res = Array.from(it.res.entries()).sort((a,b) => b[1] - a[1]);
     if (res.length){
-      html += `<div class="t-sec">Proposed solution</div>`;
+      html += `<div class="t-sec">Proposed resolution</div>`;
       res.slice(0, 3).forEach(([k, n]) => { html += tr(tinyRes(k), n.toLocaleString()); });
       const [kind, kn] = topOf(it.offer);
       if (kind) html += tr('Offer made', `${kind} · ${kn}`);
-    }
-    const bySup = Array.from(it.resBySup.entries())
-      .map(([sup, m]) => { const [r, n] = topOf(m); return [sup, r, n]; })
-      .sort((a,b) => b[2] - a[2]);
-    if (bySup.length){
-      html += `<div class="t-sec">By supplier</div>`;
-      bySup.slice(0, 3).forEach(([sup, r, n]) => { html += tr(sup, `${tinyRes(r)} · ${n}`); });
     }
     return html;
   }
