@@ -126,6 +126,11 @@
   .vb:disabled{opacity:.4;cursor:default}
   .vb.ok.on{background:rgba(52,211,153,.2);border-color:rgba(52,211,153,.5);color:var(--green)}
   .vb.no.on{background:rgba(255,115,105,.2);border-color:rgba(255,115,105,.5);color:var(--red)}
+  .vb.done{border-color:rgba(52,211,153,.45);background:rgba(52,211,153,.14);color:var(--green)}
+  .vb.done:hover:not(:disabled){background:rgba(52,211,153,.24)}
+  .sep{width:1px;align-self:stretch;background:var(--line);margin:0 4px}
+  .undo{font:inherit;font-size:11px;font-weight:600;padding:2px 9px;border-radius:4px;cursor:pointer;
+        border:1px solid rgba(82,156,202,.45);background:rgba(82,156,202,.18);color:#8ec0ea;margin-left:8px}
   .vstate{font-size:11px;color:var(--dim)}
   textarea#fb{width:100%;font:inherit;font-size:13px;line-height:1.6;margin-top:11px;padding:10px;
               min-height:86px;resize:vertical;border-radius:6px;border:1px solid var(--line);
@@ -217,6 +222,8 @@
 </div>
 <div class="actions-bar" id="actions">
   <div class="actions-row">
+    <button class="vb done" id="answered" disabled>Answered — remove from list</button>
+    <span class="sep"></span>
     <button class="vb ok" data-verdict="Accurate" disabled>Accurate</button>
     <button class="vb no" data-verdict="Inaccurate" disabled>Inaccurate</button>
     <span class="vstate" id="vstate"></span>
@@ -338,6 +345,14 @@ function fact(label, value, opts={}){
   const cp = copyable ? `<button class="cp" data-cp="${esc(v)}">COPY</button>` : "";
   return `<div class="fact"><span>${esc(label)}</span><span>${body}${cp}</span></div>`;
 }
+function setAnswered(o, value){
+  return fetch(SHEET_ENDPOINT, {method:"POST", mode:"cors",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body: JSON.stringify({sheet:"raised", store: o.store, order: o.order,
+                          field:"answered", value})})
+    .then(r => r.json())
+    .then(j => { if (!j.ok) throw new Error(j.error || "write refused"); o.answered = value; });
+}
 function sendVerdict(verdict, comment){
   const st = $("#vstate");
   if (!SHEET_ENDPOINT){ st.textContent = "not saved — no endpoint configured"; return; }
@@ -369,6 +384,8 @@ function processLink(o){
 function renderDetail(o){
   current = o;
   document.querySelectorAll("[data-verdict]").forEach(b => { b.disabled = false; b.classList.remove("on"); });
+  $("#answered").disabled = !SHEET_ENDPOINT;
+  $("#answered").title = SHEET_ENDPOINT ? "" : "read-only — no sheet endpoint configured";
   $("#fbwrap").hidden = true;
   $("#fb").value = "";
   $("#vstate").textContent = SHEET_ENDPOINT ? "" : "read-only — no sheet endpoint configured";
@@ -476,6 +493,36 @@ document.addEventListener("click", e => {
     const t = $("#fb").value.trim();
     if (!t){ $("#fb").focus(); return; }
     sendVerdict("Inaccurate", t);
+    return;
+  }
+  if (e.target.closest("#answered")){
+    // Marks the ticket answered on the sheet and drops it off this list, for
+    // when a VA has dealt with it and does not want to wait for WIIO to close
+    // the ticket. Reversible: the row stays on the sheet, and Undo below puts
+    // it straight back, because hiding a live ticket by mis-click is the one
+    // failure this button could cause.
+    const o = current, i = ORDERS.indexOf(o), btn = $("#answered");
+    if (!o || !SHEET_ENDPOINT) return;
+    btn.disabled = true; $("#vstate").textContent = "saving…";
+    setAnswered(o, "TRUE")
+      .then(() => {
+        ORDERS.splice(i, 1);
+        current = null;
+        $("#detail").innerHTML = `<div class="empty">Pick a ticket on the left</div>`;
+        document.querySelectorAll("[data-verdict]").forEach(b => b.disabled = true);
+        renderList();
+        $("#vstate").innerHTML =
+          `${esc(o.order)} marked answered<button class="undo" id="undo">Undo</button>`;
+        $("#undo").onclick = () => {
+          $("#vstate").textContent = "undoing…";
+          setAnswered(o, "FALSE")
+            .then(() => { ORDERS.splice(Math.min(i, ORDERS.length), 0, o);
+                          renderDetail(o);
+                          $("#vstate").textContent = "restored"; })
+            .catch(() => { $("#vstate").textContent = "could not undo — untick it on the sheet"; });
+        };
+      })
+      .catch(() => { $("#vstate").textContent = "could not save"; btn.disabled = false; });
     return;
   }
   const chk = e.target.closest("[data-check]");
