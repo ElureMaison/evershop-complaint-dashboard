@@ -253,7 +253,7 @@ const $ = s => document.querySelector(s);
 const esc = s => (s==null?"":String(s)).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const isNote = v => /^(No |Not |WIIO after-sale record on file)/i.test((v||"").trim());
 
-let filter = "open", q = "", current = null, from = "", to = "";
+let filter = "all", q = "", current = null, from = "", to = "";
 const DAY = 86400000;
 
 // "Date Reported" is WIIO's own submission stamp, written as
@@ -276,7 +276,7 @@ const KINDS = {
   tracking_update: "Tracking updated", other: "Other",
 };
 const FILTERS = [
-  ["open","Awaiting our reply"], ["all","All"],
+  ["all","All"], ["open","No reply logged"],
   ["courier","At local carrier"], ["address","Address needed"],
   ["reship_fee","Reship (fee)"], ["returned","Returned"],
   ["age7","0-7 days"], ["age30","8-30 days"], ["age30plus","30+ days"],
@@ -316,8 +316,9 @@ function renderList(){
   const shown = ORDERS.filter(match);
   $("#counts").innerHTML =
     `<span><b>${shown.length}</b> shown</span>`+
-    `<span><b>${ORDERS.filter(o=>o.open).length}</b> awaiting reply</span>`+
-    `<span><b>${ORDERS.length}</b> total</span>`+
+    `<span><b>${ORDERS.length}</b> in WIIO's queue</span>`+
+    `<span><b>${ORDERS.filter(o=>o.open).length}</b> with no reply logged</span>`+
+    `<span><b>${DB.done_on_wiio||0}</b> done — on the sheet, off this list</span>`+
     `<span>built ${esc(DB.built)}</span>`;
   $("#filters").innerHTML = FILTERS.map(([k,l]) =>
     `<button data-f="${esc(k)}" class="${filter===k?'on':''}">${esc(l)}</button>`).join("");
@@ -377,7 +378,7 @@ function renderDetail(o){
   $("#detail").innerHTML = `<div class="column">
     <div class="panel"><div class="section">
       <h2 class="title">${esc(o.order)} · ${esc(o.customer||"—")}
-        <span class="badge ${cls}">${o.open ? "Awaiting our reply" : "Answered"}</span>${kindTag}</h2>
+        <span class="badge ${cls}">${o.open ? "Awaiting our reply" : "Reply logged " + esc(o.updated)}</span>${kindTag}</h2>
       <div class="sub">${esc(o.store)} · ${esc(o.product||o.wiio_products||"")}<br>
         ${o.url ? `<a href="${esc(o.url)}" target="_blank" rel="noopener">Open in Shopify admin →</a>` : ""}</div>
     </div></div>
