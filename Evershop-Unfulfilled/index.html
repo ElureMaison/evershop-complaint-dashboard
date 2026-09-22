@@ -72,6 +72,24 @@
   .badge.open{color:var(--orange);border-color:rgba(255,163,68,.4)}
   .badge.done{color:var(--green);border-color:rgba(52,211,153,.4)}
   .badge.stop{color:var(--red);border-color:rgba(255,115,105,.4)}
+  .tag{display:inline-block;border-radius:4px;padding:0 7px;font-size:10px;font-weight:700;
+       letter-spacing:.06em;margin-left:6px;vertical-align:middle}
+  .tag.SOLVED{background:rgba(52,211,153,.18);color:#34d399}
+  .tag.REPLACED{background:rgba(130,170,255,.18);color:#82aaff}
+  .tag.UNFULFILLED{background:rgba(255,163,68,.18);color:#ffa344}
+  .tag.CANCELLED{background:rgba(255,115,105,.18);color:#ff7369}
+  .tag.ANSWERED{background:rgba(190,190,190,.16);color:#c9c9c9}
+  .store{display:inline-block;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:700;
+         letter-spacing:.04em;margin-right:7px;vertical-align:middle;
+         background:rgba(255,255,255,.09);color:var(--text)}
+  .store.sclarendale{background:rgba(82,156,202,.22);color:#8ec0ea}
+  .store.slarkclover{background:rgba(167,139,250,.22);color:#c4b5fd}
+  .store.smiyora{background:rgba(244,162,97,.22);color:#f4a261}
+  .store.slumehaven{background:rgba(45,212,191,.22);color:#5eead4}
+  .built{font-weight:600;color:var(--text)}
+  .src{border-radius:4px;padding:1px 7px;cursor:help;background:rgba(52,211,153,.16);color:#34d399}
+  .src.stale{background:rgba(255,163,68,.18);color:#ffa344}
+  .hint{font-size:11px;color:var(--muted);line-height:1.5;margin-top:9px}
   .facts{display:flex;flex-direction:column;gap:7px;font-size:12.5px}
   .fact{display:grid;grid-template-columns:150px 1fr;gap:12px;align-items:baseline}
   .fact > span:first-child{color:var(--dim);font-size:10px;text-transform:uppercase;
@@ -256,6 +274,9 @@ const FILTERS = [
   ["Clarendale","Clarendale"], ["Lark & Clover","Lark & Clover"],
   ["Miyora","Miyora"], ["Lume Haven","Lume Haven"],
   ["notrack","No tracking"], ["cj","CJ"], ["wiio","WIIO"],
+  ["answered","Answered"],
+  ["SOLVED","SOLVED"], ["REPLACED","REPLACED"], ["UNFULFILLED","UNFULFILLED"],
+  ["CANCELLED","CANCELLED"],
 ];
 
 function match(o){
@@ -267,16 +288,40 @@ function match(o){
   }
   switch(filter){
     case "all": return true;
-    case "open": return o.checkin === "Still unfulfilled";
+    case "open": return o.checkin === "Still unfulfilled" && !isTrue(o.answered);
+    case "answered": return isTrue(o.answered);
     case "age7":     { const d = ageDays(o); return d !== null && d <= 7; }
     case "age30":    { const d = ageDays(o); return d !== null && d > 7 && d <= 30; }
     case "age30plus":{ const d = ageDays(o); return d !== null && d > 30; }
     case "notrack": return !o.tracking || isNote(o.tracking);
+    case "SOLVED": case "REPLACED": case "UNFULFILLED": case "CANCELLED":
+      return o.tag === filter;
     case "cj": return /CJ/.test(o.supplier);
     case "wiio": return /WIIO/.test(o.supplier);
     default: return o.store === filter;
   }
 }
+// Four stores share one queue and an agent acts on the wrong one if the name
+// is buried in a meta line. Each gets its own colour so the store reads at a
+// glance rather than being something you check afterwards.
+// Per-source freshness. The build time on its own is misleading: a page can
+// be rebuilt every few hours around a source that has not been refreshed for a
+// week, which is exactly how 2,647 orders came to be labelled "no supplier
+// record" against a WIIO export seven days old. Anything over a day is called
+// out rather than left for someone to work out.
+function freshnessHtml(){
+  const s = DB.sources || {};
+  const names = Object.keys(s);
+  if (!names.length) return "";
+  const stale = names.filter(n => s[n].age_hours === null || s[n].age_hours > 24);
+  const title = names.map(n => `${n}: ${s[n].when}`).join("\n");
+  return `<span class="src ${stale.length?'stale':''}" title="${esc(title)}">`
+       + (stale.length ? `${stale.length} source${stale.length>1?"s":""} over a day old`
+                       : `all sources fresh`)
+       + `</span>`;
+}
+function storeKey(s){ return String(s||"").replace(/[^a-z]/gi,"").toLowerCase(); }
+function isTrue(v){ return /^true$/i.test(String(v||"").trim()); }
 function dotClass(o){
   if (o.checkin === "Still unfulfilled") return "open";
   if (o.checkin === "Cancelled") return "stop";
@@ -286,14 +331,16 @@ function renderList(){
   const shown = ORDERS.filter(match);
   $("#counts").innerHTML =
     `<span><b>${shown.length}</b> shown</span>`+
-    `<span><b>${ORDERS.filter(o=>o.checkin==="Still unfulfilled").length}</b> outstanding</span>`+
+    `<span><b>${ORDERS.filter(o=>o.checkin==="Still unfulfilled"&&!isTrue(o.answered)).length}</b> outstanding</span>`+
+    `<span><b>${ORDERS.filter(o=>isTrue(o.answered)).length}</b> answered</span>`+
     `<span><b>${ORDERS.length}</b> total</span>`+
-    `<span>built ${esc(DB.built)}</span>`;
+    `<span class="built">Updated ${esc(DB.built)}</span>`+
+    freshnessHtml();
   $("#filters").innerHTML = FILTERS.map(([k,l]) =>
     `<button data-f="${esc(k)}" class="${filter===k?'on':''}">${esc(l)}</button>`).join("");
   $("#rows").innerHTML = shown.length ? shown.slice(0,600).map((o,i) =>
     `<div class="row ${current===o?'active':''}" data-i="${ORDERS.indexOf(o)}">
-       <div class="subject">${esc(o.order)} · ${esc(o.customer)}</div>
+       <div class="subject"><span class="store s${storeKey(o.store)}">${esc(o.store)}</span> ${esc(o.order)} · ${esc(o.customer)}<span class="tag ${esc(o.tag||"")}">${esc(o.tag||"")}</span>${isTrue(o.answered)?'<span class="tag ANSWERED">ANSWERED</span>':""}</div>
        <div class="meta"><span class="dot ${dotClass(o)}"></span>${esc(o.store)} · ${esc(o.supplier)} · ${esc(o.date)}</div>
      </div>`).join("") + (shown.length>600?`<div class="list-empty">showing first 600 of ${shown.length} — narrow with search</div>`:"")
     : `<div class="list-empty">Nothing matches.</div>`;
@@ -363,9 +410,11 @@ function renderDetail(o){
   const cls = dotClass(o);
   $("#detail").innerHTML = `<div class="column">
     <div class="panel"><div class="section">
-      <h2 class="title">${esc(o.order)} · ${esc(o.customer)}
-        <span class="badge ${cls}">${esc(o.checkin)}</span></h2>
-      <div class="sub">${esc(o.store)} · ${esc(o.product)}<br>
+      <h2 class="title"><span class="store">${esc(o.store)}</span> ${esc(o.order)} · ${esc(o.customer)}
+        <span class="badge ${cls}">${esc(o.checkin)}</span>
+        <span class="tag ${esc(o.tag||"")}">${esc(o.tag||"")}</span>
+        ${isTrue(o.answered)?'<span class="tag ANSWERED">ANSWERED</span>':""}</h2>
+      <div class="sub">${esc(o.product)}<br>
         <a href="${esc(o.url)}" target="_blank" rel="noopener">Open in Shopify admin →</a></div>
     </div></div>
 
@@ -416,7 +465,12 @@ function renderDetail(o){
           Emailed customer <span class="state"></span></label>
         <label class="check"><input type="checkbox" data-check="informed" ${/^true$/i.test(o.informed)?"checked":""} ${SHEET_ENDPOINT?"":"disabled"}>
           Supplier informed <span class="state"></span></label>
+        <label class="check"><input type="checkbox" data-check="answered" ${isTrue(o.answered)?"checked":""} ${SHEET_ENDPOINT?"":"disabled"}>
+          Answered <span class="state"></span></label>
       </div>
+      <div class="hint">Answered takes this order out of the "Still unfulfilled" queue so it
+      is not picked up twice. It stays in the data and is still re-checked on every run, because
+      replying to the customer does not ship the parcel.</div>
       ${SHEET_ENDPOINT?"":'<div class="warn">Read-only: no sheet endpoint configured, so ticking these would not save. Deploy portal/sheet_endpoint.gs and set SHEET_ENDPOINT at the top of this page.</div>'}
     </div></div>
 
@@ -455,7 +509,10 @@ document.addEventListener("click", e => {
                             field, value: on ? "TRUE" : "FALSE"})})
       .then(r => r.json())
       .then(() => { current[field] = on ? "TRUE" : "FALSE";
-                    wrap.querySelector(".state").textContent = "saved"; })
+                    wrap.querySelector(".state").textContent = "saved";
+                    // Answered changes which queue this row belongs to, so the
+                    // list has to redraw or the agent keeps seeing it.
+                    if (field === "answered") renderList(); })
       .catch(() => { chk.checked = !on;
                      wrap.querySelector(".state").textContent = "save failed"; })
       .finally(() => wrap.classList.remove("saving"));
