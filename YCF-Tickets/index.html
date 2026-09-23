@@ -561,6 +561,8 @@ function detailHTML(t){
       ${fact("Jurisdiction", esc(ef.jurisdiction))}
       ${fact("Officers", (ef.officers||[]).map(esc).join("<br>"))}
       ${fact("SIC", (ef.sic_codes||[]).map(s=>esc(s.code+" "+s.description)).join("<br>"))}
+      ${fact("Account", ef.customer_url?`<a href="${esc(ef.customer_url)}" target="_blank" rel="noopener">open customer account</a>`:"")}
+      ${fact("Matched by", esc(ef.matched_by))}
     </div>`;
     body += `<div style="margin-top:14px"><div class="badges" style="margin-top:0">
       <span class="badge done">active ${c.active??"?"}</span>
