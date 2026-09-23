@@ -453,7 +453,9 @@ function detailHTML(t){
          <span class="k">${esc(l.kind)}</span>${esc(l.label)}</a>`).join("")}</div>
     ${d.one_line?`<div class="oneline">${esc(d.one_line)}</div>`:""}
     <div class="r2" style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
-      ${d.concern_label?`<button class="pill accent" data-setconcern="${esc(d.concern_type)}">${esc(d.concern_label)}</button>`:""}
+      ${d.concern_label?`<button class="pill accent" data-setconcern="${esc(d.concern_type)}"
+        title="${esc(d.concern_detail||d.concern_label)}">${esc(d.concern_label)}</button>`:""}
+      ${d.concern_detail?`<span class="pill" title="${esc(d.concern_detail)}">${esc(d.concern_detail.slice(0,70))}${d.concern_detail.length>70?"…":""}</span>`:""}
       ${d.customer_mood?`<span class="pill ${["angry","frustrated"].includes(d.customer_mood)?"bad":d.customer_mood==="worried"?"warn":"ok"}">${esc(d.customer_mood)}</span>`:""}
       ${d.urgency?`<span class="pill ${d.urgency==="high"?"bad":d.urgency==="medium"?"warn":""}">${esc(d.urgency)} urgency</span>`:""}
       ${d.needs_human?'<span class="pill bad">needs you</span>':""}

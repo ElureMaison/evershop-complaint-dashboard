@@ -243,7 +243,7 @@
    ],
    "draft": {
     "concern_type": "incorporation_pending",
-    "concern_label": "Incorporation / formation status (with ID verification query)",
+    "concern_label": "Incorporation / formation status",
     "one_line": "Ofer Tzur wants a status update on his company formation application (reference 3373264 – \"CONVERTI LTD\") and on the KYC/ID verification he says he has already completed.",
     "customer_mood": "neutral",
     "urgency": "medium",
@@ -288,7 +288,8 @@
      "efiling",
      "companies_house",
      "prior_tickets"
-    ]
+    ],
+    "concern_detail": "Incorporation / formation status (with ID verification query)"
    },
    "errors": [
     "eFiling session has expired. Run: python efiling_login_setup.py (in the parent folder) and log in by hand, then re-run this build."
@@ -582,7 +583,7 @@
    "prior_same_concern": [],
    "draft": {
     "concern_type": "company_name_change",
-    "concern_label": "Company name change not reflected on our records",
+    "concern_label": "Company name change",
     "one_line": "Oliver Brightman changed his company name at Companies House from Chookie Ltd to A Baked Collective Ltd and wants our Your Company Formations record updated to match.",
     "customer_mood": "neutral",
     "urgency": "low",
@@ -619,7 +620,8 @@
      "knowledge",
      "playbook",
      "companies_house"
-    ]
+    ],
+    "concern_detail": "Company name change not reflected on our records"
    },
    "errors": [
     "eFiling session has expired. Run: python efiling_login_setup.py (in the parent folder) and log in by hand, then re-run this build."
@@ -911,7 +913,7 @@
    ],
    "draft": {
     "concern_type": "address_expired_renewal",
-    "concern_label": "Address / filing service renewal — cancellation request",
+    "concern_label": "Address service expired / renewal",
     "one_line": "Theresa Mullins says she has already asked for her renewing services to be cancelled and wants written confirmation that the cancellation is in place and no charge will be taken.",
     "customer_mood": "neutral",
     "urgency": "high",
@@ -958,7 +960,8 @@
      "knowledge",
      "playbook",
      "prior_tickets"
-    ]
+    ],
+    "concern_detail": "Address / filing service renewal — cancellation request"
    },
    "errors": [
     "eFiling session has expired. Run: python efiling_login_setup.py (in the parent folder) and log in by hand, then re-run this build."
@@ -1407,7 +1410,7 @@
    ],
    "draft": {
     "concern_type": "bank_referral",
-    "concern_label": "Bank referral / cashback (with non-resident formation quote and service address scope)",
+    "concern_label": "Bank referral / cashback",
     "one_line": "Meet Shah, an accountant enquiring on behalf of a client, wants confirmation of the non-resident formation price and whether VAT is on top, whether the EC1 director's address covers only one director, and how to get a bank account both for the new company and for a company they formed with us in 2024.",
     "customer_mood": "neutral",
     "urgency": "medium",
@@ -1454,7 +1457,8 @@
      "knowledge",
      "playbook",
      "prior_tickets"
-    ]
+    ],
+    "concern_detail": "Bank referral / cashback (with non-resident formation quote and service address scope)"
    },
    "errors": [
     "eFiling session has expired. Run: python efiling_login_setup.py (in the parent folder) and log in by hand, then re-run this build."
@@ -1710,7 +1714,7 @@
    ],
    "draft": {
     "concern_type": "psc_verification",
-    "concern_label": "PSC identity verification (with an outstanding Companies House authentication code reset)",
+    "concern_label": "PSC verification / PSC changes",
     "one_line": "Michelle Hou wants one clear answer on ABUNDANCE ASSETS LTD — which service she has already paid for, and confirmation that the replacement Companies House authentication code she reset on Sunday 20 September 2026 will reach her via our registered office — after being passed between two email threads.",
     "customer_mood": "frustrated",
     "urgency": "medium",
@@ -1755,7 +1759,8 @@
      "playbook",
      "companies_house",
      "prior_tickets"
-    ]
+    ],
+    "concern_detail": "PSC identity verification (with an outstanding Companies House authentication code reset)"
    },
    "errors": [
     "eFiling session has expired. Run: python efiling_login_setup.py (in the parent folder) and log in by hand, then re-run this build."
@@ -2358,7 +2363,7 @@
    ],
    "draft": {
     "concern_type": "acsp",
-    "concern_label": "ACSP identity verification via us (payment confirmed, Credas next)",
+    "concern_label": "ACSP identity verification via us",
     "one_line": "Ruth Wong has paid the invoice for ACSP Companies House identity verification for both designated members of PAMPERING HEAVEN LLP and wants to know when the personal verification codes will arrive, and whether her PSC verification is covered.",
     "customer_mood": "neutral",
     "urgency": "high",
@@ -2401,7 +2406,8 @@
      "playbook",
      "companies_house",
      "prior_tickets"
-    ]
+    ],
+    "concern_detail": "ACSP identity verification via us (payment confirmed, Credas next)"
    },
    "errors": [
     "eFiling session has expired. Run: python efiling_login_setup.py (in the parent folder) and log in by hand, then re-run this build."
