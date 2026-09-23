@@ -243,383 +243,259 @@
       <span class="vstate">saved to the Portal Feedback tab so the drafts can be corrected</span></div>
   </div>
 </div>
-<script>
-// Where the checkbox and verdict writes go. A static page cannot hold Google
-// credentials -- anything here is readable by anyone who opens the URL -- so
-// it POSTs to a small Apps Script that runs as the sheet's owner. The URL
-// lives in config.json so it can be repointed without a rebuild.
-// The endpoint is SHARED with the Evershop-Unfulfilled portal -- that Apps
-// Script project is the one the owner has authorised -- so every write names
-// the sheet it is for. Without `sheet:"raised"` the script defaults to the
-// unfulfilled spreadsheet and would tick a box on the wrong sheet.
-let SHEET_ENDPOINT = "";
-// Re:amaze brand host per store. Each store is its own brand with its own
-// host, so one shared subdomain would send agents to the wrong inbox.
-const REAMAZE_BRAND = {
-  "Clarendale":    "9diuiu-es",
-  "Lark & Clover": "jzkmeu-sn",
-  "Lume Haven":    "wwp0gv-yu",
-  "Miyora":        "miyorasg",
-};
+<script type="text/plain" data-sealed-app="1">{"__sealed":1,"v":1,"zip":"gzip","iv":"km4UC6l1NzfEAvTd","ct":"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"}</script>
+<script>window.__SEAL__ = {"iter":600000,"salt":"vbTofXW4Tma5slPo88CNBA==","check":{"__sealed":1,"v":1,"zip":"gzip","iv":"a+C6mSfZ4hzdNrpC","ct":"FBaChpVLpLFR1fchQ9X50pQywJLxgi4p+EcVMDUSE0tWIQB2wOI="},"token":"4de3da3d1acfb8975c8325cd6f39c9e8","storage":[["session","evershop-raisedbysumai","4de3da3d1acfb8975c8325cd6f39c9e8"]]};</script>
+<script>/* seal_gate.js -- the browser half of the sealed-payload scheme.
+ *
+ * Injected into every published dashboard by portal/seal.py. It replaces the
+ * old password gates, which were theatre: they hid the *page* while the data
+ * sat next to it in plaintext, readable by anyone who opened data.json or
+ * View Source. Here the payload is AES-256-GCM ciphertext, so the password is
+ * the only thing that turns it back into data -- there is nothing to look at
+ * without it.
+ *
+ * What it does, in order:
+ *   1. Covers the page with its own prompt before any app code runs.
+ *   2. Derives one AES key from the typed password (PBKDF2-SHA256, site salt).
+ *   3. Decrypts the check envelope. GCM authenticates, so a wrong password
+ *      fails here rather than producing garbage.
+ *   4. Decrypts every inline <script data-sealed> back into place.
+ *   5. Patches fetch() so data.json/config.json decrypt transparently -- the
+ *      dashboards' own loaders are left completely untouched.
+ *   6. Hands the old in-page gates the values that make them open, so their
+ *      logic still runs but no longer decides anything.
+ *   7. Runs the deferred app scripts in order and replays DOMContentLoaded.
+ *
+ * Config arrives as window.__SEAL__ = {iter, salt, check, storage, appReady}.
+ */
+(function () {
+  "use strict";
 
-let DB = {orders: [], built: ""};
-let ORDERS = [];
-const $ = s => document.querySelector(s);
-const esc = s => (s==null?"":String(s)).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const isNote = v => /^(No |Not |WIIO after-sale record on file)/i.test((v||"").trim());
+  var CFG = window.__SEAL__;
+  if (!CFG) return;
 
-let filter = "all", q = "", current = null, from = "", to = "";
-const DAY = 86400000;
+  var KEY = null;      // CryptoKey, once unlocked
+  var origFetch = window.fetch ? window.fetch.bind(window) : null;
 
-// "Date Reported" is WIIO's own submission stamp, written as
-// 2026/09/16 11:17:58. Date.parse handles that, but the date inputs below
-// compare ISO strings, so normalise once here rather than at every use.
-function isoDate(o){
-  const s = (o.reported || "").trim();
-  const m = s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
-  if (m) return `${m[1]}-${String(m[2]).padStart(2,"0")}-${String(m[3]).padStart(2,"0")}`;
-  return (o.date || "").slice(0,10);
-}
-function ageDays(o){
-  const t = Date.parse(isoDate(o));
-  return isNaN(t) ? null : Math.floor((Date.now() - t) / DAY);
-}
-const KINDS = {
-  courier: "At local carrier", address: "Address needed", returned: "Returned to warehouse",
-  reship_fee: "Returned — reship costs money",
-  stock: "Out of stock", product: "Confirm product", shipping_method: "Shipping method",
-  tracking_update: "Tracking updated", other: "Other",
-};
-const FILTERS = [
-  ["all","All"], ["open","No reply logged"],
-  ["courier","At local carrier"], ["address","Address needed"],
-  ["reship_fee","Reship (fee)"], ["returned","Returned"],
-  ["age7","0-7 days"], ["age30","8-30 days"], ["age30plus","30+ days"],
-  ["Clarendale","Clarendale"], ["Lark & Clover","Lark & Clover"],
-  ["Miyora","Miyora"], ["Lume Haven","Lume Haven"],
-  ["unfulfilled","Still unfulfilled"], ["noemail","Customer not emailed"],
-];
+  /* ---------- helpers ---------- */
 
-function match(o){
-  const d = isoDate(o);
-  if (from && (!d || d < from)) return false;
-  if (to && (!d || d > to)) return false;
-  if (q){
-    const hay = [o.order,o.customer,o.product,o.tracking,o.email,o.reference,o.problem]
-      .join(" ").toLowerCase();
-    if (!hay.includes(q)) return false;
+  function b64ToBytes(s) {
+    var bin = atob(s), out = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
   }
-  switch(filter){
-    case "all": return true;
-    case "open": return !!o.open;
-    case "courier": case "address": case "returned": case "reship_fee":
-      return o.kind === filter;
-    case "age7":     { const a = ageDays(o); return a !== null && a <= 7; }
-    case "age30":    { const a = ageDays(o); return a !== null && a > 7 && a <= 30; }
-    case "age30plus":{ const a = ageDays(o); return a !== null && a > 30; }
-    case "unfulfilled": return o.checkin === "Still unfulfilled";
-    case "noemail": return !/^true$/i.test(o.emailed || "");
-    default: return o.store === filter;
+
+  function djb2(s) {
+    var h = 5381;
+    for (var i = 0; i < s.length; i++) h = ((h * 33) + s.charCodeAt(i)) >>> 0;
+    return h;
   }
-}
-function dotClass(o){
-  if (o.checkin === "Cancelled" || o.kind === "returned" || o.kind === "reship_fee") return "stop";
-  if (o.open) return "open";
-  return "done";
-}
-function renderList(){
-  const shown = ORDERS.filter(match);
-  $("#counts").innerHTML =
-    `<span><b>${shown.length}</b> shown</span>`+
-    `<span><b>${ORDERS.length}</b> in WIIO's queue</span>`+
-    `<span><b>${ORDERS.filter(o=>o.open).length}</b> with no reply logged</span>`+
-    `<span><b>${DB.done_on_wiio||0}</b> done — on the sheet, off this list</span>`+
-    `<span class="stamp">Updated ${esc(DB.built)}</span>`;
-  $("#filters").innerHTML = FILTERS.map(([k,l]) =>
-    `<button data-f="${esc(k)}" class="${filter===k?'on':''}">${esc(l)}</button>`).join("");
-  $("#rows").innerHTML = shown.length ? shown.slice(0,600).map(o =>
-    `<div class="row ${current===o?'active':''}" data-i="${ORDERS.indexOf(o)}">
-       <div class="subject">${esc(o.order)} · ${esc(o.customer||"—")}</div>
-       <div class="meta"><span class="dot ${dotClass(o)}"></span>${esc(o.store)} · ${esc(KINDS[o.kind]||o.kind)} · ${esc(o.reported||"")}</div>
-     </div>`).join("") + (shown.length>600?`<div class="list-empty">showing first 600 of ${shown.length} — narrow with search</div>`:"")
-    : `<div class="list-empty">Nothing matches.</div>`;
-}
-function fact(label, value, opts={}){
-  const v = (value==null?"":String(value)).trim();
-  if (!v) return "";
-  const body = opts.link ? `<a href="${esc(v)}" target="_blank" rel="noopener">${esc(opts.label||v)}</a>`
-                         : `<span class="${isNote(v)?'muted':''}">${esc(v)}</span>`;
-  const copyable = !opts.link && !isNote(v);
-  const cp = copyable ? `<button class="cp" data-cp="${esc(v)}">COPY</button>` : "";
-  return `<div class="fact"><span>${esc(label)}</span><span>${body}${cp}</span></div>`;
-}
-function setAnswered(o, value){
-  return fetch(SHEET_ENDPOINT, {method:"POST", mode:"cors",
-    headers:{"Content-Type":"text/plain;charset=utf-8"},
-    body: JSON.stringify({sheet:"raised", store: o.store, order: o.order,
-                          field:"answered", value})})
-    .then(r => r.json())
-    .then(j => { if (!j.ok) throw new Error(j.error || "write refused"); o.answered = value; });
-}
-function sendVerdict(verdict, comment){
-  const st = $("#vstate");
-  if (!SHEET_ENDPOINT){ st.textContent = "not saved — no endpoint configured"; return; }
-  st.textContent = "saving…";
-  fetch(SHEET_ENDPOINT, {method:"POST", mode:"cors",
-    headers:{"Content-Type":"text/plain;charset=utf-8"},
-    body: JSON.stringify({sheet:"raised", action:"feedback", store: current.store, order: current.order,
-                          verdict, comment,
-                          to_supplier: current.to_supplier, to_customer: current.to_customer})})
-    .then(r => r.json())
-    .then(() => { st.textContent = verdict === "Accurate" ? "marked accurate" : "feedback sent — thank you";
-                  if (verdict === "Inaccurate") $("#fb").value = ""; })
-    .catch(() => { st.textContent = "could not save"; });
-}
-function reamazeLink(o){
-  const brand = REAMAZE_BRAND[o.store];
-  if (!brand) return "";
-  // A SEARCH link, not a conversation link: Re:amaze's API ignores `q`, so
-  // resolving each order to a thread silently returned whatever was newest.
-  const href = `https://${brand}.reamaze.com/admin/conversations?q=${encodeURIComponent(o.order)}`;
-  return `<a class="open-link" href="${href}" target="_blank" rel="noopener">Find in Reamaze →</a>`;
-}
-function processLink(o){
-  const l = (o.process_url||"").trim();
-  if (!/^https?:/.test(l)) return "";
-  // The Process form is where this ticket is actually answered on WIIO.
-  return `<a class="open-link" href="${esc(l)}" target="_blank" rel="noopener">Answer on WIIO →</a>`;
-}
-function renderDetail(o){
-  current = o;
-  document.querySelectorAll("[data-verdict]").forEach(b => { b.disabled = false; b.classList.remove("on"); });
-  $("#answered").disabled = !SHEET_ENDPOINT;
-  $("#answered").title = SHEET_ENDPOINT ? "" : "read-only — no sheet endpoint configured";
-  $("#fbwrap").hidden = true;
-  $("#fb").value = "";
-  $("#vstate").textContent = SHEET_ENDPOINT ? "" : "read-only — no sheet endpoint configured";
-  $("#vhint").textContent = "tells the drafts where they are wrong — nothing is sent to anyone from here";
-  const cls = dotClass(o);
-  const kindTag = `<span class="tag ${esc(o.kind)}">${esc(KINDS[o.kind]||o.kind)}</span>`;
-  $("#detail").innerHTML = `<div class="column">
-    <div class="panel"><div class="section">
-      <h2 class="title">${esc(o.order)} · ${esc(o.customer||"—")}
-        <span class="badge ${cls}">${o.open ? "Awaiting our reply" : "Reply logged " + esc(o.updated)}</span>${kindTag}</h2>
-      <div class="sub">${esc(o.store)} · ${esc(o.product||o.wiio_products||"")}<br>
-        ${o.url ? `<a href="${esc(o.url)}" target="_blank" rel="noopener">Open in Shopify admin →</a>` : ""}</div>
-    </div></div>
 
-    <div class="panel"><div class="panel-head"><span class="grow">What Sumai raised — ${esc(o.category||"after-sale ticket")}</span>
-      ${processLink(o)}</div>
-      <div class="section">
-        <pre class="ticket">${esc(o.problem||"(no text on the ticket)")}</pre>
-        <div class="facts" style="margin-top:13px">
-          ${o.reference ? `<div class="fact"><span>Local reference</span><span><span class="ref">${esc(o.reference)}</span><button class="cp" data-cp="${esc(o.reference)}">COPY</button></span></div>` : ""}
-          ${fact("Carrier contact",o.carrier_contact)}
-          ${o.destroy_by ? `<div class="fact"><span>Reship by</span><span><b style="color:var(--red)">${esc(o.destroy_by)}</b> <span class="muted">— WIIO destroys it after this; the customer is told only the date</span></span></div>` : ""}
-          ${o.reship_fee && o.kind === "reship_fee" ? `<div class="fact"><span>Reship fee (customer)</span><span><span class="ref">${esc(o.reship_fee)}</span><button class="cp" data-cp="${esc(o.reship_fee)}">COPY</button></span></div>` : ""}
-          ${o.fee_basis && o.kind === "reship_fee" ? `<div class="fact"><span></span><span class="muted">${esc(o.fee_basis)}</span></div>` : ""}
-          ${o.supplier_fee ? `<div class="fact"><span>WIIO charges us</span><span>${esc(o.supplier_fee)} <span class="muted">— our cost, never quoted to the customer</span></span></div>` : ""}
-          ${o.fee_note && o.kind === "reship_fee" ? `<div class="fact"><span>No fee quoted</span><span style="color:var(--orange)">${esc(o.fee_note)}</span></div>` : ""}
-          ${fact("Raised on",o.reported)}${fact("We replied",o.updated)}
-          ${fact("WIIO reply / result",o.note)}
-        </div>
-      </div></div>
-
-    <div class="panel"><div class="panel-head"><span class="grow">Proposed reply to Sumai (WIIO)</span>
-      ${processLink(o)}<button class="copy" data-copy="s">Copy</button></div>
-      <div class="section"><pre class="draft" id="d-s">${esc(o.to_supplier)}</pre></div></div>
-
-    <div class="panel"><div class="panel-head"><span class="grow">${
-        o.to_customer_next ? "Proposed email to customer — step 1 of 2: confirm the address"
-                           : (o.kind === "reship_fee" ? "Proposed email to customer — step 2 of 2: the reshipment plan"
-                                                      : "Proposed email to customer")}</span>
-      ${reamazeLink(o)}<button class="copy" data-copy="c">Copy</button></div>
-      <div class="section"><pre class="draft" id="d-c">${esc(o.to_customer)}</pre></div></div>
-
-    ${o.to_customer_next ? `<div class="panel"><details>
-      <summary>Step 2 of 2 — send only once they have confirmed the address</summary>
-      <div class="panel-head"><span class="grow">Proposed email to customer — the reshipment plan</span>
-        <button class="copy" data-copy="n">Copy</button></div>
-      <div class="section"><pre class="draft" id="d-n">${esc(o.to_customer_next)}</pre>
-        <div class="warn">Don't send this yet. Tick &ldquo;Emailed customer&rdquo; once step 1 has
-        gone out; the next rebuild then promotes this to the main draft.</div>
-      </div></details></div>` : ""}
-
-    <div class="panel"><div class="panel-head">Order</div><div class="section"><div class="facts">
-      ${fact("Order no.",o.order)}${fact("Customer",o.customer)}
-      ${fact("Order date",o.date)}${fact("Added to sheet",o.added)}${fact("Email",o.email)}
-      ${fact("Channel",o.channel)}${fact("Total",o.total)}${fact("Payment",o.payment)}
-      ${fact("Fulfillment",o.fulfillment)}${fact("Items",o.items)}
-      ${fact("Product",o.product)}${fact("Ship to",o.address)}
-      ${fact("Delivery",o.delivery)}${fact("Tags",o.tags)}
-    </div></div></div>
-
-    <div class="panel"><div class="panel-head">Supplier</div><div class="section"><div class="facts">
-      ${fact("Supplier",o.supplier)}${fact("Ticket status",o.order_status)}
-      ${fact("WIIO tracking",o.tracking)}
-      ${fact("Local reference",o.reference)}
-      ${o.track_link ? fact("Customer tracking page",o.track_link,{link:true,label:"Open Parcel Panel →"}) : ""}
-      ${o.process_url ? fact("Answer this ticket",o.process_url,{link:true,label:"Open the WIIO Process form →"}) : ""}
-      ${o.ticket_url ? fact("Ticket record",o.ticket_url,{link:true,label:"Open ticket detail →"}) : ""}
-      ${o.order_detail_url ? fact("Supplier order",o.order_detail_url,{link:true,label:"Open supplier order →"}) : ""}
-      ${fact("WIIO products",o.wiio_products)}
-      ${fact("Ticket id",o.ticket_id)}
-    </div></div></div>
-
-    <div class="panel"><div class="panel-head">Shopify check-in</div><div class="section"><div class="facts">
-      ${fact("Status",o.checkin)}${fact("Notes",o.checkin_note)}${fact("Checked on",o.checked)}
-    </div></div></div>
-
-    <div class="panel"><div class="panel-head">Actions taken</div><div class="section">
-      <div class="checks">
-        <label class="check"><input type="checkbox" data-check="emailed" ${/^true$/i.test(o.emailed)?"checked":""} ${SHEET_ENDPOINT?"":"disabled"}>
-          Emailed customer <span class="state"></span></label>
-        <label class="check"><input type="checkbox" data-check="informed" ${/^true$/i.test(o.informed)?"checked":""} ${SHEET_ENDPOINT?"":"disabled"}>
-          Replied to Sumai <span class="state"></span></label>
-      </div>
-      ${SHEET_ENDPOINT?"":'<div class="warn">Read-only: no sheet endpoint configured, so ticking these would not save. Deploy portal/raised_sheet_endpoint.gs and put its /exec URL in config.json.</div>'}
-    </div></div>
-
-  </div>`;
-  renderList();
-}
-document.addEventListener("click", e => {
-  const f = e.target.closest("[data-f]");
-  if (f){ filter = f.dataset.f; renderList(); return; }
-  const r = e.target.closest(".row");
-  if (r){ renderDetail(ORDERS[+r.dataset.i]); return; }
-  const v = e.target.closest("[data-verdict]");
-  if (v){
-    document.querySelectorAll("[data-verdict]").forEach(b => b.classList.remove("on"));
-    v.classList.add("on");
-    const bad = v.dataset.verdict === "Inaccurate";
-    $("#fbwrap").hidden = !bad;
-    if (!bad) sendVerdict("Accurate", "");
-    return;
+  async function sha256hex(s) {
+    var buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+    return Array.from(new Uint8Array(buf))
+      .map(function (b) { return b.toString(16).padStart(2, "0"); }).join("");
   }
-  if (e.target.closest("#fbsend")){
-    const t = $("#fb").value.trim();
-    if (!t){ $("#fb").focus(); return; }
-    sendVerdict("Inaccurate", t);
-    return;
-  }
-  if (e.target.closest("#answered")){
-    // Marks the ticket answered on the sheet and drops it off this list, for
-    // when a VA has dealt with it and does not want to wait for WIIO to close
-    // the ticket. Reversible: the row stays on the sheet, and Undo below puts
-    // it straight back, because hiding a live ticket by mis-click is the one
-    // failure this button could cause.
-    const o = current, i = ORDERS.indexOf(o), btn = $("#answered");
-    if (!o || !SHEET_ENDPOINT) return;
-    btn.disabled = true; $("#vstate").textContent = "saving…";
-    setAnswered(o, "TRUE")
-      .then(() => {
-        ORDERS.splice(i, 1);
-        current = null;
-        $("#detail").innerHTML = `<div class="empty">Pick a ticket on the left</div>`;
-        document.querySelectorAll("[data-verdict]").forEach(b => b.disabled = true);
-        renderList();
-        $("#vstate").innerHTML =
-          `${esc(o.order)} marked answered<button class="undo" id="undo">Undo</button>`;
-        $("#undo").onclick = () => {
-          $("#vstate").textContent = "undoing…";
-          setAnswered(o, "FALSE")
-            .then(() => { ORDERS.splice(Math.min(i, ORDERS.length), 0, o);
-                          renderDetail(o);
-                          $("#vstate").textContent = "restored"; })
-            .catch(() => { $("#vstate").textContent = "could not undo — untick it on the sheet"; });
-        };
-      })
-      .catch(() => { $("#vstate").textContent = "could not save"; btn.disabled = false; });
-    return;
-  }
-  const chk = e.target.closest("[data-check]");
-  if (chk && SHEET_ENDPOINT){
-    const wrap = chk.closest(".check"); wrap.classList.add("saving");
-    const field = chk.dataset.check, on = chk.checked;
-    fetch(SHEET_ENDPOINT, {method:"POST", mode:"cors",
-      headers:{"Content-Type":"text/plain;charset=utf-8"},
-      body: JSON.stringify({sheet:"raised", store: current.store, order: current.order,
-                            field, value: on ? "TRUE" : "FALSE"})})
-      .then(r => r.json())
-      .then(() => { current[field] = on ? "TRUE" : "FALSE";
-                    wrap.querySelector(".state").textContent = "saved"; })
-      .catch(() => { chk.checked = !on;
-                     wrap.querySelector(".state").textContent = "save failed"; })
-      .finally(() => wrap.classList.remove("saving"));
-    return;
-  }
-  const cp = e.target.closest("[data-cp]");
-  if (cp){
-    navigator.clipboard.writeText(cp.dataset.cp).then(() => {
-      cp.textContent = "COPIED"; cp.classList.add("ok");
-      setTimeout(() => { cp.textContent = "COPY"; cp.classList.remove("ok"); }, 1200);
-    });
-    return;
-  }
-  const c = e.target.closest("[data-copy]");
-  if (c){
-    const text = $("#d-" + c.dataset.copy).textContent;
-    navigator.clipboard.writeText(text).then(() => {
-      c.textContent = "Copied"; c.classList.add("ok");
-      setTimeout(() => { c.textContent = "Copy"; c.classList.remove("ok"); }, 1400);
-    });
-  }
-});
-$("#q").addEventListener("input", e => { q = e.target.value.trim().toLowerCase(); renderList(); });
-$("#from").addEventListener("change", e => { from = e.target.value; renderList(); });
-$("#to").addEventListener("change", e => { to = e.target.value; renderList(); });
-$("#datesclear").addEventListener("click", () => {
-  from = to = ""; $("#from").value = ""; $("#to").value = ""; renderList();
-});
 
-async function load(){
-  const b = $("#refresh"); b.classList.add("busy"); b.textContent = "Loading…";
-  try{
-    try{
-      const c = await fetch("config.json?t=" + Date.now(), {cache:"no-store"});
-      if (c.ok) SHEET_ENDPOINT = (await c.json()).sheetEndpoint || "";
-    }catch(e){ /* no config yet: the page stays read-only, which it says */ }
-    const r = await fetch("data.json?t=" + Date.now(), {cache: "no-store"});
-    DB = await r.json(); ORDERS = DB.orders;
-    const keep = current && ORDERS.find(o => o.order === current.order && o.store === current.store);
-    current = keep || null;
-    renderList();
-    if (current) renderDetail(current);
-  }catch(e){
-    $("#rows").innerHTML = `<div class="list-empty">Could not load data.json — ${esc(e.message)}</div>`;
-  }
-  b.classList.remove("busy"); b.textContent = "Refresh";
-}
-$("#refresh").addEventListener("click", load);
-
-// A deterrent against a stray visitor, NOT security: on a public host the
-// password sits in this file and data.json is fetchable directly.
-const PW = "Clarendaleronce00!";
-const pwToggle = $("#pwtoggle");
-if (pwToggle) pwToggle.addEventListener("click", () => {
-  const f = $("#pw"), show = f.type === "password";
-  f.type = show ? "text" : "password";
-  pwToggle.textContent = show ? "HIDE" : "SHOW";
-  pwToggle.setAttribute("aria-pressed", String(show));
-  pwToggle.setAttribute("aria-label", show ? "Hide password" : "Show password");
-  f.focus();
-});
-function unlock(){ $("#gate").remove(); load(); }
-if (sessionStorage.getItem("evershop-raisedbysumai") === PW){
-  unlock();
-} else {
-  $("#gateform").addEventListener("submit", ev => {
-    ev.preventDefault();
-    if ($("#pw").value === PW){
-      try{ sessionStorage.setItem("evershop-raisedbysumai", PW); }catch(e){}
-      unlock();
-    } else {
-      $("#gatebad").textContent = "Wrong password.";
-      $("#pw").select();
+  // The payloads are gzipped before encryption -- Unfulfilled is 9.3 MB of
+  // JSON, and base64 would otherwise push it past 12 MB on the wire.
+  async function gunzip(buf) {
+    if (typeof DecompressionStream === "undefined") {
+      throw new Error("This browser is too old to open the dashboard. " +
+                      "Use an up-to-date Chrome, Edge, Firefox or Safari.");
     }
-  });
-}
+    var stream = new Blob([buf]).stream()
+      .pipeThrough(new DecompressionStream("gzip"));
+    return await new Response(stream).arrayBuffer();
+  }
+
+  async function deriveKey(pw) {
+    var base = await crypto.subtle.importKey(
+      "raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveKey"]);
+    return crypto.subtle.deriveKey(
+      { name: "PBKDF2", salt: b64ToBytes(CFG.salt), iterations: CFG.iter, hash: "SHA-256" },
+      base, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+  }
+
+  // Envelope -> original bytes. Throws if the key is wrong (GCM tag check).
+  async function open(env, key) {
+    var plain = await crypto.subtle.decrypt(
+      { name: "AES-GCM", iv: b64ToBytes(env.iv) }, key, b64ToBytes(env.ct));
+    if (env.zip === "gzip") plain = await gunzip(plain);
+    return new TextDecoder().decode(plain);
+  }
+
+  function isEnvelope(o) { return o && o.__sealed === 1 && o.iv && o.ct; }
+
+  /* ---------- transparent fetch ---------- */
+  // The dashboards call fetch("data.json?t=...").json(). Rather than edit each
+  // loader, hand them back a Response whose body is already plaintext.
+  function patchFetch() {
+    if (!origFetch) return;
+    window.fetch = async function (input, init) {
+      var res = await origFetch(input, init);
+      var url = typeof input === "string" ? input : (input && input.url) || "";
+      if (!/\.json(\?|$)/.test(url.split("#")[0])) return res;
+      var txt;
+      try { txt = await res.clone().text(); } catch (e) { return res; }
+      var obj;
+      try { obj = JSON.parse(txt); } catch (e) { return res; }
+      if (!isEnvelope(obj)) return res;
+      var plain = await open(obj, KEY);
+      return new Response(plain, {
+        status: res.status,
+        statusText: res.statusText,
+        headers: { "Content-Type": "application/json" }
+      });
+    };
+  }
+
+  /* ---------- unlocking ---------- */
+
+  async function decryptInline() {
+    var nodes = document.querySelectorAll("script[data-sealed]");
+    for (var i = 0; i < nodes.length; i++) {
+      var env = JSON.parse(nodes[i].textContent);
+      nodes[i].textContent = await open(env, KEY);
+      nodes[i].removeAttribute("data-sealed");
+    }
+  }
+
+  // The old gates still run; these are the values that make them open, so we
+  // never prompt twice. They guard nothing now -- the data is already
+  // decrypted by this point -- they just need to not get in the way.
+  async function satisfyLegacyGates(pw) {
+    window.__GATE_TOKEN__ = CFG.token;
+    window.__GATE_HASH__ = djb2(pw);
+    window.__GATE_SHA__ = await sha256hex(pw);
+    (CFG.storage || []).forEach(function (e) {
+      var store = e[0] === "local" ? localStorage : sessionStorage;
+      try { store.setItem(e[1], e[2] === "__PW__" ? pw : e[2]); } catch (err) {}
+    });
+  }
+
+  // The app scripts are encrypted too, not just the data: a persona-to-email
+  // map and a couple of internal endpoints lived in the JavaScript itself, so
+  // sealing only the payloads would have left them in View Source.
+  //
+  // Replacing a <script type="text/plain"> node with a real one executes it
+  // synchronously and in global scope, which is what it would have had if we
+  // had never deferred it.
+  async function runApp() {
+    var nodes = document.querySelectorAll("script[data-sealed-app]");
+    for (var i = 0; i < nodes.length; i++) {
+      var old = nodes[i], code = old.textContent;
+      if (old.getAttribute("data-sealed-app") === "1") {
+        code = await open(JSON.parse(code), KEY);
+      }
+      var s = document.createElement("script");
+      s.textContent = code;
+      old.parentNode.replaceChild(s, old);
+    }
+    // These scripts were written as inline <script>, so anything that waits
+    // for DOMContentLoaded registered after the real event had already fired.
+    try {
+      document.dispatchEvent(new Event("DOMContentLoaded", { bubbles: true }));
+    } catch (e) {}
+  }
+
+  async function unlock(pw) {
+    var key = await deriveKey(pw);
+    await open(CFG.check, key);   // throws on a wrong password
+    KEY = key;
+    patchFetch();
+    await decryptInline();
+    await satisfyLegacyGates(pw);
+    await runApp();
+  }
+
+  /* ---------- the prompt ---------- */
+
+  // One-shot. runApp() replays DOMContentLoaded for the deferred scripts, and
+  // that replay reaches this listener too -- without the guard it builds a
+  // second prompt on top of the unlocked dashboard, which looks exactly like
+  // a failed unlock.
+  var gateShown = false;
+
+  function showGate() {
+    if (gateShown) return;
+    gateShown = true;
+    var wrap = document.createElement("div");
+    wrap.id = "seal-gate";
+    wrap.innerHTML =
+      '<div class="seal-box">' +
+        '<div class="seal-title">Protected dashboard</div>' +
+        '<p class="seal-sub">This page holds customer data. It is stored encrypted &mdash; ' +
+           'the password is what decrypts it.</p>' +
+        '<form class="seal-form"><div class="seal-row">' +
+          '<input type="password" class="seal-pw" placeholder="Password" autofocus ' +
+                 'autocomplete="current-password" spellcheck="false">' +
+          '<button type="button" class="seal-show">Show</button>' +
+        '</div>' +
+        '<button type="submit" class="seal-go">Unlock</button></form>' +
+        '<div class="seal-err" hidden></div>' +
+      '</div>';
+    document.body.appendChild(wrap);
+
+    var style = document.createElement("style");
+    style.textContent =
+      '#seal-gate{position:fixed;inset:0;z-index:2147483647;display:flex;' +
+        'align-items:center;justify-content:center;padding:16px;' +
+        'background:#0f1115;color:#e8eaed;' +
+        'font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}' +
+      '#seal-gate .seal-box{width:100%;max-width:360px;text-align:center}' +
+      '#seal-gate .seal-title{font-size:18px;font-weight:650;margin-bottom:6px}' +
+      '#seal-gate .seal-sub{color:#9aa0a6;font-size:13px;margin:0 0 18px}' +
+      '#seal-gate .seal-row{display:flex;gap:6px;margin-bottom:10px}' +
+      '#seal-gate input{flex:1;min-width:0;padding:10px 12px;border-radius:8px;' +
+        'border:1px solid #3c4043;background:#1b1e23;color:inherit;font-size:15px}' +
+      '#seal-gate button{padding:10px 14px;border-radius:8px;border:1px solid #3c4043;' +
+        'background:#1b1e23;color:inherit;font-size:14px;cursor:pointer}' +
+      '#seal-gate .seal-go{width:100%;background:#2d6cdf;border-color:#2d6cdf;' +
+        'color:#fff;font-weight:600}' +
+      '#seal-gate .seal-go[disabled]{opacity:.6;cursor:progress}' +
+      '#seal-gate .seal-err{color:#f28b82;font-size:13px;margin-top:12px}';
+    document.head.appendChild(style);
+
+    var pw = wrap.querySelector(".seal-pw"),
+        err = wrap.querySelector(".seal-err"),
+        go = wrap.querySelector(".seal-go");
+
+    wrap.querySelector(".seal-show").addEventListener("click", function () {
+      var showing = pw.type === "text";
+      pw.type = showing ? "password" : "text";
+      this.textContent = showing ? "Show" : "Hide";
+      pw.focus();
+    });
+
+    wrap.querySelector(".seal-form").addEventListener("submit", async function (ev) {
+      ev.preventDefault();
+      err.hidden = true;
+      go.disabled = true;
+      // Key derivation is deliberately slow (that is what makes the password
+      // expensive to guess offline), and the big payload takes a moment more.
+      go.textContent = "Decrypting…";
+      try {
+        await unlock(pw.value.trim());
+        wrap.remove();
+      } catch (e) {
+        go.disabled = false;
+        go.textContent = "Unlock";
+        err.hidden = false;
+        err.textContent = /too old/.test(e.message) ? e.message : "Wrong password.";
+        pw.select();
+        pw.focus();
+      }
+    });
+    pw.focus();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", showGate);
+  } else {
+    showGate();
+  }
+})();
 </script>
 </body>
 </html>

@@ -232,387 +232,259 @@
       <span class="vstate">saved to the Portal Feedback tab so the drafts can be corrected</span></div>
   </div>
 </div>
-<script>
-// Where the checkbox and verdict writes go. A static page cannot hold Google
-// credentials -- anything here is readable by anyone who opens the URL -- so
-// it POSTs to a small Apps Script that runs as the sheet's owner.
-//
-// The URL lives in config.json rather than in this file, so pointing the page
-// at a new deployment is a one-line edit to a 40-byte file (editable straight
-// from GitHub) instead of a rebuild and redeploy of the whole portal.
-let SHEET_ENDPOINT = "";
-// Re:amaze brand host per store. Each store is its own brand with its own
-// host -- "larkandclover" is a DIFFERENT brand from the jzkmeu-sn store the
-// Evershop sheet calls Lark & Clover, so one shared subdomain sent agents to
-// the wrong inbox.
-const REAMAZE_BRAND = {
-  "Clarendale":    "9diuiu-es",
-  "Lark & Clover": "jzkmeu-sn",
-  "Lume Haven":    "wwp0gv-yu",
-  "Miyora":        "miyorasg",
-};
+<script type="text/plain" data-sealed-app="1">{"__sealed":1,"v":1,"zip":"gzip","iv":"MHynHM1mJlhrmtAj","ct":"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"}</script>
+<script>window.__SEAL__ = {"iter":600000,"salt":"vbTofXW4Tma5slPo88CNBA==","check":{"__sealed":1,"v":1,"zip":"gzip","iv":"a+C6mSfZ4hzdNrpC","ct":"FBaChpVLpLFR1fchQ9X50pQywJLxgi4p+EcVMDUSE0tWIQB2wOI="},"token":"4de3da3d1acfb8975c8325cd6f39c9e8","storage":[["session","evershop-unfulfilled","4de3da3d1acfb8975c8325cd6f39c9e8"]]};</script>
+<script>/* seal_gate.js -- the browser half of the sealed-payload scheme.
+ *
+ * Injected into every published dashboard by portal/seal.py. It replaces the
+ * old password gates, which were theatre: they hid the *page* while the data
+ * sat next to it in plaintext, readable by anyone who opened data.json or
+ * View Source. Here the payload is AES-256-GCM ciphertext, so the password is
+ * the only thing that turns it back into data -- there is nothing to look at
+ * without it.
+ *
+ * What it does, in order:
+ *   1. Covers the page with its own prompt before any app code runs.
+ *   2. Derives one AES key from the typed password (PBKDF2-SHA256, site salt).
+ *   3. Decrypts the check envelope. GCM authenticates, so a wrong password
+ *      fails here rather than producing garbage.
+ *   4. Decrypts every inline <script data-sealed> back into place.
+ *   5. Patches fetch() so data.json/config.json decrypt transparently -- the
+ *      dashboards' own loaders are left completely untouched.
+ *   6. Hands the old in-page gates the values that make them open, so their
+ *      logic still runs but no longer decides anything.
+ *   7. Runs the deferred app scripts in order and replays DOMContentLoaded.
+ *
+ * Config arrives as window.__SEAL__ = {iter, salt, check, storage, appReady}.
+ */
+(function () {
+  "use strict";
 
-let DB = {orders: [], built: ""};
-let ORDERS = [];
-const $ = s => document.querySelector(s);
-const esc = s => (s==null?"":String(s)).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-// Values written by the sheet's no-blank pass are statements about what was
-// checked, not content -- show them greyed rather than as if they were data.
-const isNote = v => /^(No |Not |WIIO after-sale record on file)/i.test((v||"").trim());
+  var CFG = window.__SEAL__;
+  if (!CFG) return;
 
-let filter = "open", q = "", current = null, from = "", to = "";
-const DAY = 86400000;
-function ageDays(o){
-  // Dates are ISO on every row (the Miyora/Lume Haven relative text was
-  // normalised), so a plain Date parse is safe here.
-  const t = Date.parse(o.date);
-  return isNaN(t) ? null : Math.floor((Date.now() - t) / DAY);
-}
-const FILTERS = [
-  ["open","Still unfulfilled"], ["all","All"],
-  ["age7","0-7 days"], ["age30","8-30 days"], ["age30plus","30+ days"],
-  ["Clarendale","Clarendale"], ["Lark & Clover","Lark & Clover"],
-  ["Miyora","Miyora"], ["Lume Haven","Lume Haven"],
-  ["notrack","No tracking"], ["cj","CJ"], ["wiio","WIIO"],
-  ["answered","Answered"],
-  ["SOLVED","SOLVED"], ["REPLACED","REPLACED"], ["UNFULFILLED","UNFULFILLED"],
-  ["CANCELLED","CANCELLED"],
-];
+  var KEY = null;      // CryptoKey, once unlocked
+  var origFetch = window.fetch ? window.fetch.bind(window) : null;
 
-function match(o){
-  if (from && (!o.date || o.date < from)) return false;
-  if (to && (!o.date || o.date > to)) return false;
-  if (q){
-    const hay = [o.order,o.customer,o.product,o.tracking,o.email,o.supplier].join(" ").toLowerCase();
-    if (!hay.includes(q)) return false;
+  /* ---------- helpers ---------- */
+
+  function b64ToBytes(s) {
+    var bin = atob(s), out = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
   }
-  switch(filter){
-    case "all": return true;
-    case "open": return o.checkin === "Still unfulfilled" && !isTrue(o.answered);
-    case "answered": return isTrue(o.answered);
-    case "age7":     { const d = ageDays(o); return d !== null && d <= 7; }
-    case "age30":    { const d = ageDays(o); return d !== null && d > 7 && d <= 30; }
-    case "age30plus":{ const d = ageDays(o); return d !== null && d > 30; }
-    case "notrack": return !o.tracking || isNote(o.tracking);
-    case "SOLVED": case "REPLACED": case "UNFULFILLED": case "CANCELLED":
-      return o.tag === filter;
-    case "cj": return /CJ/.test(o.supplier);
-    case "wiio": return /WIIO/.test(o.supplier);
-    default: return o.store === filter;
-  }
-}
-// Four stores share one queue and an agent acts on the wrong one if the name
-// is buried in a meta line. Each gets its own colour so the store reads at a
-// glance rather than being something you check afterwards.
-// Per-source freshness. The build time on its own is misleading: a page can
-// be rebuilt every few hours around a source that has not been refreshed for a
-// week, which is exactly how 2,647 orders came to be labelled "no supplier
-// record" against a WIIO export seven days old. Anything over a day is called
-// out rather than left for someone to work out.
-function freshnessHtml(){
-  const s = DB.sources || {};
-  const names = Object.keys(s);
-  if (!names.length) return "";
-  const stale = names.filter(n => s[n].age_hours === null || s[n].age_hours > 24);
-  const title = names.map(n => `${n}: ${s[n].when}`).join("\n");
-  return `<span class="src ${stale.length?'stale':''}" title="${esc(title)}">`
-       + (stale.length ? `${stale.length} source${stale.length>1?"s":""} over a day old`
-                       : `all sources fresh`)
-       + `</span>`;
-}
-function storeKey(s){ return String(s||"").replace(/[^a-z]/gi,"").toLowerCase(); }
-function isTrue(v){ return /^true$/i.test(String(v||"").trim()); }
-function dotClass(o){
-  if (o.checkin === "Still unfulfilled") return "open";
-  if (o.checkin === "Cancelled") return "stop";
-  return "done";
-}
-function renderList(){
-  const shown = ORDERS.filter(match);
-  $("#counts").innerHTML =
-    `<span><b>${shown.length}</b> shown</span>`+
-    `<span><b>${ORDERS.filter(o=>o.checkin==="Still unfulfilled"&&!isTrue(o.answered)).length}</b> outstanding</span>`+
-    `<span><b>${ORDERS.filter(o=>isTrue(o.answered)).length}</b> answered</span>`+
-    `<span><b>${ORDERS.length}</b> total</span>`+
-    `<span class="built">Updated ${esc(DB.built)}</span>`+
-    freshnessHtml();
-  $("#filters").innerHTML = FILTERS.map(([k,l]) =>
-    `<button data-f="${esc(k)}" class="${filter===k?'on':''}">${esc(l)}</button>`).join("");
-  $("#rows").innerHTML = shown.length ? shown.slice(0,600).map((o,i) =>
-    `<div class="row ${current===o?'active':''}" data-i="${ORDERS.indexOf(o)}">
-       <div class="subject"><span class="store s${storeKey(o.store)}">${esc(o.store)}</span> ${esc(o.order)} · ${esc(o.customer)}<span class="tag ${esc(o.tag||"")}">${esc(o.tag||"")}</span>${isTrue(o.answered)?'<span class="tag ANSWERED">ANSWERED</span>':""}</div>
-       <div class="meta"><span class="dot ${dotClass(o)}"></span>${esc(o.store)} · ${esc(o.supplier)} · ${esc(o.date)}</div>
-     </div>`).join("") + (shown.length>600?`<div class="list-empty">showing first 600 of ${shown.length} — narrow with search</div>`:"")
-    : `<div class="list-empty">Nothing matches.</div>`;
-}
-function fact(label, value, opts={}){
-  const v = (value==null?"":String(value)).trim();
-  if (!v) return "";
-  const body = opts.link ? `<a href="${esc(v)}" target="_blank" rel="noopener">${esc(opts.label||v)}</a>`
-                         : `<span class="${isNote(v)?'muted':''}">${esc(v)}</span>`;
-  // Nothing to copy from a "No tags" style placeholder, or from a link label.
-  const copyable = !opts.link && !isNote(v);
-  const cp = copyable ? `<button class="cp" data-cp="${esc(v)}">COPY</button>` : "";
-  return `<div class="fact"><span>${esc(label)}</span><span>${body}${cp}</span></div>`;
-}
-function sendVerdict(verdict, comment){
-  const st = $("#vstate");
-  if (!SHEET_ENDPOINT){ st.textContent = "not saved — no endpoint configured"; return; }
-  st.textContent = "saving…";
-  fetch(SHEET_ENDPOINT, {method:"POST", mode:"cors",
-    headers:{"Content-Type":"text/plain;charset=utf-8"},
-    body: JSON.stringify({action:"feedback", store: current.store, order: current.order,
-                          verdict, comment,
-                          to_supplier: current.to_supplier, to_customer: current.to_customer})})
-    .then(r => r.json())
-    .then(() => { st.textContent = verdict === "Accurate" ? "marked accurate" : "feedback sent — thank you";
-                  if (verdict === "Inaccurate") $("#fb").value = ""; })
-    .catch(() => { st.textContent = "could not save"; });
-}
-function cjCodeButton(o){
-  // CJ's order list cannot be deep-linked. Tested against a live session on
-  // 2026-09-17: orderNum / shopOrderNum / searchValue / keyword all leave the
-  // search box empty, and /orderDetail renders nothing for orderId, cjOrderId,
-  // orderNum or id. The search is React state, unreachable from the URL.
-  //
-  // So the click does the next best thing -- copies the order number AND opens
-  // CJ, leaving one paste to do instead of typing the number out.
-  if (!/CJ/.test(o.supplier)) return "";
-  return `<button class="copycode" data-cjopen="${esc(o.order)}">Open CJ + copy no.</button>`;
-}
-function supplierLink(o){
-  // CJ rows get the combined open+copy button instead of a bare list link.
-  if (/CJ/.test(o.supplier) && !/regwiio/.test(o.link||"")) return "";
-  const l = (o.link||"").trim();
-  if (/^https?:/.test(l)) return `<a class="open-link" href="${esc(l)}" target="_blank" rel="noopener">Open supplier →</a>`;
-  return "";
-}
-function reamazeLink(o){
-  const brand = REAMAZE_BRAND[o.store];
-  if (!brand) return "";
-  // A SEARCH link, not a conversation link. Re:amaze's API ignores `q`
-  // entirely, so an earlier attempt to resolve each order to its own thread
-  // silently returned whatever conversation was newest -- 2,215 orders
-  // collapsed onto 5 slugs, 1,624 of them the same refund thread. The admin
-  // UI's own search is a different path; this drops the agent in the right
-  // brand with the order number ready rather than on a wrong thread.
-  const href = `https://${brand}.reamaze.com/admin/conversations?q=${encodeURIComponent(o.order)}`;
-  return `<a class="open-link" href="${href}" target="_blank" rel="noopener">Find in Reamaze →</a>`;
-}
-function renderDetail(o){
-  current = o;
-  document.querySelectorAll("[data-verdict]").forEach(b => b.disabled = false);
-  document.querySelectorAll("[data-verdict]").forEach(b => b.classList.remove("on"));
-  $("#fbwrap").hidden = true;
-  $("#fb").value = "";
-  $("#vstate").textContent = SHEET_ENDPOINT ? "" : "read-only — no sheet endpoint configured";
-  $("#vhint").textContent = "tells the drafts where they are wrong — nothing is sent to anyone from here";
-  const cls = dotClass(o);
-  $("#detail").innerHTML = `<div class="column">
-    <div class="panel"><div class="section">
-      <h2 class="title"><span class="store">${esc(o.store)}</span> ${esc(o.order)} · ${esc(o.customer)}
-        <span class="badge ${cls}">${esc(o.checkin)}</span>
-        <span class="tag ${esc(o.tag||"")}">${esc(o.tag||"")}</span>
-        ${isTrue(o.answered)?'<span class="tag ANSWERED">ANSWERED</span>':""}</h2>
-      <div class="sub">${esc(o.product)}<br>
-        <a href="${esc(o.url)}" target="_blank" rel="noopener">Open in Shopify admin →</a></div>
-    </div></div>
 
-    <div class="panel"><div class="panel-head"><span class="grow">Proposed message to supplier — ${esc(o.supplier)}</span>
-      ${supplierLink(o)}${cjCodeButton(o)}<button class="copy" data-copy="s">Copy</button></div>
-      <div class="section"><pre class="draft" id="d-s">${esc(o.to_supplier)}</pre></div></div>
-
-    <div class="panel"><div class="panel-head"><span class="grow">Proposed email to customer</span>
-      ${reamazeLink(o)}<button class="copy" data-copy="c">Copy</button></div>
-      <div class="section"><pre class="draft" id="d-c">${esc(o.to_customer)}</pre></div></div>
-
-    <div class="panel"><div class="panel-head">Order</div><div class="section"><div class="facts">
-      ${fact("Order no.",o.order)}${fact("Customer",o.customer)}
-      ${fact("Date",o.date)}${fact("Date added",o.added)}${fact("Email",o.email)}
-      ${fact("Channel",o.channel)}${fact("Total",o.total)}${fact("Payment",o.payment)}
-      ${fact("Fulfillment",o.fulfillment)}${fact("Items",o.items)}
-      ${fact("Product",o.product)}${fact("Ship to",o.full_address||o.address)}
-      ${fact("Delivery",o.delivery)}${fact("Tags",o.tags)}
-    </div></div></div>
-
-    <div class="panel"><div class="panel-head">Supplier</div><div class="section"><div class="facts">
-      ${fact("Supplier",o.supplier)}${fact("Order status",o.order_status)}
-      ${fact("Last-mile tracking",o.lastmile)}${fact("Last-mile carrier",o.lastmile_carrier)}
-      ${o.track_link ? fact("Customer tracking page",o.track_link,{link:true,label:"Open Parcel Panel →"}) : ""}
-      ${o.cj_code ? `<div class="fact"><span>CJ order</span><span><code class="mono">${esc(o.cj_code)}</code></span></div>` : ""}
-      ${fact("CJ status",o.cj_status)}${fact("CJ tracking",o.cj_tracking)}
-      ${fact("Tracking",o.tracking)}
-      ${o.link && /^https?:/.test(o.link) ? fact("Supplier order",o.link,{link:true,label:"Open supplier record →"}) : fact("Supplier order",o.link)}
-      ${fact("Date reported",o.reported)}${fact("Date updated",o.updated)}
-      ${fact("Emailed customer",o.emailed)}${fact("Supplier informed",o.informed)}
-    </div></div></div>
-
-    <div class="panel"><div class="panel-head">Shopify check-in</div><div class="section"><div class="facts">
-      ${fact("Status",o.checkin)}${fact("Notes",o.checkin_note)}${fact("Checked on",o.checked)}
-    </div></div></div>
-
-    <div class="panel"><details><summary>Notes &amp; last supplier message</summary>
-      <div class="section">
-        <div class="fact"><span>Note</span><div class="quote ${isNote(o.note)?'muted':''}">${esc(o.note)}</div></div>
-      </div>
-      <div class="section" style="border-top:1px solid var(--line-soft)">
-        <div class="fact"><span>Last supplier message</span><div class="quote ${isNote(o.last_msg)?'muted':''}">${esc(o.last_msg)}</div></div>
-      </div>
-    </details></div>
-    <div class="panel"><div class="panel-head">Actions taken</div><div class="section">
-      <div class="checks">
-        <label class="check"><input type="checkbox" data-check="emailed" ${/^true$/i.test(o.emailed)?"checked":""} ${SHEET_ENDPOINT?"":"disabled"}>
-          Emailed customer <span class="state"></span></label>
-        <label class="check"><input type="checkbox" data-check="informed" ${/^true$/i.test(o.informed)?"checked":""} ${SHEET_ENDPOINT?"":"disabled"}>
-          Supplier informed <span class="state"></span></label>
-        <label class="check"><input type="checkbox" data-check="answered" ${isTrue(o.answered)?"checked":""} ${SHEET_ENDPOINT?"":"disabled"}>
-          Answered <span class="state"></span></label>
-      </div>
-      <div class="hint">Answered takes this order out of the "Still unfulfilled" queue so it
-      is not picked up twice. It stays in the data and is still re-checked on every run, because
-      replying to the customer does not ship the parcel.</div>
-      ${SHEET_ENDPOINT?"":'<div class="warn">Read-only: no sheet endpoint configured, so ticking these would not save. Deploy portal/sheet_endpoint.gs and set SHEET_ENDPOINT at the top of this page.</div>'}
-    </div></div>
-
-  </div>`;
-  renderList();
-}
-document.addEventListener("click", e => {
-  const f = e.target.closest("[data-f]");
-  if (f){ filter = f.dataset.f; renderList(); return; }
-  const r = e.target.closest(".row");
-  if (r){ renderDetail(ORDERS[+r.dataset.i]); return; }
-  const v = e.target.closest("[data-verdict]");
-  if (v){
-    document.querySelectorAll("[data-verdict]").forEach(b => b.classList.remove("on"));
-    v.classList.add("on");
-    const bad = v.dataset.verdict === "Inaccurate";
-    $("#fbwrap").hidden = !bad;
-    // "Accurate" needs no explanation, so record it immediately; "Inaccurate"
-    // waits for the comment, which is the part that can actually fix a draft.
-    if (!bad) sendVerdict("Accurate", "");
-    return;
+  function djb2(s) {
+    var h = 5381;
+    for (var i = 0; i < s.length; i++) h = ((h * 33) + s.charCodeAt(i)) >>> 0;
+    return h;
   }
-  if (e.target.closest("#fbsend")){
-    const t = $("#fb").value.trim();
-    if (!t){ $("#fb").focus(); return; }
-    sendVerdict("Inaccurate", t);
-    return;
-  }
-  const chk = e.target.closest("[data-check]");
-  if (chk && SHEET_ENDPOINT){
-    const wrap = chk.closest(".check"); wrap.classList.add("saving");
-    const field = chk.dataset.check, on = chk.checked;
-    fetch(SHEET_ENDPOINT, {method:"POST", mode:"cors",
-      headers:{"Content-Type":"text/plain;charset=utf-8"},
-      body: JSON.stringify({store: current.store, order: current.order,
-                            field, value: on ? "TRUE" : "FALSE"})})
-      .then(r => r.json())
-      .then(() => { current[field] = on ? "TRUE" : "FALSE";
-                    wrap.querySelector(".state").textContent = "saved";
-                    // Answered changes which queue this row belongs to, so the
-                    // list has to redraw or the agent keeps seeing it.
-                    if (field === "answered") renderList(); })
-      .catch(() => { chk.checked = !on;
-                     wrap.querySelector(".state").textContent = "save failed"; })
-      .finally(() => wrap.classList.remove("saving"));
-    return;
-  }
-  const cp = e.target.closest("[data-cp]");
-  if (cp){
-    navigator.clipboard.writeText(cp.dataset.cp).then(() => {
-      cp.textContent = "COPIED"; cp.classList.add("ok");
-      setTimeout(() => { cp.textContent = "COPY"; cp.classList.remove("ok"); }, 1200);
-    });
-    return;
-  }
-  const cjo = e.target.closest("[data-cjopen]");
-  if (cjo){
-    const num = cjo.dataset.cjopen;
-    // Copy first, then open: the clipboard write needs this click's user
-    // gesture, and window.open can steal focus before it completes.
-    navigator.clipboard.writeText(num).finally(() => {
-      window.open("https://www.cjdropshipping.com/mine/dropshipping/orderList?orderType=3&childType=1",
-                  "_blank", "noopener");
-      cjo.textContent = `${num} copied — paste in CJ`;
-      cjo.classList.add("ok");
-      setTimeout(() => { cjo.textContent = "Open CJ + copy no."; cjo.classList.remove("ok"); }, 3000);
-    });
-    return;
-  }
-  const cc = e.target.closest("[data-copycode]");
-  if (cc){
-    navigator.clipboard.writeText(cc.dataset.copycode).then(() => {
-      cc.textContent = "Copied"; cc.classList.add("ok");
-      setTimeout(() => { cc.textContent = "Copy order no."; cc.classList.remove("ok"); }, 1400);
-    });
-    return;
-  }
-  const c = e.target.closest("[data-copy]");
-  if (c){
-    const text = $("#d-" + c.dataset.copy).textContent;
-    navigator.clipboard.writeText(text).then(() => {
-      c.textContent = "Copied"; c.classList.add("ok");
-      setTimeout(() => { c.textContent = "Copy"; c.classList.remove("ok"); }, 1400);
-    });
-  }
-});
-$("#q").addEventListener("input", e => { q = e.target.value.trim().toLowerCase(); renderList(); });
-$("#from").addEventListener("change", e => { from = e.target.value; renderList(); });
-$("#to").addEventListener("change", e => { to = e.target.value; renderList(); });
-$("#datesclear").addEventListener("click", () => {
-  from = to = ""; $("#from").value = ""; $("#to").value = ""; renderList();
-});
 
-async function load(){
-  const b = $("#refresh"); b.classList.add("busy"); b.textContent = "Loading…";
-  try{
-    try{
-      const c = await fetch("config.json?t=" + Date.now(), {cache:"no-store"});
-      if (c.ok) SHEET_ENDPOINT = (await c.json()).sheetEndpoint || "";
-    }catch(e){ /* no config yet: the page stays read-only, which it says */ }
-    // cache-bust so Refresh really re-reads the file rather than the browser copy
-    const r = await fetch("data.json?t=" + Date.now(), {cache: "no-store"});
-    DB = await r.json(); ORDERS = DB.orders;
-    const keep = current && ORDERS.find(o => o.order === current.order && o.store === current.store);
-    current = keep || null;
-    renderList();
-    if (current) renderDetail(current);
-  }catch(e){
-    $("#rows").innerHTML = `<div class="list-empty">Could not load data.json — ${esc(e.message)}</div>`;
+  async function sha256hex(s) {
+    var buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+    return Array.from(new Uint8Array(buf))
+      .map(function (b) { return b.toString(16).padStart(2, "0"); }).join("");
   }
-  b.classList.remove("busy"); b.textContent = "Refresh";
-}
-$("#refresh").addEventListener("click", load);
 
-const PW = "Clarendaleronce00!";
-const pwToggle = $("#pwtoggle");
-if (pwToggle) pwToggle.addEventListener("click", () => {
-  const f = $("#pw"), show = f.type === "password";
-  f.type = show ? "text" : "password";
-  pwToggle.textContent = show ? "HIDE" : "SHOW";
-  pwToggle.setAttribute("aria-pressed", String(show));
-  pwToggle.setAttribute("aria-label", show ? "Hide password" : "Show password");
-  f.focus();
-});
-function unlock(){
-  $("#gate").remove();
-  load();
-}
-if (sessionStorage.getItem("evershop-unfulfilled") === PW){
-  unlock();
-} else {
-  $("#gateform").addEventListener("submit", ev => {
-    ev.preventDefault();
-    if ($("#pw").value === PW){
-      try{ sessionStorage.setItem("evershop-unfulfilled", PW); }catch(e){}
-      unlock();
-    } else {
-      $("#gatebad").textContent = "Wrong password.";
-      $("#pw").select();
+  // The payloads are gzipped before encryption -- Unfulfilled is 9.3 MB of
+  // JSON, and base64 would otherwise push it past 12 MB on the wire.
+  async function gunzip(buf) {
+    if (typeof DecompressionStream === "undefined") {
+      throw new Error("This browser is too old to open the dashboard. " +
+                      "Use an up-to-date Chrome, Edge, Firefox or Safari.");
     }
-  });
-}
+    var stream = new Blob([buf]).stream()
+      .pipeThrough(new DecompressionStream("gzip"));
+    return await new Response(stream).arrayBuffer();
+  }
+
+  async function deriveKey(pw) {
+    var base = await crypto.subtle.importKey(
+      "raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveKey"]);
+    return crypto.subtle.deriveKey(
+      { name: "PBKDF2", salt: b64ToBytes(CFG.salt), iterations: CFG.iter, hash: "SHA-256" },
+      base, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+  }
+
+  // Envelope -> original bytes. Throws if the key is wrong (GCM tag check).
+  async function open(env, key) {
+    var plain = await crypto.subtle.decrypt(
+      { name: "AES-GCM", iv: b64ToBytes(env.iv) }, key, b64ToBytes(env.ct));
+    if (env.zip === "gzip") plain = await gunzip(plain);
+    return new TextDecoder().decode(plain);
+  }
+
+  function isEnvelope(o) { return o && o.__sealed === 1 && o.iv && o.ct; }
+
+  /* ---------- transparent fetch ---------- */
+  // The dashboards call fetch("data.json?t=...").json(). Rather than edit each
+  // loader, hand them back a Response whose body is already plaintext.
+  function patchFetch() {
+    if (!origFetch) return;
+    window.fetch = async function (input, init) {
+      var res = await origFetch(input, init);
+      var url = typeof input === "string" ? input : (input && input.url) || "";
+      if (!/\.json(\?|$)/.test(url.split("#")[0])) return res;
+      var txt;
+      try { txt = await res.clone().text(); } catch (e) { return res; }
+      var obj;
+      try { obj = JSON.parse(txt); } catch (e) { return res; }
+      if (!isEnvelope(obj)) return res;
+      var plain = await open(obj, KEY);
+      return new Response(plain, {
+        status: res.status,
+        statusText: res.statusText,
+        headers: { "Content-Type": "application/json" }
+      });
+    };
+  }
+
+  /* ---------- unlocking ---------- */
+
+  async function decryptInline() {
+    var nodes = document.querySelectorAll("script[data-sealed]");
+    for (var i = 0; i < nodes.length; i++) {
+      var env = JSON.parse(nodes[i].textContent);
+      nodes[i].textContent = await open(env, KEY);
+      nodes[i].removeAttribute("data-sealed");
+    }
+  }
+
+  // The old gates still run; these are the values that make them open, so we
+  // never prompt twice. They guard nothing now -- the data is already
+  // decrypted by this point -- they just need to not get in the way.
+  async function satisfyLegacyGates(pw) {
+    window.__GATE_TOKEN__ = CFG.token;
+    window.__GATE_HASH__ = djb2(pw);
+    window.__GATE_SHA__ = await sha256hex(pw);
+    (CFG.storage || []).forEach(function (e) {
+      var store = e[0] === "local" ? localStorage : sessionStorage;
+      try { store.setItem(e[1], e[2] === "__PW__" ? pw : e[2]); } catch (err) {}
+    });
+  }
+
+  // The app scripts are encrypted too, not just the data: a persona-to-email
+  // map and a couple of internal endpoints lived in the JavaScript itself, so
+  // sealing only the payloads would have left them in View Source.
+  //
+  // Replacing a <script type="text/plain"> node with a real one executes it
+  // synchronously and in global scope, which is what it would have had if we
+  // had never deferred it.
+  async function runApp() {
+    var nodes = document.querySelectorAll("script[data-sealed-app]");
+    for (var i = 0; i < nodes.length; i++) {
+      var old = nodes[i], code = old.textContent;
+      if (old.getAttribute("data-sealed-app") === "1") {
+        code = await open(JSON.parse(code), KEY);
+      }
+      var s = document.createElement("script");
+      s.textContent = code;
+      old.parentNode.replaceChild(s, old);
+    }
+    // These scripts were written as inline <script>, so anything that waits
+    // for DOMContentLoaded registered after the real event had already fired.
+    try {
+      document.dispatchEvent(new Event("DOMContentLoaded", { bubbles: true }));
+    } catch (e) {}
+  }
+
+  async function unlock(pw) {
+    var key = await deriveKey(pw);
+    await open(CFG.check, key);   // throws on a wrong password
+    KEY = key;
+    patchFetch();
+    await decryptInline();
+    await satisfyLegacyGates(pw);
+    await runApp();
+  }
+
+  /* ---------- the prompt ---------- */
+
+  // One-shot. runApp() replays DOMContentLoaded for the deferred scripts, and
+  // that replay reaches this listener too -- without the guard it builds a
+  // second prompt on top of the unlocked dashboard, which looks exactly like
+  // a failed unlock.
+  var gateShown = false;
+
+  function showGate() {
+    if (gateShown) return;
+    gateShown = true;
+    var wrap = document.createElement("div");
+    wrap.id = "seal-gate";
+    wrap.innerHTML =
+      '<div class="seal-box">' +
+        '<div class="seal-title">Protected dashboard</div>' +
+        '<p class="seal-sub">This page holds customer data. It is stored encrypted &mdash; ' +
+           'the password is what decrypts it.</p>' +
+        '<form class="seal-form"><div class="seal-row">' +
+          '<input type="password" class="seal-pw" placeholder="Password" autofocus ' +
+                 'autocomplete="current-password" spellcheck="false">' +
+          '<button type="button" class="seal-show">Show</button>' +
+        '</div>' +
+        '<button type="submit" class="seal-go">Unlock</button></form>' +
+        '<div class="seal-err" hidden></div>' +
+      '</div>';
+    document.body.appendChild(wrap);
+
+    var style = document.createElement("style");
+    style.textContent =
+      '#seal-gate{position:fixed;inset:0;z-index:2147483647;display:flex;' +
+        'align-items:center;justify-content:center;padding:16px;' +
+        'background:#0f1115;color:#e8eaed;' +
+        'font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}' +
+      '#seal-gate .seal-box{width:100%;max-width:360px;text-align:center}' +
+      '#seal-gate .seal-title{font-size:18px;font-weight:650;margin-bottom:6px}' +
+      '#seal-gate .seal-sub{color:#9aa0a6;font-size:13px;margin:0 0 18px}' +
+      '#seal-gate .seal-row{display:flex;gap:6px;margin-bottom:10px}' +
+      '#seal-gate input{flex:1;min-width:0;padding:10px 12px;border-radius:8px;' +
+        'border:1px solid #3c4043;background:#1b1e23;color:inherit;font-size:15px}' +
+      '#seal-gate button{padding:10px 14px;border-radius:8px;border:1px solid #3c4043;' +
+        'background:#1b1e23;color:inherit;font-size:14px;cursor:pointer}' +
+      '#seal-gate .seal-go{width:100%;background:#2d6cdf;border-color:#2d6cdf;' +
+        'color:#fff;font-weight:600}' +
+      '#seal-gate .seal-go[disabled]{opacity:.6;cursor:progress}' +
+      '#seal-gate .seal-err{color:#f28b82;font-size:13px;margin-top:12px}';
+    document.head.appendChild(style);
+
+    var pw = wrap.querySelector(".seal-pw"),
+        err = wrap.querySelector(".seal-err"),
+        go = wrap.querySelector(".seal-go");
+
+    wrap.querySelector(".seal-show").addEventListener("click", function () {
+      var showing = pw.type === "text";
+      pw.type = showing ? "password" : "text";
+      this.textContent = showing ? "Show" : "Hide";
+      pw.focus();
+    });
+
+    wrap.querySelector(".seal-form").addEventListener("submit", async function (ev) {
+      ev.preventDefault();
+      err.hidden = true;
+      go.disabled = true;
+      // Key derivation is deliberately slow (that is what makes the password
+      // expensive to guess offline), and the big payload takes a moment more.
+      go.textContent = "Decrypting…";
+      try {
+        await unlock(pw.value.trim());
+        wrap.remove();
+      } catch (e) {
+        go.disabled = false;
+        go.textContent = "Unlock";
+        err.hidden = false;
+        err.textContent = /too old/.test(e.message) ? e.message : "Wrong password.";
+        pw.select();
+        pw.focus();
+      }
+    });
+    pw.focus();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", showGate);
+  } else {
+    showGate();
+  }
+})();
 </script>
 </body>
 </html>

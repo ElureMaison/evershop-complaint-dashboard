@@ -1,4 +1,1 @@
-{
-  "sheetEndpoint": "https://script.google.com/macros/s/AKfycbwOL_LapW4Aq3H1Hw1NIQhTG96blnU_4JFLDyPQBFDUBCPfWj2JxiRneNCaQYdRkLu2/exec",
-  "_help": "Paste the Apps Script Web app /exec URL here. Deploy portal/sheet_endpoint.gs on the Raw Unfulfilled sheet: Extensions > Apps Script, paste, Deploy > New deployment > Web app, Execute as Me, Who has access Anyone, then copy the /exec URL into sheetEndpoint above."
-}
+{"__sealed":1,"v":1,"zip":"gzip","iv":"H43feyHEDTwaMDqg","ct":"wkhqtlRg3fd3xMizj7HupZ7z6EjLv1/54FVS31hCvoc0YrpDLz8k0f7K5nMNhvZCSfMjB4j8IqJgKdmDTE3nnCkk2cDKDPWzWbk4bJMR6TLyO1PTw060/CiuDMkU+WMJEjLh8rnFSMvaUuQTWrR6B7nudTLlLnK7bUKtBXVKfE3RQ5GzILhDyYgGCluJzP21sl5xhMYFUkCFlu7aATxvJsw8w1shwwHWxqE0rTi98m3zDxz2760b75CY7ni3VClHRZCIh3/ssfHz313qBPRTgqrfgWsy4TP7R8KKBFseoxFT+Fb2BTJWHugLwH9iyv0jTqgV0n8GTbOcy1ZRCQ4Ssj8nj3IB3MqjLd7hIXw5iCjHrMvFmfD4SUVm9TSRfsHpPGvjZHL9QkglNVAhy3v7slhb1/qWI5WC6H0HZMXvhSkDicSVMG3qbB8E"}
