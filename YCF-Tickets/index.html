@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>YCF Ticket Review</title>
+<style>
+:root{
+  --bg:#f6f7f9; --panel:#ffffff; --panel-2:#fbfcfd; --line:#e3e6ea;
+  --ink:#16191d; --ink-2:#5b636d; --ink-3:#8b939d;
+  --accent:#1f6feb; --accent-soft:#e8f0fe;
+  --ok:#1a7f4b; --ok-soft:#e6f4ec;
+  --warn:#9a6400; --warn-soft:#fdf2dc;
+  --bad:#b4232a; --bad-soft:#fdeaea;
+  --shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.08);
+  --radius:10px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1216; --panel:#171b21; --panel-2:#1c2128; --line:#2a313a;
+    --ink:#e7ebf0; --ink-2:#a4adb8; --ink-3:#7b848f;
+    --accent:#6ea8fe; --accent-soft:#1a2740;
+    --ok:#5fd39b; --ok-soft:#12291f;
+    --warn:#e9b949; --warn-soft:#2e2515;
+    --bad:#f08a8a; --bad-soft:#2e1a1c;
+    --shadow:0 1px 2px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1216; --panel:#171b21; --panel-2:#1c2128; --line:#2a313a;
+  --ink:#e7ebf0; --ink-2:#a4adb8; --ink-3:#7b848f;
+  --accent:#6ea8fe; --accent-soft:#1a2740;
+  --ok:#5fd39b; --ok-soft:#12291f;
+  --warn:#e9b949; --warn-soft:#2e2515;
+  --bad:#f08a8a; --bad-soft:#2e1a1c;
+  --shadow:0 1px 2px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font:14px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  -webkit-text-size-adjust:100%;
+}
+a{color:var(--accent)}
+button{font:inherit;cursor:pointer}
+
+/* ---------- gate ---------- */
+#gate{position:fixed;inset:0;background:var(--bg);display:grid;place-items:center;z-index:100;padding:16px}
+#gate .box{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  padding:28px;max-width:360px;width:100%;box-shadow:var(--shadow);text-align:center}
+#gate h1{margin:0 0 4px;font-size:18px}
+#gate p{margin:0 0 18px;color:var(--ink-2);font-size:13px}
+#gate input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;
+  background:var(--panel-2);color:var(--ink);font:inherit;margin-bottom:10px}
+#gate button{width:100%;padding:10px;border:0;border-radius:8px;background:var(--accent);
+  color:#fff;font-weight:600}
+#gateErr{color:var(--bad);font-size:12px;min-height:16px;margin-top:8px}
+
+/* ---------- shell ---------- */
+#app{display:none}
+header.top{position:sticky;top:0;z-index:20;background:var(--panel);
+  border-bottom:1px solid var(--line);padding:10px 16px}
+.topline{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.topline h1{margin:0;font-size:16px;letter-spacing:-.01em}
+.stamp{color:var(--ink-3);font-size:12px}
+.spacer{flex:1}
+.iconbtn{background:var(--panel-2);border:1px solid var(--line);color:var(--ink-2);
+  border-radius:8px;padding:6px 10px;font-size:12px}
+.iconbtn:hover{color:var(--ink);border-color:var(--ink-3)}
+.reflinks{display:flex;gap:10px;flex-wrap:wrap}
+.reflinks a{font-size:11.5px;color:var(--ink-2);text-decoration:none;white-space:nowrap}
+.reflinks a:hover{color:var(--accent);text-decoration:underline}
+@media (max-width:700px){.reflinks{width:100%;order:9;gap:12px}}
+
+.tiles{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.tile{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;
+  padding:7px 11px;min-width:92px;text-align:left;transition:.12s}
+.tile:hover{border-color:var(--accent)}
+.tile.on{border-color:var(--accent);background:var(--accent-soft)}
+.tile .n{font-size:19px;font-weight:650;letter-spacing:-.02em;display:block;line-height:1.15}
+.tile .l{font-size:11px;color:var(--ink-2);display:block}
+.tile.bad .n{color:var(--bad)} .tile.warn .n{color:var(--warn)} .tile.ok .n{color:var(--ok)}
+
+.filters{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
+#search{flex:1;min-width:180px;padding:7px 11px;border:1px solid var(--line);
+  border-radius:8px;background:var(--panel-2);color:var(--ink);font:inherit}
+.chip{background:var(--panel-2);border:1px solid var(--line);color:var(--ink-2);
+  border-radius:999px;padding:4px 10px;font-size:12px;white-space:nowrap}
+.chip:hover{color:var(--ink)}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.chip .c{opacity:.65;margin-left:5px;font-variant-numeric:tabular-nums}
+#clearBtn{color:var(--bad);border-color:transparent;background:transparent}
+
+/* ---------- layout ---------- */
+main{display:grid;grid-template-columns:minmax(260px,340px) 1fr;gap:14px;
+  padding:14px 16px 40px;align-items:start;max-width:1700px;margin:0 auto}
+@media (max-width:900px){
+  main{grid-template-columns:1fr;padding:12px}
+  #list{max-height:none}
+  #detail{position:static}
+}
+
+#list{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;box-shadow:var(--shadow);max-height:calc(100vh - 190px);overflow-y:auto;
+  position:sticky;top:176px}
+.row{padding:10px 12px;border-bottom:1px solid var(--line);cursor:pointer;transition:.1s}
+.row:last-child{border-bottom:0}
+.row:hover{background:var(--panel-2)}
+.row.on{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
+.row .r1{display:flex;gap:7px;align-items:baseline}
+.row .num{font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.row .sub{font-weight:600;font-size:13px;line-height:1.35;flex:1;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.row .r2{display:flex;gap:6px;align-items:center;margin-top:5px;flex-wrap:wrap}
+.row .who{font-size:11px;color:var(--ink-2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.pill{font-size:10px;padding:1px 7px;border-radius:999px;border:1px solid var(--line);
+  color:var(--ink-2);background:var(--panel-2);white-space:nowrap}
+.pill.bad{color:var(--bad);background:var(--bad-soft);border-color:transparent}
+.pill.warn{color:var(--warn);background:var(--warn-soft);border-color:transparent}
+.pill.ok{color:var(--ok);background:var(--ok-soft);border-color:transparent}
+.pill.accent{color:var(--accent);background:var(--accent-soft);border-color:transparent}
+button.pill{cursor:pointer}
+button.pill:hover{border-color:var(--ink-3)}
+
+#detail{min-width:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+.card h2{margin:0 0 3px;font-size:17px;letter-spacing:-.01em;line-height:1.3}
+.card h3{margin:0 0 9px;font-size:12px;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--ink-3);font-weight:650}
+.meta{color:var(--ink-2);font-size:12.5px;margin-bottom:9px}
+.oneline{font-size:15px;line-height:1.5;margin:10px 0 0}
+
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13px;margin:0}
+.kv dt{color:var(--ink-3);white-space:nowrap}
+.kv dd{margin:0;word-break:break-word}
+
+ul.clean{margin:0;padding-left:18px}
+ul.clean li{margin-bottom:5px;line-height:1.5}
+ol.actions{margin:0;padding-left:20px}
+ol.actions li{margin-bottom:7px;line-height:1.5}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:1150px){.grid2{grid-template-columns:1fr}}
+
+.msgbox{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;
+  padding:13px;white-space:pre-wrap;line-height:1.6;font-size:13.5px;max-height:460px;overflow:auto}
+.copybtn{background:var(--accent);color:#fff;border:0;border-radius:7px;padding:6px 13px;font-size:12px;font-weight:600}
+.copybtn.done{background:var(--ok)}
+
+.linkgrid{display:flex;flex-wrap:wrap;gap:6px}
+.linkgrid a{display:inline-flex;align-items:center;gap:5px;font-size:12px;text-decoration:none;
+  background:var(--panel-2);border:1px solid var(--line);border-radius:7px;padding:5px 10px;color:var(--ink)}
+.linkgrid a:hover{border-color:var(--accent);color:var(--accent)}
+.linkgrid a .k{font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em}
+
+.shot{width:100%;border:1px solid var(--line);border-radius:8px;display:block;background:#fff}
+.shotwrap{position:relative}
+.shotwrap.collapsed .shot{max-height:300px;object-fit:cover;object-position:top}
+.shotwrap .toggle{position:absolute;right:8px;bottom:8px;background:var(--panel);
+  border:1px solid var(--line);border-radius:7px;padding:4px 10px;font-size:11px;color:var(--ink-2)}
+
+table.tl{width:100%;border-collapse:collapse;font-size:12.5px}
+table.tl td{padding:4px 8px 4px 0;vertical-align:top;border-bottom:1px solid var(--line)}
+table.tl tr:last-child td{border-bottom:0}
+table.tl td.d{color:var(--ink-3);white-space:nowrap;font-variant-numeric:tabular-nums;width:1%}
+table.tl td.a{color:var(--ink-3);white-space:nowrap;width:1%;text-align:right;font-size:11px}
+
+details.thread{border:1px solid var(--line);border-radius:8px;background:var(--panel-2);margin-bottom:8px}
+details.thread>summary{padding:8px 12px;cursor:pointer;font-size:12.5px;color:var(--ink-2);list-style:none}
+details.thread>summary::-webkit-details-marker{display:none}
+details.thread>summary:hover{color:var(--ink)}
+.msg{padding:10px 12px;border-top:1px solid var(--line);white-space:pre-wrap;line-height:1.55;font-size:13px}
+.msg .h{font-size:11px;color:var(--ink-3);margin-bottom:5px}
+.msg.agent{background:var(--panel)}
+.msg.note{background:var(--warn-soft)}
+
+.prior{border:1px solid var(--line);border-radius:8px;padding:9px 11px;margin-bottom:7px;background:var(--panel-2)}
+.prior .h{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin-bottom:4px}
+.prior .h a{font-weight:600;font-size:13px;text-decoration:none}
+.prior .x{font-size:12px;color:var(--ink-2);line-height:1.5;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+
+.empty{padding:44px 20px;text-align:center;color:var(--ink-3)}
+.bar{height:3px;border-radius:2px;background:var(--line);overflow:hidden;margin-top:5px}
+.bar i{display:block;height:100%;background:var(--accent)}
+.err{background:var(--bad-soft);color:var(--bad);border-radius:7px;padding:8px 11px;font-size:12px;margin-bottom:9px}
+kbd{background:var(--panel-2);border:1px solid var(--line);border-bottom-width:2px;
+  border-radius:4px;padding:1px 5px;font-size:11px;font-family:inherit;color:var(--ink-2)}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="box">
+    <h1>YCF Ticket Review</h1>
+    <p>Rona&rsquo;s Groove inbox, investigated.</p>
+    <input id="pw" type="password" placeholder="Password" autocomplete="current-password">
+    <button id="gateBtn">Unlock</button>
+    <div id="gateErr"></div>
+  </div>
+</div>
+
+<div id="app">
+  <header class="top">
+    <div class="topline">
+      <h1>YCF Ticket Review</h1>
+      <span class="stamp" id="stamp"></span>
+      <span class="spacer"></span>
+      <nav class="reflinks">
+        <a href="https://resources.companieshouse.gov.uk/sic/" target="_blank" rel="noopener">SIC codes</a>
+        <a href="https://www.gov.uk/government/publications/money-laundering-advisory-notice-high-risk-third-countries--2/money-laundering-advisory-notice-high-risk-third-countries--2" target="_blank" rel="noopener">AML high-risk list</a>
+        <a href="https://www.yourcompanyformations.co.uk/packages/compare-packages/" target="_blank" rel="noopener">Packages</a>
+        <a href="https://find-and-update.company-information.service.gov.uk/" target="_blank" rel="noopener">CH search</a>
+        <a href="https://admin.efiling.co.uk/" target="_blank" rel="noopener">eFiling</a>
+      </nav>
+      <button class="iconbtn" id="themeBtn" title="Toggle theme">Theme</button>
+    </div>
+    <div class="tiles" id="tiles"></div>
+    <div class="filters">
+      <input id="search" type="search" placeholder="Search subject, customer, company, company number, reply…">
+      <button class="chip" id="clearBtn">Clear filters</button>
+    </div>
+    <div class="filters" id="chips"></div>
+  </header>
+
+  <main>
+    <div id="list"></div>
+    <div id="detail"></div>
+  </main>
+</div>
+
+<script>
+// ---------------------------------------------------------------- gate
+// Not real security: the bundle is fetched by the page, so anyone who
+// really wants the data can read it from the network tab. This is the
+// same lock the other dashboards on this domain use -- it keeps the page
+// from being casually readable, nothing more.
+const PW_HASH = "b7aebf85a01d1dff295df2595fc4e138e467cbcd83a4ab5e6119691ad1fb8564";
+const KEY = "ycf-tickets-unlocked";
+
+async function sha256(s){
+  const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
+}
+async function tryUnlock(pw){
+  if(await sha256(pw) !== PW_HASH) return false;
+  try{ sessionStorage.setItem(KEY,"1"); }catch(e){}
+  return true;
+}
+function openApp(){
+  document.getElementById("gate").style.display="none";
+  document.getElementById("app").style.display="block";
+  load();
+}
+document.getElementById("gateBtn").onclick = async ()=>{
+  const el=document.getElementById("pw");
+  if(await tryUnlock(el.value)) openApp();
+  else { document.getElementById("gateErr").textContent="Not quite — try again."; el.select(); }
+};
+document.getElementById("pw").addEventListener("keydown",e=>{
+  if(e.key==="Enter") document.getElementById("gateBtn").click();
+});
+try{ if(sessionStorage.getItem(KEY)==="1") openApp(); }catch(e){}
+
+// ---------------------------------------------------------------- theme
+const themeBtn=document.getElementById("themeBtn");
+try{ const t=localStorage.getItem("ycf-theme"); if(t) document.documentElement.dataset.theme=t; }catch(e){}
+themeBtn.onclick=()=>{
+  const cur=document.documentElement.dataset.theme
+    || (matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");
+  const next=cur==="dark"?"light":"dark";
+  document.documentElement.dataset.theme=next;
+  try{ localStorage.setItem("ycf-theme",next); }catch(e){}
+};
+
+// ---------------------------------------------------------------- state
+let DATA={tickets:[]}, SEL=null;
+const F={q:"", concern:new Set(), flag:new Set()};
+
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>(
+  {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmtDate=s=>{ if(!s) return ""; const d=new Date(s);
+  return isNaN(d)?String(s).slice(0,10)
+    :d.toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"}); };
+
+async function load(){
+  const list=document.getElementById("list");
+  list.innerHTML='<div class="empty">Loading…</div>';
+  try{
+    const r=await fetch("tickets.json?v="+Date.now());
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    DATA=await r.json();
+  }catch(e){
+    list.innerHTML='<div class="empty">Could not load tickets.json<br><small>'+esc(e.message)+'</small></div>';
+    return;
+  }
+  document.getElementById("stamp").textContent =
+    DATA.ticket_count+" tickets · refreshed "+fmtDate(DATA.generated_at)+
+    " "+(new Date(DATA.generated_at).toLocaleTimeString?
+         new Date(DATA.generated_at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}):"");
+  render();
+  if(DATA.tickets.length) select(DATA.tickets[0].number);
+}
+
+// ------------------------------------------------------------ derived
+// A ticket's "flags" are the things you'd want to filter the inbox by.
+// They are computed here rather than baked into the bundle so the page
+// stays honest if the bundle shape changes.
+function flagsOf(t){
+  const f=new Set(), d=t.draft||{}, ch=t.companies_house||{}, ef=t.efiling||{};
+  if(d.needs_human) f.add("needs_human");
+  if(d.urgency==="high") f.add("urgent");
+  if(["frustrated","angry","worried"].includes(d.customer_mood)) f.add("unhappy");
+  if((d.risk_flags||[]).length) f.add("risk");
+  if(ch.accounts_overdue) f.add("accounts_overdue");
+  if(ch.cs_overdue) f.add("cs_overdue");
+  if(ch.dissolved_on || /dissolv/i.test(ch.status||"")) f.add("dissolved");
+  if((ef.services||{}).counts && ef.services.counts.expired_cancelled>0) f.add("service_expired");
+  if((ef.verification||{}).state==="pending") f.add("verify_pending");
+  if(!t.companies_house) f.add("no_ch");
+  if(!t.efiling) f.add("no_efiling");
+  if((t.errors||[]).length) f.add("error");
+  return f;
+}
+const FLAG_LABELS={
+  needs_human:"Needs you", urgent:"Urgent", unhappy:"Unhappy",
+  risk:"Has risk", accounts_overdue:"Accounts overdue", cs_overdue:"CS overdue",
+  dissolved:"Dissolved", service_expired:"Service expired",
+  verify_pending:"Verification pending", no_ch:"No CH match",
+  no_efiling:"No eFiling match", error:"Lookup error"
+};
+
+function matches(t){
+  const f=flagsOf(t);
+  for(const x of F.flag) if(!f.has(x)) return false;
+  if(F.concern.size){
+    const c=(t.draft&&t.draft.concern_type)||t.regex_concerns?.[0]||"";
+    if(!F.concern.has(c)) return false;
+  }
+  if(F.q){
+    const hay=[t.subject,t.contact?.name,t.contact?.email,
+      t.companies_house?.name,t.companies_house?.number,
+      t.efiling?.company_name,t.efiling?.company_number,t.efiling?.registered_email,
+      t.draft?.one_line,t.draft?.proposed_message,t.draft?.concern_label,
+      ...(t.identifiers?.company_names||[])
+    ].join(" ").toLowerCase();
+    if(!hay.includes(F.q)) return false;
+  }
+  return true;
+}
+const visible=()=>DATA.tickets.filter(matches);
+
+// ------------------------------------------------------------ chrome
+function render(){ renderTiles(); renderChips(); renderList(); }
+
+function renderTiles(){
+  const all=DATA.tickets;
+  const n=k=>all.filter(t=>flagsOf(t).has(k)).length;
+  const tiles=[
+    {k:null, n:all.length, l:"In inbox", c:""},
+    {k:"needs_human", n:n("needs_human"), l:"Needs you", c:"bad"},
+    {k:"urgent", n:n("urgent"), l:"Urgent", c:"bad"},
+    {k:"unhappy", n:n("unhappy"), l:"Unhappy", c:"warn"},
+    {k:"cs_overdue", n:n("cs_overdue"), l:"CS overdue", c:"bad"},
+    {k:"accounts_overdue", n:n("accounts_overdue"), l:"Accts overdue", c:"bad"},
+    {k:"service_expired", n:n("service_expired"), l:"Svc expired", c:"warn"},
+    {k:"verify_pending", n:n("verify_pending"), l:"Verify pending", c:"warn"},
+    {k:"dissolved", n:n("dissolved"), l:"Dissolved", c:"warn"},
+  ];
+  document.getElementById("tiles").innerHTML = tiles.map(t=>
+    `<button class="tile ${t.c} ${t.k&&F.flag.has(t.k)?"on":""}" data-flag="${t.k||""}">
+       <span class="n">${t.n}</span><span class="l">${esc(t.l)}</span></button>`).join("");
+  document.querySelectorAll(".tile").forEach(el=>el.onclick=()=>{
+    const k=el.dataset.flag;
+    if(!k){ F.flag.clear(); F.concern.clear(); }
+    else F.flag.has(k)?F.flag.delete(k):F.flag.add(k);
+    render();
+  });
+}
+
+function renderChips(){
+  const counts={};
+  DATA.tickets.forEach(t=>{
+    const k=(t.draft&&t.draft.concern_type)||t.regex_concerns?.[0]||"other";
+    const l=(t.draft&&t.draft.concern_label)||k.replace(/_/g," ");
+    (counts[k]=counts[k]||{l, n:0}).n++;
+  });
+  const rows=Object.entries(counts).sort((a,b)=>b[1].n-a[1].n);
+  document.getElementById("chips").innerHTML = rows.map(([k,v])=>
+    `<button class="chip ${F.concern.has(k)?"on":""}" data-concern="${esc(k)}">
+       ${esc(v.l)}<span class="c">${v.n}</span></button>`).join("")
+    || '<span class="stamp">No tickets.</span>';
+  document.querySelectorAll("[data-concern]").forEach(el=>el.onclick=()=>{
+    const k=el.dataset.concern;
+    F.concern.has(k)?F.concern.delete(k):F.concern.add(k);
+    render();
+  });
+}
+
+function renderList(){
+  const rows=visible();
+  const list=document.getElementById("list");
+  if(!rows.length){ list.innerHTML='<div class="empty">Nothing matches those filters.</div>'; return; }
+  list.innerHTML = rows.map(t=>{
+    const d=t.draft||{}, f=flagsOf(t);
+    const pills=[];
+    if(d.needs_human) pills.push('<span class="pill bad">needs you</span>');
+    if(d.urgency==="high") pills.push('<span class="pill bad">urgent</span>');
+    if(f.has("cs_overdue")) pills.push('<span class="pill bad">CS overdue</span>');
+    if(f.has("accounts_overdue")) pills.push('<span class="pill bad">accts overdue</span>');
+    if(f.has("service_expired")) pills.push('<span class="pill warn">svc expired</span>');
+    if(f.has("verify_pending")) pills.push('<span class="pill warn">verify</span>');
+    return `<div class="row ${SEL===t.number?"on":""}" data-n="${t.number}">
+      <div class="r1"><span class="num">#${t.number}</span>
+        <span class="sub">${esc(t.subject||"(no subject)")}</span></div>
+      <div class="r2"><span class="who">${esc(t.contact?.name||t.contact?.email||"")}
+        ${t.age_days!==""?" · "+t.age_days+"d":""}</span>${pills.join("")}</div>
+    </div>`;
+  }).join("");
+  document.querySelectorAll(".row").forEach(el=>
+    el.onclick=()=>select(Number(el.dataset.n)));
+}
+
+function select(n){
+  SEL=n; renderList();
+  const t=DATA.tickets.find(x=>x.number===n);
+  document.getElementById("detail").innerHTML = t?detailHTML(t):"";
+  wireDetail(t);
+  const row=document.querySelector(`.row[data-n="${n}"]`);
+  if(row) row.scrollIntoView({block:"nearest"});
+  if(window.innerWidth<=900) document.getElementById("detail").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+// ------------------------------------------------------------ detail
+function detailHTML(t){
+  const d=t.draft||{}, ef=t.efiling, ch=t.companies_house;
+  const P=[];
+
+  // --- headline
+  P.push(`<div class="card">
+    ${(t.errors||[]).map(e=>`<div class="err">${esc(e)}</div>`).join("")}
+    <h2>${esc(t.subject||"(no subject)")}</h2>
+    <div class="meta">#${t.number} ·
+      ${esc(t.contact?.name||"")} &lt;${esc(t.contact?.email||"")}&gt; ·
+      opened ${fmtDate(t.created_at)}${t.age_days!==""?` · ${t.age_days} days old`:""} ·
+      ${esc(t.state||"")}</div>
+    <div class="linkgrid" style="margin-bottom:10px">${(t.links||[]).map(l=>
+      `<a href="${esc(l.url)}" target="_blank" rel="noopener">
+         <span class="k">${esc(l.kind)}</span>${esc(l.label)}</a>`).join("")}</div>
+    ${d.one_line?`<div class="oneline">${esc(d.one_line)}</div>`:""}
+    <div class="r2" style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+      ${d.concern_label?`<button class="pill accent" data-setconcern="${esc(d.concern_type)}">${esc(d.concern_label)}</button>`:""}
+      ${d.customer_mood?`<span class="pill ${["angry","frustrated"].includes(d.customer_mood)?"bad":d.customer_mood==="worried"?"warn":"ok"}">${esc(d.customer_mood)}</span>`:""}
+      ${d.urgency?`<span class="pill ${d.urgency==="high"?"bad":d.urgency==="medium"?"warn":""}">${esc(d.urgency)} urgency</span>`:""}
+      ${d.needs_human?'<span class="pill bad">needs you</span>':""}
+      ${(t.tags||[]).map(x=>`<span class="pill">${esc(x)}</span>`).join("")}
+      ${d.confidence!=null?`<span class="pill">confidence ${Math.round(d.confidence*100)}%</span>`:""}
+    </div>
+    ${d.confidence!=null?`<div class="bar"><i style="width:${Math.round(d.confidence*100)}%"></i></div>`:""}
+  </div>`);
+
+  // --- at a glance + risks
+  if((d.at_a_glance||[]).length || (d.risk_flags||[]).length){
+    P.push(`<div class="card">
+      <h3>At a glance</h3>
+      ${(d.at_a_glance||[]).length?`<ul class="clean">${d.at_a_glance.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
+      ${(d.risk_flags||[]).length?`<div style="margin-top:11px">
+        <h3>Risks &amp; deadlines</h3>
+        <ul class="clean">${d.risk_flags.map(x=>`<li style="color:var(--bad)">${esc(x)}</li>`).join("")}</ul>
+      </div>`:""}
+      ${(d.open_questions||[]).length?`<div style="margin-top:11px">
+        <h3>Still unknown</h3>
+        <ul class="clean">${d.open_questions.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+      </div>`:""}
+    </div>`);
+  }
+
+  // --- proposed message
+  if(d.proposed_message){
+    P.push(`<div class="card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px">
+        <h3 style="margin:0;flex:1">Proposed message to customer</h3>
+        <button class="copybtn" id="copyMsg">Copy</button>
+      </div>
+      <div class="msgbox" id="msgBox">${esc(d.proposed_message)}</div>
+    </div>`);
+  }
+
+  // --- suggested actions
+  if((d.suggested_actions||[]).length){
+    P.push(`<div class="card">
+      <h3>Suggested action</h3>
+      <ol class="actions">${d.suggested_actions.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>
+    </div>`);
+  }
+
+  // --- the two records, side by side
+  P.push('<div class="grid2">');
+
+  if(ef){
+    const svc=ef.services||{}, c=svc.counts||{}, v=ef.verification||{};
+    P.push(`<div class="card">
+      <h3>eFiling record</h3>
+      <dl class="kv">
+        ${ef.company_name?`<dt>Company</dt><dd><a href="${esc(ef.url)}" target="_blank" rel="noopener">${esc(ef.company_name)}</a></dd>`:""}
+        ${ef.company_number?`<dt>Number</dt><dd>${esc(ef.company_number)}</dd>`:""}
+        ${ef.status?`<dt>Status</dt><dd>${esc(ef.status)}</dd>`:""}
+        ${ef.incorporated?`<dt>Incorporated</dt><dd>${esc(ef.incorporated)}</dd>`:""}
+        ${ef.customer?`<dt>Customer</dt><dd>${esc(ef.customer)}</dd>`:""}
+        ${ef.registered_email?`<dt>Reg. email</dt><dd><a href="mailto:${esc(ef.registered_email)}">${esc(ef.registered_email)}</a></dd>`:""}
+        ${ef.registered_office?`<dt>Reg. office</dt><dd>${esc(ef.registered_office)}</dd>`:""}
+        ${(ef.officers||[]).length?`<dt>Officers</dt><dd>${ef.officers.map(esc).join("<br>")}</dd>`:""}
+        ${(ef.sic_codes||[]).length?`<dt>SIC</dt><dd>${ef.sic_codes.map(s=>esc(s.code+" "+s.description)).join("<br>")}</dd>`:""}
+      </dl>
+      <div style="margin-top:11px"><h3>Services</h3>
+        <div style="margin-bottom:7px">
+          <span class="pill ok">active ${c.active??"?"}</span>
+          <span class="pill ${c.expired_cancelled?"bad":""}">expired/cancelled ${c.expired_cancelled??"?"}</span>
+          <span class="pill ${c.critical?"bad":""}">critical ${c.critical??"?"}</span>
+          <span class="pill">paused ${c.paused??"?"}</span>
+        </div>
+        ${(svc.rows||[]).length?`<table class="tl">${svc.rows.map(r=>
+          `<tr><td>${esc(r.name)}</td><td class="a">renews ${esc(r.renew_date)}</td></tr>`).join("")}</table>`
+          :'<div class="stamp">No dated service rows parsed.</div>'}
+      </div>
+      ${v.state&&v.state!=="unknown"?`<div style="margin-top:11px"><h3>Verification</h3>
+        <span class="pill ${v.state==="complete"?"ok":"warn"}">${esc(v.state)}</span>
+        <span style="font-size:12.5px"> ${esc(v.label)} — ${esc(v.date)}</span>
+        <div class="stamp" style="margin-top:4px">${esc(v.note)}</div></div>`:""}
+      ${(ef.notes||[]).length?`<div style="margin-top:11px"><h3>Notes (newest first)</h3>
+        <table class="tl">${ef.notes.slice(0,14).map(n=>
+          `<tr><td class="d">${esc(n.date)}</td><td>${esc(n.text)}</td><td class="a">${esc(n.author)}</td></tr>`
+        ).join("")}</table></div>`:""}
+    </div>`);
+  } else {
+    P.push('<div class="card"><h3>eFiling record</h3><div class="empty">No eFiling record matched this ticket.</div></div>');
+  }
+
+  if(ch){
+    P.push(`<div class="card">
+      <h3>Companies House</h3>
+      <dl class="kv">
+        <dt>Company</dt><dd><a href="${esc(ch.url)}" target="_blank" rel="noopener">${esc(ch.name||ch.number)}</a> (${esc(ch.number)})</dd>
+        ${ch.status?`<dt>Status</dt><dd><span class="pill ${/active/i.test(ch.status)?"ok":"bad"}">${esc(ch.status)}</span></dd>`:""}
+        ${ch.incorporated?`<dt>Incorporated</dt><dd>${esc(ch.incorporated)}</dd>`:""}
+        ${ch.dissolved_on?`<dt>Dissolved</dt><dd>${esc(ch.dissolved_on)}</dd>`:""}
+        ${ch.registered_office?`<dt>Reg. office</dt><dd>${esc(ch.registered_office)}</dd>`:""}
+        <dt>Accounts</dt><dd>${ch.accounts_overdue?'<span class="pill bad">overdue</span> ':""}${esc(ch.accounts_due_by?("due "+ch.accounts_due_by):"—")}${ch.accounts_last_made_up_to?`<br><span class="stamp">last made up to ${esc(ch.accounts_last_made_up_to)}</span>`:""}</dd>
+        <dt>Conf. stmt</dt><dd>${ch.cs_overdue?'<span class="pill bad">overdue</span> ':""}${esc(ch.cs_due_by?("due "+ch.cs_due_by):"—")}${ch.cs_last_statement_dated?`<br><span class="stamp">last dated ${esc(ch.cs_last_statement_dated)}</span>`:""}</dd>
+        ${(ch.sic_codes||[]).length?`<dt>SIC</dt><dd>${ch.sic_codes.map(s=>esc(s.code+" "+s.description)).join("<br>")}</dd>`:""}
+      </dl>
+      ${(ch.officers||[]).length?`<div style="margin-top:11px"><h3>Officers</h3>
+        <table class="tl">${ch.officers.map(o=>
+          `<tr><td>${esc(o.name)}${o.resigned?' <span class="pill">resigned</span>':""}</td>
+           <td class="a">${esc(o.role||"")}${o.identity_verification?" · ID "+esc(o.identity_verification):""}${o.verified_by_ycf?" · by us":""}</td></tr>`
+        ).join("")}</table></div>`:""}
+      ${(ch.filing_history||[]).length?`<div style="margin-top:11px">
+        <h3>Filing history <a href="${esc(ch.filing_history_url)}" target="_blank" rel="noopener" style="font-weight:400;text-transform:none;letter-spacing:0">open ↗</a></h3>
+        <table class="tl">${ch.filing_history.slice(0,10).map(f=>
+          `<tr><td class="d">${esc(f.date)}</td><td>${esc(f.description)}</td><td class="a">${esc(f.type)}</td></tr>`
+        ).join("")}</table></div>`:""}
+      ${ch.screenshot?`<div style="margin-top:11px"><h3>Record screenshot</h3>
+        <div class="shotwrap collapsed" id="shotwrap">
+          <img class="shot" loading="lazy" src="shots/${esc(ch.screenshot)}" alt="Companies House record for ${esc(ch.name||ch.number)}">
+          <button class="toggle" id="shotToggle">Expand</button>
+        </div></div>`:""}
+    </div>`);
+  } else {
+    P.push('<div class="card"><h3>Companies House</h3><div class="empty">No Companies House record matched this ticket.</div></div>');
+  }
+  P.push('</div>');
+
+  // --- precedent
+  const pc=t.prior_same_customer||[], pk=t.prior_same_concern||[];
+  if(pc.length||pk.length){
+    P.push(`<div class="card">
+      ${pc.length?`<h3>This customer before (${pc.length})</h3>
+        ${pc.map(priorHTML).join("")}`:""}
+      ${pk.length?`<div style="margin-top:${pc.length?"14px":"0"}">
+        <h3>Same concern, how it was solved (${pk.length})</h3>
+        ${pk.map(priorHTML).join("")}</div>`:""}
+    </div>`);
+  }
+
+  // --- the thread itself
+  P.push(`<div class="card">
+    <h3>Conversation (${(t.messages||[]).length})</h3>
+    <details class="thread"><summary>Show full thread</summary>
+      ${(t.messages||[]).map(m=>`<div class="msg ${m.is_note?"note":m.is_agent?"agent":""}">
+        <div class="h">${esc(m.author)}${m.is_note?" · internal note":""} · ${fmtDate(m.created_at)}</div>
+        ${esc(m.text)}</div>`).join("")}
+    </details>
+    ${(d.sources_used||[]).length?`<div class="stamp">Drafted from: ${d.sources_used.map(esc).join(", ")}</div>`:""}
+  </div>`);
+
+  return P.join("");
+}
+
+function priorHTML(p){
+  return `<div class="prior">
+    <div class="h">
+      <a href="${esc(p.url)}" target="_blank" rel="noopener">#${esc(p.ticket_id)} ${esc(p.subject||"")}</a>
+      <span class="pill">${esc(p.closed_date||"")}</span>
+      ${(p.agents||[]).map(a=>`<span class="pill ${a==="Jinny"?"accent":""}">${esc(a)}</span>`).join("")}
+    </div>
+    <div class="x">${esc((p.excerpt||"").slice(0,420))}</div>
+  </div>`;
+}
+
+function wireDetail(t){
+  const copy=document.getElementById("copyMsg");
+  if(copy) copy.onclick=async()=>{
+    try{
+      await navigator.clipboard.writeText(t.draft.proposed_message);
+    }catch(e){
+      // clipboard API needs a secure context; fall back to a selection
+      const r=document.createRange(); r.selectNodeContents(document.getElementById("msgBox"));
+      const s=getSelection(); s.removeAllRanges(); s.addRange(r);
+    }
+    copy.textContent="Copied"; copy.classList.add("done");
+    setTimeout(()=>{copy.textContent="Copy"; copy.classList.remove("done");},1400);
+  };
+  const tog=document.getElementById("shotToggle");
+  if(tog) tog.onclick=()=>{
+    const w=document.getElementById("shotwrap");
+    w.classList.toggle("collapsed");
+    tog.textContent=w.classList.contains("collapsed")?"Expand":"Collapse";
+  };
+  document.querySelectorAll("[data-setconcern]").forEach(el=>el.onclick=()=>{
+    const k=el.dataset.setconcern;
+    F.concern.has(k)?F.concern.delete(k):F.concern.add(k);
+    render();
+  });
+}
+
+// ------------------------------------------------------------ controls
+let qt;
+document.getElementById("search").addEventListener("input",e=>{
+  clearTimeout(qt);
+  qt=setTimeout(()=>{ F.q=e.target.value.trim().toLowerCase(); render(); },140);
+});
+document.getElementById("clearBtn").onclick=()=>{
+  F.q=""; F.concern.clear(); F.flag.clear();
+  document.getElementById("search").value=""; render();
+};
+document.addEventListener("keydown",e=>{
+  if(/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+  const rows=visible(); if(!rows.length) return;
+  const i=rows.findIndex(x=>x.number===SEL);
+  if(e.key==="j"||e.key==="ArrowDown"){ e.preventDefault(); select(rows[Math.min(i+1,rows.length-1)].number); }
+  if(e.key==="k"||e.key==="ArrowUp"){ e.preventDefault(); select(rows[Math.max(i-1,0)].number); }
+  if(e.key==="/"){ e.preventDefault(); document.getElementById("search").focus(); }
+});
+</script>
+</body>
+</html>
