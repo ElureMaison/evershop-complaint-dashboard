@@ -52,9 +52,20 @@ button{font:inherit;cursor:pointer}
   padding:28px;max-width:360px;width:100%;box-shadow:var(--shadow);text-align:center}
 #gate h1{margin:0 0 4px;font-size:18px}
 #gate p{margin:0 0 18px;color:var(--ink-2);font-size:13px}
-#gate input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;
-  background:var(--panel-2);color:var(--ink);font:inherit;margin-bottom:10px}
-#gate button{width:100%;padding:10px;border:0;border-radius:8px;background:var(--accent);
+.pwwrap{position:relative;margin-bottom:10px}
+#gate input{width:100%;padding:10px 40px 10px 12px;border:1px solid var(--line);border-radius:8px;
+  background:var(--panel-2);color:var(--ink);font:inherit}
+#pwToggle{position:absolute;right:4px;top:50%;transform:translateY(-50%);
+  width:32px;height:32px;display:grid;place-items:center;padding:0;
+  background:transparent;border:0;border-radius:6px;color:var(--ink-3)}
+#pwToggle:hover{color:var(--ink)}
+#pwToggle:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+#pwToggle svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;
+  stroke-linecap:round;stroke-linejoin:round}
+/* Scoped to the Unlock button, not `#gate button`: that selector is more
+   specific than #pwToggle and turned the reveal icon into a full-width
+   blue block sitting on top of the input. */
+#gateBtn{width:100%;padding:10px;border:0;border-radius:8px;background:var(--accent);
   color:#fff;font-weight:600}
 #gateErr{color:var(--bad);font-size:12px;min-height:16px;margin-top:8px}
 
@@ -198,7 +209,20 @@ kbd{background:var(--panel-2);border:1px solid var(--line);border-bottom-width:2
   <div class="box">
     <h1>YCF Ticket Review</h1>
     <p>Rona&rsquo;s Groove inbox, investigated.</p>
-    <input id="pw" type="password" placeholder="Password" autocomplete="current-password">
+    <div class="pwwrap">
+      <input id="pw" type="password" placeholder="Password" autocomplete="current-password">
+      <button id="pwToggle" type="button" aria-label="Show password" aria-pressed="false" title="Show password">
+        <svg id="eyeOpen" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M1.5 12S5 5.5 12 5.5 22.5 12 22.5 12 19 18.5 12 18.5 1.5 12 1.5 12Z"/>
+          <circle cx="12" cy="12" r="3.2"/>
+        </svg>
+        <svg id="eyeShut" viewBox="0 0 24 24" aria-hidden="true" style="display:none">
+          <path d="M1.5 12S5 5.5 12 5.5c1.6 0 3 .34 4.25.9M22.5 12S19 18.5 12 18.5c-1.6 0-3-.34-4.25-.9"/>
+          <path d="M9.6 9.6a3.2 3.2 0 0 0 4.5 4.5"/>
+          <path d="M3 3l18 18"/>
+        </svg>
+      </button>
+    </div>
     <button id="gateBtn">Unlock</button>
     <div id="gateErr"></div>
   </div>
@@ -264,6 +288,17 @@ document.getElementById("gateBtn").onclick = async ()=>{
 document.getElementById("pw").addEventListener("keydown",e=>{
   if(e.key==="Enter") document.getElementById("gateBtn").click();
 });
+document.getElementById("pwToggle").onclick=()=>{
+  const el=document.getElementById("pw"), btn=document.getElementById("pwToggle");
+  const show = el.type==="password";
+  el.type = show ? "text" : "password";
+  document.getElementById("eyeOpen").style.display = show ? "none" : "";
+  document.getElementById("eyeShut").style.display = show ? "" : "none";
+  btn.setAttribute("aria-pressed", String(show));
+  btn.setAttribute("aria-label", show ? "Hide password" : "Show password");
+  btn.title = show ? "Hide password" : "Show password";
+  el.focus();
+};
 try{ if(sessionStorage.getItem(KEY)==="1") openApp(); }catch(e){}
 
 // ---------------------------------------------------------------- theme
