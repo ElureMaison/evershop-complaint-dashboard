@@ -1,92 +1,646 @@
 {
- "generated_at": "2026-09-23T10:36:40+00:00",
+ "generated_at": "2026-09-23T11:24:41+00:00",
  "agent": "Rona Cacao",
- "ticket_count": 2,
+ "ticket_count": 8,
  "tickets": [
   {
-   "number": 3756367,
-   "subject": "Re: Service Will Renew Soon - Your Company Formations",
-   "state": "UNREAD",
-   "created_at": "2026-09-23T10:24:21Z",
-   "updated_at": "2026-09-23T10:24:21Z",
+   "number": 3756438,
+   "subject": "Contact Us",
+   "state": "OPENED",
+   "created_at": "2026-09-23T10:54:05Z",
+   "updated_at": "2026-09-23T10:54:05Z",
    "age_days": 0,
    "contact": {
-    "name": "Alex Wiederin",
-    "email": "alex@wiederin.xyz"
+    "name": "Chris",
+    "email": "fwj.xyz@gmail.com"
    },
    "tags": [],
    "messages": [
     {
-     "author": "Alex Wiederin",
+     "author": "Chris",
      "is_agent": false,
      "is_note": false,
-     "created_at": "2026-09-23T10:24:21Z",
-     "text": "Dear Company Formations, I would like to renew the registered office service at £29.00 + VAT. Please advise on how to proceed.  Best, Alexander Wiederin"
+     "created_at": "2026-09-23T10:54:05Z",
+     "text": "Dear Staff Member. \tFrom: Chris \t  \tEmail: fwj.xyz@gmail.com \t  \tPhone: ##CONTACT_PHONE# \t  \tQuestion: We try to use your non resident package. We are not in uk. Can you remove the VAT from the"
     }
    ],
    "identifiers": {
     "efiling_ids": [],
     "ch_numbers": [],
+    "candidate_numbers": [],
     "company_names": [],
     "orders": []
    },
    "regex_concerns": [
-    "address_expired_renewal",
-    "registered_office"
+    "general_enquiry"
    ],
-   "efiling": {
-    "matched_by": "customer account only, 2 companies, none matched",
-    "customer_id": "1922659",
-    "customer_url": "https://admin.efiling.co.uk/customer-details/?u=1922659",
-    "url": "https://admin.efiling.co.uk/customer-details/?u=1922659",
-    "company_name": "",
-    "company_number": "",
-    "efiling_id": "",
-    "status": "",
-    "incorporated": "",
-    "customer": "",
-    "registered_email": "",
-    "registered_office": "",
-    "jurisdiction": "",
-    "auth_code": "",
-    "sic_codes": [],
-    "officers": [],
-    "services": {
-     "counts": {},
-     "rows": [],
-     "raw": ""
-    },
-    "notes": [],
-    "orders": [],
-    "verification": {
-     "state": "unknown",
-     "label": "",
-     "date": "",
-     "note": "",
-     "author": ""
-    }
-   },
+   "efiling": null,
    "companies_house": null,
    "links": [
     {
      "label": "Groove ticket",
-     "url": "https://yourcompanyformations.groovehq.com/tickets/3756367",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3756438",
      "kind": "groove"
     },
     {
-     "label": "Email alex@wiederin.xyz",
-     "url": "mailto:alex@wiederin.xyz",
+     "label": "Email fwj.xyz@gmail.com",
+     "url": "mailto:fwj.xyz@gmail.com",
+     "kind": "email"
+    },
+    {
+     "label": "Client portal login",
+     "url": "https://www.yourcompanyformations.co.uk/login/",
+     "kind": "portal"
+    }
+   ],
+   "prior_same_customer": [],
+   "prior_same_concern": [],
+   "draft": {
+    "concern_type": "general_enquiry",
+    "concern_label": "General enquiry",
+    "one_line": "Chris is outside the UK, wants to order what he calls the non-resident package, and is asking whether the VAT can be taken off the price.",
+    "customer_mood": "neutral",
+    "urgency": "medium",
+    "at_a_glance": [
+     "Web 'Contact Us' form, not an account email: there is no eFiling or Companies House record for this ticket, so there is no order to check and nothing account-specific to disclose yet.",
+     "The message is cut off mid-sentence ('remove the VAT from the...'), so the actual ask is unconfirmed, and 'non resident package' is the customer's own wording, not one of our package names.",
+     "Nothing in our documented pricing covers removing VAT for a customer outside the UK, so this cannot be answered or promised without accounts confirming."
+    ],
+    "risk_flags": [
+     "VAT treatment for a non-UK customer is not covered by documented policy, so no price or exemption may be confirmed inline"
+    ],
+    "proposed_message": "Hi Chris,\n\nThanks for getting in touch, and good news first: you don't need to live in the UK to form or run a UK limited company. Residency isn't a requirement, so you're absolutely able to go ahead with us.\n\nOn the VAT question, I want to be straight with you rather than guess. Your message came through our website form and it looks like it got cut off part way (it ends at \"can you remove the VAT from the\"), so I don't want to answer the wrong question. Could you let me know exactly what you'd like removed, and I'll get you a proper answer from our accounts team on how VAT is treated for an order placed from outside the UK?\n\nIt would also help if you could tell me:\n\n1. Which package you're looking at. We don't have one called \"non resident\", so I suspect you mean our International package at GBP 108.48 + VAT, which includes international courier and VAT registration through MyTaxServices. You can compare them all here: https://www.yourcompanyformations.co.uk/packages/compare-packages/\n2. Whether you've already started an order with us. I've had a look and I can't find anything under this email address, so if you've already begun one, an order number or the email you used would let me pull it up.\n3. Which country you're based in, as that affects what we can set up for you.\n\nOne thing I'd rather flag now than have you find out later: our prices are all quoted plus VAT, and I don't want you budgeting on a figure that turns out to be different at checkout. As soon as I've confirmed the position with accounts I'll come straight back to you with the exact amount you'd pay.\n\nJust reply here and I'll pick it up.\n\nBest wishes,\nRona\nYour Company Formations",
+    "suggested_actions": [
+     "Take ownership of ticket 3756438 and add an internal note that no eFiling record exists for fwj.xyz@gmail.com, so this is treated as a pre-sales enquiry, not account-specific.",
+     "Send the reply asking for the completed question, the intended package, any existing order number and the country of residence.",
+     "Once the country is known, check it against the AML high-risk third country list in section 7 before quoting anything further; if it is listed, switch to the HIGH RISK decline template.",
+     "Refer the VAT-charging question to Rob (approvals/billing) or accounts for a definitive answer on VAT treatment for a non-UK customer before any figure is confirmed.",
+     "If he confirms he wants the International package and VAT registration, note VAT01 applies (VAT registration included in package) and MyTaxServices handles the filing: https://www.mytaxservices.co.uk/vat-form/",
+     "Keep the ticket open pending his reply rather than closing, since the question is unresolved."
+    ],
+    "open_questions": [
+     "What was the rest of the cut-off sentence: remove VAT from the price, from the package, or from an existing invoice?",
+     "Which package does Chris mean by 'non resident package'?",
+     "Which country is Chris resident in (needed for the high-risk jurisdiction check)?",
+     "Is there an existing order or account under a different email address?",
+     "Can VAT be excluded on an order from a customer outside the UK, and under what conditions? Not covered by documented policy."
+    ],
+    "needs_human": true,
+    "confidence": 0.55,
+    "sources_used": [
+     "knowledge",
+     "playbook",
+     "efiling",
+     "companies_house"
+    ],
+    "concern_detail": "General enquiry (pre-sales pricing question about VAT for a non-UK customer)"
+   },
+   "errors": []
+  },
+  {
+   "number": 3756417,
+   "subject": "Re: ALAN CLARKE PROPERTY LTD.: address services end on 26 September 2026",
+   "state": "OPENED",
+   "created_at": "2026-09-23T10:49:02Z",
+   "updated_at": "2026-09-23T10:49:02Z",
+   "age_days": 0,
+   "contact": {
+    "name": "Alan Clarke",
+    "email": "alan@alanclarkeproperty.com"
+   },
+   "tags": [],
+   "messages": [
+    {
+     "author": "Alan Clarke",
+     "is_agent": false,
+     "is_note": false,
+     "created_at": "2026-09-23T10:49:02Z",
+     "text": "Good morning  I no longer need this service as the company has been dissolved  Thank you for all your help in the past Much appreciated  Alan Clarke     Sent from Outlook for iOS"
+    }
+   ],
+   "identifiers": {
+    "efiling_ids": [],
+    "ch_numbers": [],
+    "candidate_numbers": [],
+    "company_names": [
+     "ALAN CLARKE PROPERTY LTD"
+    ],
+    "orders": []
+   },
+   "regex_concerns": [
+    "dissolution"
+   ],
+   "efiling": {
+    "efiling_id": "1619883",
+    "customer": "Alan Clarke Property Ltd",
+    "company_name": "ALAN CLARKE PROPERTY LTD.",
+    "company_number": "12546193",
+    "auth_code": "BLQFKF",
+    "incorporated": "03/04/2020",
+    "status": "Accepted",
+    "registered_email": "alan@alanclarkeproperty.com",
+    "registered_office": "128, City Road London EC1V 2NX UNITED KINGDOM",
+    "jurisdiction": "England and Wales",
+    "sic_codes": [
+     {
+      "code": "68310",
+      "description": "Real estate agencies"
+     },
+     {
+      "code": "68320",
+      "description": "Management of real estate on a fee or contract basis"
+     }
+    ],
+    "officers": [
+     "Alan Clarke"
+    ],
+    "services": {
+     "counts": {
+      "active": 2,
+      "paused": 0,
+      "expired_cancelled": 2,
+      "critical": 0
+     },
+     "rows": [
+      {
+       "name": "Director's Service Addres",
+       "renew_date": "26/09/2026",
+       "extra": ""
+      },
+      {
+       "name": "Registered Office Address",
+       "renew_date": "26/09/2026",
+       "extra": ""
+      }
+     ],
+     "raw": "Active: 2 Paused: 0 Expired / Cancelled: 2 Critical: 0\n\nName\tRenew Date\tRenew\tForward Address\t\nDirector's Service Addres...\t26/09/2026\t\t\nEC1V 2NX\tDetails »\nRegistered Office Address...\t26/09/2026\t\t\nEC1V 2NX\tDetails »"
+    },
+    "notes": [
+     {
+      "date": "01/09/2026",
+      "text": "Company status Dissolved",
+      "author": "Anthony Hoang"
+     },
+     {
+      "date": "26/08/2026",
+      "text": "1 general letter received - NMF - UP01",
+      "author": "Davina Sudra"
+     },
+     {
+      "date": "14/07/2026",
+      "text": "1 general letter received - NMF - UP01 sent",
+      "author": "Alan Dabrowski"
+     },
+     {
+      "date": "29/09/2025",
+      "text": "25/09/2025 Paid for RO and DSA",
+      "author": "Miss Michele Salvatierra"
+     },
+     {
+      "date": "17/09/2025",
+      "text": "emailed to renew services",
+      "author": "Miss Michele Salvatierra"
+     },
+     {
+      "date": "17/09/2025",
+      "text": "Critical service 2637810 marked as completed. Changed status from 25 to 900.",
+      "author": "Miss Michele Salvatierra"
+     },
+     {
+      "date": "17/09/2025",
+      "text": "Critical service 2477886 marked as completed. Changed status from 26 to 950.",
+      "author": "Miss Michele Salvatierra"
+     },
+     {
+      "date": "21/05/2025",
+      "text": "1 general letter received - NMF - UP01 emailed",
+      "author": "Easleena Begum"
+     },
+     {
+      "date": "28/01/2025",
+      "text": "1 general letter received- NMF",
+      "author": "Mikala Cornish"
+     },
+     {
+      "date": "28/01/2025",
+      "text": "1 general letter received- NMF-UP01",
+      "author": "Mikala Cornish"
+     },
+     {
+      "date": "06/01/2025",
+      "text": "1 general letter received - NMF- UP01 sent",
+      "author": "Mikala Cornish"
+     },
+     {
+      "date": "30/12/2024",
+      "text": "1 general letter received - NMF - UP01 sent",
+      "author": "Magdalena Szostek-old"
+     },
+     {
+      "date": "26/09/2024",
+      "text": "ignore below",
+      "author": "Miss Michele Salvatierra"
+     },
+     {
+      "date": "26/09/2024",
+      "text": "Critical service 1982405 marked as completed. Changed status from 900 to 900.",
+      "author": "Miss Michele Salvatierra"
+     },
+     {
+      "date": "15/08/2024",
+      "text": "1 pending digital letter emailed to the client",
+      "author": "Cristina Tudorache"
+     },
+     {
+      "date": "15/08/2024",
+      "text": "24/05/2024 Paid for DSA",
+      "author": "Marianne Alba"
+     },
+     {
+      "date": "15/08/2024",
+      "text": "Company passed compliance check, mail can go out.",
+      "author": "Marianne Alba"
+     },
+     {
+      "date": "15/08/2024",
+      "text": "ID & POA PASSED - Alan Clarke - ALAN CLARKE PROPERTY LTD.",
+      "author": "Marianne Alba"
+     },
+     {
+      "date": "10/07/2024",
+      "text": "Credas photo ID done; Requested POA for Alan Clarke #2293866",
+      "author": "Marianne Alba"
+     },
+     {
+      "date": "31/05/2024",
+      "text": "follow up email sent for CREDAS of : Alan Clarke #2293866",
+      "author": "Clarice Villalon-Castillo"
+     },
+     {
+      "date": "27/05/2024",
+      "text": "#2293866.credas sent to Alan Clarke",
+      "author": "Miss Zoe"
+     },
+     {
+      "date": "25/10/2023",
+      "text": "1 general letter posted",
+      "author": "Claire Hill"
+     },
+     {
+      "date": "19/10/2023",
+      "text": "1 general letter posted",
+      "author": "Claire Hill"
+     },
+     {
+      "date": "10/10/2023",
+      "text": "1 gm posted",
+      "author": "Emma McGill"
+     },
+     {
+      "date": "29/09/2023",
+      "text": "1 general letter posted",
+      "author": "Kamila Krzeszowiec"
+     },
+     {
+      "date": "19/09/2023",
+      "text": "1 general letter posted",
+      "author": "Polina Olhovska-OLD"
+     },
+     {
+      "date": "24/07/2023",
+      "text": "1 general letter posted",
+      "author": "Davina Sudra"
+     },
+     {
+      "date": "18/04/2023",
+      "text": "1 general letter posted",
+      "author": "Mr Lewis Buck"
+     },
+     {
+      "date": "16/03/2023",
+      "text": "1 general letter posted",
+      "author": "Mr Lewis Buck"
+     },
+     {
+      "date": "20/02/2023",
+      "text": "1 general letter posted",
+      "author": "Samantha Castrillo-OLD"
+     },
+     {
+      "date": "30/12/2022",
+      "text": "1 gen letter posted",
+      "author": "Samantha Kelly"
+     },
+     {
+      "date": "14/06/2022",
+      "text": "1 general letter posted",
+      "author": "Samantha Kelly"
+     },
+     {
+      "date": "27/04/2022",
+      "text": "1 digital letter emailed to client",
+      "author": "Miss Michele Salvatierra"
+     },
+     {
+      "date": "08/04/2022",
+      "text": "customer called, emailed AUTH code",
+      "author": "Miss Marta Sokyrka"
+     },
+     {
+      "date": "30/03/2022",
+      "text": "Spoke with Mr Clark and informed to submit his Annual Tax Return and referred him to Wizz Accounting.",
+      "author": "Harold Cauilan"
+     },
+     {
+      "date": "22/03/2022",
+      "text": "1 CH cheque posted",
+      "author": "Cristina Tudorache"
+     },
+     {
+      "date": "13/09/2021",
+      "text": "1 gen letter posted",
+      "author": "Samantha Kelly"
+     },
+     {
+      "date": "13/11/2020",
+      "text": "1 general letter posted",
+      "author": "Adina Simonca-OLD"
+     },
+     {
+      "date": "25/09/2020",
+      "text": "1 bank card posted via Royal Mail signed for tracking number NL541466983GB",
+      "author": "Mrs Ann-OLD Peters-OLD"
+     },
+     {
+      "date": "23/09/2020",
+      "text": "** client is expecting bank docs - please post via tracked shipping **",
+      "author": "Jin Brasuela"
+     },
+     {
+      "date": "23/09/2020",
+      "text": "** client is expecting bank docs - please post via tracked shipping **",
+      "author": "Jin Brasuela"
+     },
+     {
+      "date": "23/09/2020",
+      "text": "temporary address: Alan Clarke – Alan Clarke Property Ltd c/o 35 Eton Road Stratford upon Avon CV37 7ER",
+      "author": "Jin Brasuela"
+     },
+     {
+      "date": "30/07/2020",
+      "text": "Issue New Shares Fee paid",
+      "author": "Jin Brasuela"
+     },
+     {
+      "date": "01/04/2020",
+      "text": "Company has passed MLC compliance check. Sent email confirmation #412943",
+      "author": "Clarice Villalon-Castillo"
+     },
+     {
+      "date": "01/04/2020",
+      "text": "Passed Credas for Mr Alan Clarke",
+      "author": "Clarice Villalon-Castillo"
+     },
+     {
+      "date": "01/04/2020",
+      "text": "Requested Credas for Mr Alan Clarke #412943",
+      "author": "Clarice Villalon-Castillo"
+     }
+    ],
+    "url": "https://admin.efiling.co.uk/company-details/?i=1619883",
+    "orders": [
+     {
+      "number": "2293866",
+      "kind": "order",
+      "date": "10/07/2024",
+      "note": "Credas photo ID done; Requested POA for Alan Clarke #2293866",
+      "url": "https://admin.efiling.co.uk/order-details/?o=2293866"
+     },
+     {
+      "number": "412943",
+      "kind": "order",
+      "date": "01/04/2020",
+      "note": "Company has passed MLC compliance check. Sent email confirmation #412943",
+      "url": "https://admin.efiling.co.uk/order-details/?o=412943"
+     }
+    ],
+    "verification": {
+     "state": "complete",
+     "label": "Filed/completed",
+     "date": "17/09/2025",
+     "note": "Critical service 2637810 marked as completed. Changed status from 25 to 900.",
+     "author": "Miss Michele Salvatierra"
+    },
+    "matched_by": "number search: 12546193"
+   },
+   "companies_house": {
+    "url": "https://find-and-update.company-information.service.gov.uk/company/12546193",
+    "name": "ALAN CLARKE PROPERTY LTD.",
+    "number": "12546193",
+    "status": "Dissolved",
+    "incorporated": "3 April 2020",
+    "registered_office": "128 City Road, London, United Kingdom, EC1V 2NX",
+    "dissolved_on": "30 December 2025",
+    "accounts_overdue": false,
+    "accounts_due_by": "",
+    "accounts_next_made_up_to": "",
+    "accounts_last_made_up_to": "30 April 2024",
+    "cs_overdue": false,
+    "cs_due_by": "",
+    "cs_next_statement_date": "",
+    "cs_last_statement_dated": "26 July 2024",
+    "sic_codes": [
+     {
+      "code": "68310",
+      "description": "Real estate agencies"
+     },
+     {
+      "code": "68320",
+      "description": "Management of real estate on a fee or contract basis"
+     }
+    ],
+    "screenshot": "ch_3756417_12546193.jpg",
+    "note": "Dissolved on 30 December 2025",
+    "filing_history": [
+     {
+      "date": "30 Dec 2025",
+      "type": "GAZ2",
+      "description": "Final Gazette dissolved via compulsory strike-off"
+     },
+     {
+      "date": "14 Oct 2025",
+      "type": "GAZ1",
+      "description": "First Gazette notice for compulsory strike-off"
+     },
+     {
+      "date": "23 Jan 2025",
+      "type": "AA",
+      "description": "Micro company accounts made up to 30 April 2024"
+     },
+     {
+      "date": "16 Aug 2024",
+      "type": "CS01",
+      "description": "Confirmation statement made on 26 July 2024 with no updates"
+     },
+     {
+      "date": "25 Jan 2024",
+      "type": "AA",
+      "description": "Micro company accounts made up to 30 April 2023"
+     },
+     {
+      "date": "03 Aug 2023",
+      "type": "CS01",
+      "description": "Confirmation statement made on 26 July 2023 with no updates"
+     },
+     {
+      "date": "29 Sep 2022",
+      "type": "AA",
+      "description": "Micro company accounts made up to 30 April 2022"
+     },
+     {
+      "date": "09 Aug 2022",
+      "type": "CS01",
+      "description": "Confirmation statement made on 26 July 2022 with no updates"
+     },
+     {
+      "date": "09 Aug 2022",
+      "type": "SH01",
+      "description": "Statement of capital following an allotment of shares on 3 August 2020 GBP 100"
+     },
+     {
+      "date": "13 Jun 2022",
+      "type": "PSC04",
+      "description": "Change of details for Alan Clarke as a person with significant control on 13 June 2022"
+     },
+     {
+      "date": "13 Jun 2022",
+      "type": "CH01",
+      "description": "Director's details changed for Mr Alan Clarke on 13 June 2022"
+     },
+     {
+      "date": "13 Jun 2022",
+      "type": "CH03",
+      "description": "Secretary's details changed for Mr Alan Clarke on 13 June 2022"
+     },
+     {
+      "date": "10 Jun 2022",
+      "type": "AD01",
+      "description": "Registered office address changed from Kemp House 160 City Road London EC1V 2NX United Kingdom to 128 City Road London EC1V 2NX on 10 June 2022"
+     },
+     {
+      "date": "08 Apr 2022",
+      "type": "AA",
+      "description": "Micro company accounts made up to 30 April 2021"
+     }
+    ],
+    "officers": [
+     {
+      "name": "CLARKE, Alan",
+      "role": "Secretary",
+      "appointed": "3 April 2020",
+      "resigned": false,
+      "identity_verification": "",
+      "verified_by_ycf": false,
+      "date_of_birth": "",
+      "nationality": "",
+      "residence": "",
+      "occupation": "",
+      "correspondence_address": "128 City Road, London, United Kingdom, EC1V 2NX",
+      "appointments_url": "/officers/lCYXVRCXu2Mg0EIQt4yrVis1QdU/appointments",
+      "appointments": {
+       "total": "1",
+       "items": [
+        {
+         "company": "ALAN CLARKE PROPERTY LTD.",
+         "number": "12546193",
+         "url": "https://find-and-update.company-information.service.gov.uk/company/12546193",
+         "status": "Dissolved",
+         "role": "Secretary",
+         "appointed": "3 April 2020",
+         "resigned": false
+        }
+       ],
+       "url": "https://find-and-update.company-information.service.gov.uk/officers/lCYXVRCXu2Mg0EIQt4yrVis1QdU/appointments"
+      }
+     },
+     {
+      "name": "CLARKE, Alan",
+      "role": "Director",
+      "appointed": "3 April 2020",
+      "resigned": false,
+      "identity_verification": "",
+      "verified_by_ycf": false,
+      "date_of_birth": "May 1969",
+      "nationality": "British",
+      "residence": "Thailand",
+      "occupation": "",
+      "correspondence_address": "128 City Road, London, United Kingdom, EC1V 2NX",
+      "appointments_url": "/officers/pEmb-Noc1Rrq6IOQnVtldZ6nS9U/appointments",
+      "appointments": {
+       "total": "1",
+       "items": [
+        {
+         "company": "ALAN CLARKE PROPERTY LTD.",
+         "number": "12546193",
+         "url": "https://find-and-update.company-information.service.gov.uk/company/12546193",
+         "status": "Dissolved",
+         "role": "Director",
+         "appointed": "3 April 2020",
+         "resigned": false
+        }
+       ],
+       "url": "https://find-and-update.company-information.service.gov.uk/officers/pEmb-Noc1Rrq6IOQnVtldZ6nS9U/appointments"
+      }
+     }
+    ],
+    "filing_history_url": "https://find-and-update.company-information.service.gov.uk/company/12546193/filing-history",
+    "officers_url": "https://find-and-update.company-information.service.gov.uk/company/12546193/officers"
+   },
+   "links": [
+    {
+     "label": "Groove ticket",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3756417",
+     "kind": "groove"
+    },
+    {
+     "label": "Email alan@alanclarkeproperty.com",
+     "url": "mailto:alan@alanclarkeproperty.com",
      "kind": "email"
     },
     {
      "label": "eFiling company record",
-     "url": "https://admin.efiling.co.uk/customer-details/?u=1922659",
+     "url": "https://admin.efiling.co.uk/company-details/?i=1619883",
      "kind": "efiling"
     },
     {
-     "label": "eFiling account (customer)",
-     "url": "https://admin.efiling.co.uk/customer-details/?u=1922659",
-     "kind": "efiling"
+     "label": "Registered email: alan@alanclarkeproperty.com",
+     "url": "mailto:alan@alanclarkeproperty.com",
+     "kind": "email"
+    },
+    {
+     "label": "eFiling order #2293866 (10/07/2024)",
+     "url": "https://admin.efiling.co.uk/order-details/?o=2293866",
+     "kind": "order"
+    },
+    {
+     "label": "eFiling order #412943 (01/04/2020)",
+     "url": "https://admin.efiling.co.uk/order-details/?o=412943",
+     "kind": "order"
+    },
+    {
+     "label": "Companies House record",
+     "url": "https://find-and-update.company-information.service.gov.uk/company/12546193",
+     "kind": "ch"
+    },
+    {
+     "label": "CH filing history",
+     "url": "https://find-and-update.company-information.service.gov.uk/company/12546193/filing-history",
+     "kind": "ch"
+    },
+    {
+     "label": "CH officers",
+     "url": "https://find-and-update.company-information.service.gov.uk/company/12546193/officers",
+     "kind": "ch"
     },
     {
      "label": "Client portal login",
@@ -97,155 +651,138 @@
    "prior_same_customer": [],
    "prior_same_concern": [
     {
-     "ticket_id": "3648290",
-     "subject": "Re: Service Will Renew Soon - Your Company Formations",
-     "closed_date": "2026-07-27",
+     "ticket_id": "3571941",
+     "subject": "FW: Kossie UK Ltd application to strike off and dissolve a company has been accepted by Companies House",
+     "closed_date": "2026-06-22",
      "agents": [
-      "Jinny",
       "Rona Cacao"
      ],
-     "customer_email": "expanse365@hotmail.com",
-     "url": "https://yourcompanyformations.groovehq.com/tickets/3648290",
-     "excerpt": "David Patel started a conversation\nJul 26 @ 3:09 pm\nGood evening,\n\n\nI’ve just logged into my account however I can’t see any options to change the requirements.\n\n\nI don’t need the premium filing service for the renewal, just the registered office address and registered directors address service please.\n\n\nCan this be updated to avoid any services that are not required.\n\n\nThank you\nDavid Patel\nExpanse365@hotmail.com\n07865397206\n\n\nSent from Outlook for iOS\nJinny took ownership\nJul 26 @ 9:06 pm\nJinny replied to David Patel\nSEEN\nJul 26 @ 9:19 pm\nTo: David Patel\nDear David Patel,\n \nGood morning!\n \nNo worries, I have stopped the renewal for premium filing and mail forwarding service. Both the registered office and director's service address will auto renew on 02/09/2026 and payment will be taken from your account.\n \nTake care now and have an amazing week!\nJinny closed the conversation\nJul 26 @ 9:19 pm\nSeen by David Patel\nJul 27 @ 2:46 am\nDavid Patel replied to Jinny\nJul 27 @ 2:47 am\nTo: Customer Services - Your Company Formations\nThank you. Can you confirm how much the renewal will now be with just the registered office address and registered directors address services please?\n\n\nThanks \nDavid\n\n\nSent from Outlook for iOS\nShow All Actions (2)\nRona Cacao added a note\nJul 27 @ 4:37 am\nhttps://admin.efiling.co.uk/company-details/?i=3139312\nRona Cacao replied to David Patel\nSEEN\nJul 27 @ 4:38 am\nTo: David Patel\nHi David Patel,\n \nOf course.\n \nIf you renew only your Registered Office Addres",
+     "customer_email": "jennifer@kossie.co.uk",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3571941",
+     "excerpt": "Jennifer Tsang started a conversation\nJun 22 @ 2:48 am\ncc: karen@kossie.co.uk\n\nHi Yourompanyformation Team\n\n \n\nWe, Kossie UK Ltd has submitted the application to strike off and received acceptance from Companies House accordingly (please refer to attached email).\n\n \n\nFor your information, please.  Thanks.\n\n \n\nBest regards\n\nFor Kossie UK Ltd\n\nJennifer\n\n \n\nRona Cacao took ownership\nJun 22 @ 3:04 am\nRona Cacao added a note\nJun 22 @ 3:11 am\nhttps://admin.efiling.co.uk/company-details/?i=1716987\nRona Cacao replied to Jennifer Tsang\nSEEN\nJun 22 @ 3:14 am\nTo: Jennifer Tsangcc: karen@kossie.co.uk\nHi Jennifer Tsang,\n \nWe can confirm that we have noted the strike off application for Kossie UK Ltd and appreciate you keeping us updated.\n \nPlease note that Companies House will now continue with the strike off process, which typically takes several weeks to complete, provided no objections are received.\n \nIn the meantime, you may continue to receive automated reminders from our system regarding your services. These reminders are generated automatically, so please feel free to disregard them while the strike off process is ongoing.\nRona Cacao closed the conversation\nJun 22 @ 3:14 am\nSeen by Jennifer Tsang\nJun 22 @ 3:25 am",
+     "match_score": 12
+    },
+    {
+     "ticket_id": "3634973",
+     "subject": "Registered office service during pending strike-off",
+     "closed_date": "2026-07-22",
+     "agents": [
+      "Rona Cacao"
+     ],
+     "customer_email": "alonso.ra@hotmail.com",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3634973",
+     "excerpt": "Rona Cacao started a conversation\nSEEN\nJul 21 @ 9:40 am\nTo: Alonso Rufo\nHi Alonso Rufo,\n \nTHANK YOU SO MUCH!\n \nI hope I was able to assist you well. Is there anything else I can help you with? 🙂\n \nAlso, if you don't mind, may I send you a quick survey about your recent experience with my support? I'd really appreciate it, as it helps me understand how satisfied you were with the assistance I provided and supports recognition of the service I deliver.\n \nThank you, and I truly appreciate your time!\nShow All Actions (2)\nSeen by Alonso Rufo\nJul 21 @ 3:53 pm\nAlonso Rufo replied to You\nTo: Customer Services - Your Company Formations\nHi Rona,\n\n\nThank you again for your help. I have one final question regarding STORYLABS PUBLISHING LTD, company number 15013780.\n\n\nThe voluntary strike-off application has been accepted, and the first Gazette notice was published on 14 July 2026. However, Companies House still shows that the next Confirmation Statement is due by 1 August 2026.\n\n\nCould you please confirm whether the Confirmation Statement must still be filed while the voluntary strike-off process is in progress, or whether no filing is required because the DS01 has already been accepted and the first Gazette notice has been published?\n\n\nThank you in advance!\n\n\nKind regards,\nAlonso\nAlonso Rufo reopened the conversation\nJul 22 @ 2:04 am\nRona Cacao replied to Alonso Rufo\nSEEN\nJul 22 @ 2:22 am\nTo: Alonso Rufo\nHi Alonso Rufo,\n \nThank you for your email, and you're very welcome. I'm pleased I ",
      "match_score": 8
     },
     {
-     "ticket_id": "3645189",
-     "subject": "RE: Important: Service Renewal Overdue - Your Company Formations Ltd",
-     "closed_date": "2026-07-24",
+     "ticket_id": "3495509",
+     "subject": "Strike-Off BeeBee Retail LTD - 16884226",
+     "closed_date": "2026-05-11",
      "agents": [
       "Rona Cacao"
      ],
-     "customer_email": "kevin@pteris.com",
-     "url": "https://yourcompanyformations.groovehq.com/tickets/3645189",
-     "excerpt": "Kevin Fearn started a conversation\nJul 24 @ 3:28 am\n\nWhy am I still getting this?\n\n \n\nWhy has it not been renewed?\n\n \n\nRona Cacao took ownership\nJul 24 @ 3:29 am\nRona Cacao added a note\nJul 24 @ 4:34 am\nhttps://admin.efiling.co.uk/company-details/?i=3112266\nRona Cacao replied to Kevin Fearn\nJul 24 @ 4:36 am\nTo: Kevin Fearn\nHi Kevin Fearn,\n\nThanks for getting in touch.\n \nI checked this for you, and I can see that your Registered Office Address, Director's Service Address, Mail Forwarding Service, and Premium 12 Month Company Filing Service were not set to auto renew, so the services were cancelled when they reached their renewal date. This is why you're still receiving the renewal reminder.\n\nIf you'd like to renew them, the current annual rates are:\n \n• Registered Office Address: £29 + VAT\n• Director's Service Address: £28 + VAT per director\n• Mail Forwarding Service: £98 + VAT\n• Premium 12 Month Company Filing Service: £128 + VAT\n \n \nIf you've already made a payment, could you please send me the order number? I'll be happy to check it for you and make sure everything has been applied correctly.\nRona Cacao closed the conversation\nJul 24 @ 4:36 am\nKevin Fearn replied to You\nJul 24 @ 4:49 am\nTo: Customer Services - Your Company Formations\n\nKindly explain then the email received from you on Wednesday - attached\n\n \n\n1 Attachment\n_attachment.eml\n25 KB\nKevin Fearn reopened the conversation\nJul 24 @ 4:49 am\nRona Cacao replied to Kevin Fearn\nJul 24 @ 4:59 am\nTo: Kevin Fearn\nHi Kevin F",
-     "match_score": 8
-    },
-    {
-     "ticket_id": "3649720",
-     "subject": "Re: Important: Service Renewal Overdue - Your Company Formations Ltd",
-     "closed_date": "2026-07-27",
-     "agents": [
-      "Rona Cacao"
-     ],
-     "customer_email": "business@co-burn-services.com",
-     "url": "https://yourcompanyformations.groovehq.com/tickets/3649720",
-     "excerpt": "Co-Burn Services Limited - Business started a conversation\nJul 27 @ 8:42 am\nDear Team,\n\n\nI paid for these services on Friday against invoice Ref: EF5-006039198.\n\n\nCould you please confirm whether the payment was received? If it did not go through, I would appreciate it if you could let me know.\n\n\nThanks,\nWilliam Cockbum\n\n\nOn Mon, 27 Jul 2026, at 9:11 AM, Your Company Formations wrote:\nRona Cacao took ownership\nJul 27 @ 8:46 am\nRona Cacao added a note\nJul 27 @ 9:02 am\nhttps://admin.efiling.co.uk/company-details/?i=2310468\nRona Cacao replied to Co-Burn Services Limited - Business\nSEEN\nJul 27 @ 9:04 am\nTo: Co-Burn Services Limited - Business\nHi William Cockbum,\n \nThank you for your message.\n \nI checked your account and can confirm that we've successfully received your payment for your Registered Office Address, Director's Service Address, and Mail Forwarding Service.\n \nBefore we can activate these services, there's one outstanding requirement. Our Compliance Team sent a Credas identity verification invitation to William Cockburn on 24 July.\n \nThis verification is a legal requirement that must be completed every two years, or before certain filings, to comply with Companies House regulations.\n \nOnce you have completed the Credas verification, please let us know.\nRona Cacao closed the conversation\nJul 27 @ 9:04 am\nSeen by Co-Burn Services Limited - Business\nJul 27 @ 9:04 am\nCo-Burn Services Limited - Business replied to You\nJul 27 @ 9:35 am\nTo: Customer Services - Your Company For",
+     "customer_email": "bb-23@live.co.uk",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3495509",
+     "excerpt": "Ben Bain started a conversation\nAfternoon,\n\n\nCan I please request this business to be closed? Strike-off from the Companies house, plus close the VAT account.\nI didn't end up trading using this business.\n\n\nI've tried sending the strike-off application but I don't have the associated numbers/account to do this...\n\n\nKind Regards\nBen \n1 Attachment\nBeeBeeRetail_Snapshot.pdf\n254 KB\nCristina Tudorache assigned to You\nMay 11 @ 7:47 am\nRona Cacao replied to Ben Bain\nSEEN\nMay 11 @ 8:00 am\nTo: Ben Bain\nHi Ben Bain,\n \nThank you for your message.\n \nWe can certainly assist you with the company dissolution and strike-off process. Our voluntary dissolution filing service is £50 + VAT.\n \nAs the company was VAT registered, the VAT account will also need to be closed directly with HMRC. This part is normally handled by an accountant or tax adviser, as VAT deregistration is separate from the Companies House strike-off application.\nRona Cacao closed the conversation\nMay 11 @ 8:00 am\nSeen by Ben Bain\nMay 11 @ 8:00 am",
      "match_score": 7
     },
     {
-     "ticket_id": "3649631",
-     "subject": "Re: Important: Service Renewal Overdue - Your Company Formations Ltd",
-     "closed_date": "2026-07-27",
+     "ticket_id": "3450303",
+     "subject": "Strike off status?",
+     "closed_date": "2026-04-15",
      "agents": [
       "Rona Cacao"
      ],
-     "customer_email": "kasia.basamania@hotmail.com",
-     "url": "https://yourcompanyformations.groovehq.com/tickets/3649631",
-     "excerpt": "Kasia Basamania started a conversation\nJul 27 @ 7:52 am\nHello, \n\n\nThe company has been registered for a voluntary strike off. \n\n\nKind regards, \n\n\n\nKasia Basamania \n\n\n\n\n0755 261 8561 \n\nCristina Tudorache assigned to You\nJul 27 @ 7:54 am\nRona Cacao added a note\nJul 27 @ 8:23 am\nhttps://admin.efiling.co.uk/company-details/?i=2715664\nRona Cacao replied to Kasia Basamania\nSEEN\nJul 27 @ 8:25 am\nTo: Kasia Basamania\nHi Kasia Basamania,\n \nThank you for your message.\n \nI checked your company on Companies House and can see that it is still showing as active, so the voluntary strike off has not yet been registered.\n \nIf you'd like us to assist with the dissolution, we can take care of the application for £50 + VAT.\n \nAs your company uses our address services, we also recommend keeping your Registered Office Address and Director's Service Address active while the dissolution is being processed. We offer a 3-month extension for £17.10 + VAT, which helps ensure that any official correspondence from Companies House or HMRC can still be received during the strike off process.\nRona Cacao closed the conversation\nJul 27 @ 8:25 am\nSeen by Kasia Basamania\nJul 27 @ 8:32 am\nKasia Basamania replied to You\nTo: Customer Services - Your Company Formations\nThank you Rona. I am awaiting the confirmation from Companies House so don't require any help with dissolution, but thank you anyway. \n\n\nI think it can however be a good idea to opt for the 3 month extension. How do I do that please? \n\n\nThank you,\n\n\n\nK",
+     "customer_email": "ahmedhamdydarweesh@gmail.com",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3450303",
+     "excerpt": "Ahmed Darwish started a conversation\nApr 15 @ 7:06 am\nI wanna know what is the status of my strike off?\n\n\nAlso I want to know why does it say confirmation statement overdue? we did everything then filed to strike off the company\nhttps://find-and-update.company-information.service.gov.uk/company/13896976\n\nPlease let me know \nRona Cacao took ownership\nApr 15 @ 8:08 am\nRona Cacao added a note\nApr 15 @ 8:32 am\nhttps://admin.efiling.co.uk/company-details/?i=2503615\nRona Cacao replied to Ahmed Darwish\nSEEN\nApr 15 @ 8:35 am\nTo: Ahmed Darwish\nHi Ahmed Darwish,\n \nI completely understand why this can be confusing, and I’m happy to clarify this for you.\n \nThe Confirmation Statement may still show as overdue even though you’ve applied for strike off. This is because it was not filed before the dissolution process started. The good news is that you can safely disregard this, as your company is already in the process of being dissolved.\n \nRegarding your strike off status, everything is proceeding as expected, and there is no further action required from your side at this stage.\n \nI also wanted to mention that your company is still currently using our address as the Registered Office on Companies House while the dissolution is ongoing. To keep everything running smoothly during this period, we can offer a temporary 3-month Registered Office service for £7.50 + VAT.\n \nThis helps ensure there are no interruptions while the strike off is being completed.\nRona Cacao closed the conversation\nApr ",
      "match_score": 7
     }
    ],
    "draft": {
-    "concern_type": "address_expired_renewal",
-    "concern_label": "Address service expired / renewal",
-    "one_line": "Alexander Wiederin wants to renew his Registered Office Address service at £29 + VAT and is asking how to pay.",
-    "customer_mood": "neutral",
-    "urgency": "medium",
+    "concern_type": "cancellation_refund",
+    "concern_label": "Cancellation / refund",
+    "one_line": "Alan wants his Registered Office and Director's Service Address stopped because ALAN CLARKE PROPERTY LTD. has been dissolved.",
+    "customer_mood": "happy",
+    "urgency": "high",
     "at_a_glance": [
-     "Request received 23/09/2026 10:24 from alex@wiederin.xyz, replying to a \"Service Will Renew Soon\" reminder; he asks to renew the Registered Office Address at £29 + VAT.",
-     "No company name or company number given in the ticket, so the account has not been identified yet.",
-     "eFiling record: nothing returned for this ticket, so we have no confirmation of which services are active, expired or cancelled, and no renewal date.",
-     "Companies House record: not found for this ticket, so we cannot yet confirm the company status or whether 128 City Road sits on the Registered Office, Officers or PSC records.",
-     "Sender's email has not been matched against the registered primary email on any account, so no account specifics can be discussed until it is.",
-     "Director's Service Address position unknown; minimum cover to stay protected is Registered Office £29 + VAT plus Officer's Service Address £28 + VAT per officer, so this may need adding once the file is open.",
-     "No prior tickets on record for this customer.",
-     "Accounts, Confirmation Statement and officer identity-verification positions are all unknown because neither record was retrieved.",
-     "He has asked to renew rather than cancel, so no Companies House address removal is in play and no retention discount is needed at this stage."
+     "Both services renew on 26/09/2026, three days from now, so the cancellation has to be actioned today to avoid a charge he doesn't want.",
+     "Companies House shows the company dissolved on 30 December 2025 by compulsory strike-off (final Gazette GAZ2), but eFiling only recorded the dissolved status on 01/09/2026, and we scanned general letters for it on 14/07/2026 and 26/08/2026.",
+     "Request comes from alan@alanclarkeproperty.com, which matches the registered primary email, so the verification step is already satisfied. Company is dissolved so there is no CH address change for him to make first."
     ],
     "risk_flags": [
-     "Company and account not identified, so the renewal date is unknown and the service could lapse while we wait for details.",
-     "Sender's email not yet verified as the registered primary email on the account; no account detail can be shared until it is.",
-     "If the service lapses while our address is still on the Companies House record, the statutory post cannot be released and continued use may have to be reported to Companies House."
+     "Renewal of RO and DSA falls due 26/09/2026 (3 days) and will bill if not stopped now",
+     "Automated renewal reminders may already be scheduled and will keep firing after cancellation"
     ],
-    "proposed_message": "Hi Alexander,\n\nThanks for letting me know you'd like to keep the Registered Office Address running, that's an easy one to sort.\n\nI've just had a look on our side, but I can't match your email address to a company record yet, so I don't want to guess and renew the wrong thing. Could you send me the company name and company number? And if the account was set up under a different email address, please let me know which one, as I can only go through account details with the email that's registered on the account.\n\nAs soon as I have that, I'll open your file, confirm exactly which services you hold and the date the renewal falls due, then raise the invoice for you. The Registered Office Address is £29 + VAT a year, just as you say. If any of your directors also use our address as their Service Address, that's £28 + VAT per director per year, and I'll tell you straight away whether that applies to you.\n\nTo pay, log in at https://www.yourcompanyformations.co.uk/login/, click \"My Invoice History\", select the order number and click \"Make Payment\". One thing worth knowing, our system doesn't notify us when a payment comes through, so please reply to this email once you've paid and I'll check it and get the renewal applied.\n\nI'd like to get this wrapped up before your renewal date passes. If an address service lapses while our address is still showing at Companies House, we can't release your statutory post, and that's the sort of thing that causes real headaches later, so I'd rather we stayed ahead of it.\n\nIf anything above isn't clear, just reply and I'll pick it straight up.\n\nBest wishes,\nRona",
+    "proposed_message": "Good morning Alan,\n\nThanks for letting me know, and thank you for the kind words too. That's really good of you.\n\nI've just had a look at your file. ALAN CLARKE PROPERTY LTD. (company number 12546193) shows as dissolved at Companies House on 30 December 2025, so there's nothing left for you to file or sort out there. Your Registered Office Address and Director's Service Address were both set to renew on 26 September 2026, so you've caught this at exactly the right time. I've cancelled both at our end, which means nothing will be taken from you on the 26th.\n\nNormally I'd have to ask you to change the address at Companies House before I can stop an address service, but as the company's record is now closed that step doesn't apply here. It's already done in effect.\n\nOne thing I didn't want you to be caught out by: you may still see an automated renewal reminder or two land in your inbox over the next few days, because some of those get scheduled in advance. Please just ignore them, they don't mean anything is outstanding on your account.\n\nAnd just so you know, if any post turns up for the company from now on we won't be able to forward it, since the company no longer exists to receive it.\n\nI hope I was able to assist you well. If there's anything else I can help you with, please let me know.\n\nAlso, if you have a moment, I'd really appreciate it if you could complete a quick survey about your experience with my support. Your feedback helps me understand how satisfied you were with the assistance I provided and supports recognition of the service I deliver.\n\nIt's been a pleasure helping you over the years, Alan. All the very best with what's next.\n\nKind regards,\nRona",
     "suggested_actions": [
-     "Search eFiling admin for alex@wiederin.xyz and for \"Wiederin\" to try to locate the account before the customer replies; note the https://admin.efiling.co.uk/company-details/?i=XXXXXXX link on the ticket once found.",
-     "Confirm alex@wiederin.xyz is the registered primary email on that account; if it is not, share no account detail and ask him to resend from the registered email.",
-     "List every active, expired and cancelled service with the exact renewal date (dd/mm/yyyy), and check whether each was set to auto-renew.",
-     "Check whether the \"Service Will Renew Soon\" reminder actually relates to the Registered Office or to a separate service such as Premium 12 Month Company Filing or Mail Forwarding, and correct the scope if so.",
-     "Check Companies House for our address on the Registered Office, Officers (Director's Service Address) and PSC records, and note whether a Director's Service Address at £28 + VAT per director also needs renewing.",
-     "Check for any outstanding compliance hold (Credas identity verification or Proof of Address re-upload) that would stop the service activating even once paid; notify the Compliance Team if one is open.",
-     "Raise the renewal invoice for the confirmed services and send the portal payment path (login, My Invoice History, select Order #, Make Payment), asking him to reply once paid.",
-     "Note the Confirmation Statement and accounts position while the record is open, and flag the CS filing service at £90 + VAT separately if it is due.",
-     "Close the conversation after replying and reopen when he comes back with the company details."
+     "Confirm sender matches registered primary email on eFiling 1619883 (alan@alanclarkeproperty.com), matches, no verification email needed",
+     "In eFiling, turn off auto-renewal on both Registered Office Address and Director's Service Address (renew date 26/09/2026) before the renewal runs",
+     "Check for and remove any stored card / recurring payment mandate on the account so nothing bills on 26/09/2026",
+     "Add an account note: services cancelled at customer request, company dissolved 30/12/2025 (CH), cancellation confirmed by email on 23/09/2026",
+     "Suppress or flag any queued automated renewal reminders for this account",
+     "Flag to the mailroom (digitalmailroom@yourcompanyformations.co.uk) that the company is dissolved and address services end 26/09/2026, so further post is returned to sender",
+     "Send the reply, then close the ticket. If he responds positively to the survey ask, follow with RR part 2 and RR part 3"
     ],
     "open_questions": [
-     "What is the company name and company number?",
-     "Is alex@wiederin.xyz the registered primary email on the account?",
-     "Which services are on the account, and what is the exact renewal date?",
-     "Does a Director's Service Address (£28 + VAT per director) also need renewing, or is our address only on the Registered Office record?",
-     "Is our address still showing on the Companies House Registered Office, Officers and PSC records?",
-     "Is there any outstanding Credas verification or Proof of Address requirement that would delay activation?"
+     "Whether a stored card or recurring mandate is still held on the account that needs removing as well as the renewal flag",
+     "Whether the general letters received on 14/07/2026 and 26/08/2026 were all passed on to him, or whether anything is still sitting with us"
     ],
     "needs_human": false,
-    "confidence": 0.58,
+    "confidence": 0.89,
     "sources_used": [
      "knowledge",
      "playbook",
+     "efiling",
+     "companies_house",
      "prior_tickets"
-    ]
+    ],
+    "concern_detail": "Cancelling address services after dissolution"
    },
    "errors": []
   },
   {
-   "number": 3756362,
-   "subject": "Re: Your Company Formations Action Required: Officer ID Verification",
-   "state": "OPENED",
-   "created_at": "2026-09-23T10:24:01Z",
-   "updated_at": "2026-09-23T10:24:01Z",
+   "number": 3756409,
+   "subject": "Re: OMID SMARTCARE LTD: first confirmation statement due by 1 October 2026",
+   "state": "UNREAD",
+   "created_at": "2026-09-23T10:43:56Z",
+   "updated_at": "2026-09-23T10:43:56Z",
    "age_days": 0,
    "contact": {
-    "name": "Josep Borras",
-    "email": "josepb@gestoriavalenciana.es"
+    "name": "Stephen McDonnell",
+    "email": "stephen@omidsmartcare.com"
    },
    "tags": [],
    "messages": [
     {
-     "author": "Josep Borras",
+     "author": "Stephen McDonnell",
      "is_agent": false,
      "is_note": false,
-     "created_at": "2026-09-23T10:24:01Z",
-     "text": "Hi,\r \r I have already completed the personal verification with Companies House \r and have been assigned a Companies House personal code.\r \r Regards.\r \r El 23/09/2026 a las 11:49, Your Company"
-    },
-    {
-     "author": "Rona Cacao",
-     "is_agent": true,
-     "is_note": true,
-     "created_at": "2026-09-23T10:34:29Z",
-     "text": "https://admin.efiling.co.uk/company-details/?i=3376790"
+     "created_at": "2026-09-23T10:43:56Z",
+     "text": "Good Morning I have already done the confirmation statement via the app thanks   Stephen McDonnell Founder & CEO – OMID SmartCare 📞 +971 52 990 1248 🌍 www.omidsmartcare.co.uk"
     }
    ],
    "identifiers": {
-    "efiling_ids": [
-     "3376790"
-    ],
+    "efiling_ids": [],
     "ch_numbers": [],
-    "company_names": [],
+    "candidate_numbers": [],
+    "company_names": [
+     "OMID SMARTCARE LTD"
+    ],
     "orders": []
    },
    "regex_concerns": [
-    "id_verification_credas"
+    "confirmation_statement"
    ],
    "efiling": {
-    "efiling_id": "3376790",
-    "customer": "Mr Ernesto Rodriguez Rodriguez",
-    "company_name": "CODEBYME LTD",
-    "company_number": "",
-    "auth_code": "-",
-    "incorporated": "",
-    "status": "Submitted",
-    "registered_email": "josepb@gestoriavalenciana.es",
+    "efiling_id": "3152420",
+    "customer": "Mr Stephen McDonnell",
+    "company_name": "OMID SMARTCARE LTD",
+    "company_number": "16727989",
+    "auth_code": "WGBTHR",
+    "incorporated": "18/09/2025",
+    "status": "Accepted",
+    "registered_email": "Stephen@omidsmartcare.com",
     "registered_office": "128, City Road London EC1V 2NX UNITED KINGDOM",
     "jurisdiction": "England and Wales",
     "sic_codes": [
@@ -256,18 +793,937 @@
      {
       "code": "63110",
       "description": "Data processing, hosting and related activities"
-     },
-     {
-      "code": "70229",
-      "description": "Management consultancy activities other than financial management"
-     },
-     {
-      "code": "85590",
-      "description": "Other education n.e.c."
      }
     ],
     "officers": [
-     "Ernesto Miguel Rodriguez Rodriguez"
+     "Stephen McDonnell"
+    ],
+    "services": {
+     "counts": {
+      "active": 1,
+      "paused": 0,
+      "expired_cancelled": 0,
+      "critical": 0
+     },
+     "rows": [
+      {
+       "name": "Registered Office Address",
+       "renew_date": "18/09/2027",
+       "extra": ""
+      }
+     ],
+     "raw": "Active: 1 Paused: 0 Expired / Cancelled: 0 Critical: 0\n\nName\tRenew Date\tRenew\tForward Address\t\nRegistered Office Address...\t18/09/2027\t\t\nWA95FS\tDetails »"
+    },
+    "notes": [
+     {
+      "date": "30/09/2025",
+      "text": "1 general letter received- posted as first free letter- email sent",
+      "author": "Mikala Cornish"
+     },
+     {
+      "date": "18/09/2025",
+      "text": "Company passed compliance check. Company Submitted.",
+      "author": "Marianne Alba"
+     },
+     {
+      "date": "18/09/2025",
+      "text": "ID & POA PASSED - Stephen McDonnell - OMID SMARTCARE LTD",
+      "author": "Marianne Alba"
+     },
+     {
+      "date": "18/09/2025",
+      "text": "res add updated",
+      "author": "Marianne Alba"
+     },
+     {
+      "date": "18/09/2025",
+      "text": "ID passed; Provided POA - verifying res address #3070504",
+      "author": "Marianne Alba"
+     },
+     {
+      "date": "17/09/2025",
+      "text": "passed credas photo ID check, provided poa, confirming address forStephen McDonnell #3070504",
+      "author": "Judee Bayog"
+     },
+     {
+      "date": "16/09/2025",
+      "text": "resent CREDAS for Stephen McDonnell as the prev., CREDAS was sent to this email: michaeladarragh@hotmail.com // 3070504",
+      "author": "Averil Pangwi"
+     },
+     {
+      "date": "16/09/2025",
+      "text": "3070504 credas sent to Stephen McDonnell",
+      "author": "Miss Zoe"
+     }
+    ],
+    "url": "https://admin.efiling.co.uk/company-details/?i=3152420",
+    "orders": [
+     {
+      "number": "3070504",
+      "kind": "order",
+      "date": "18/09/2025",
+      "note": "ID passed; Provided POA - verifying res address #3070504",
+      "url": "https://admin.efiling.co.uk/order-details/?o=3070504"
+     }
+    ],
+    "verification": {
+     "state": "complete",
+     "label": "Compliance passed",
+     "date": "18/09/2025",
+     "note": "Company passed compliance check. Company Submitted.",
+     "author": "Marianne Alba"
+    },
+    "matched_by": "number search: 16727989"
+   },
+   "companies_house": {
+    "url": "https://find-and-update.company-information.service.gov.uk/company/16727989",
+    "name": "OMID SMARTCARE LTD",
+    "number": "16727989",
+    "status": "Active",
+    "incorporated": "18 September 2025",
+    "registered_office": "128 City Road, London, United Kingdom, EC1V 2NX",
+    "dissolved_on": "",
+    "accounts_overdue": false,
+    "accounts_due_by": "",
+    "accounts_next_made_up_to": "",
+    "accounts_last_made_up_to": "",
+    "cs_overdue": false,
+    "cs_due_by": "18 June 2027",
+    "cs_next_statement_date": "17 September 2027",
+    "cs_last_statement_dated": "17 September 2026",
+    "sic_codes": [
+     {
+      "code": "63110",
+      "description": "Data processing, hosting and related activities"
+     }
+    ],
+    "screenshot": "ch_3756409_16727989.jpg",
+    "note": "uptodate; CS due 18 June 2027",
+    "filing_history": [
+     {
+      "date": "20 Sep 2026",
+      "type": "CS01",
+      "description": "Confirmation statement made on 17 September 2026 with updates"
+     },
+     {
+      "date": "20 Sep 2025",
+      "type": "PSC04",
+      "description": "Change of details for Me Stephen Mcdonnell as a person with significant control on 20 September 2025"
+     },
+     {
+      "date": "18 Sep 2025",
+      "type": "NEWINC",
+      "description": "Incorporation Statement of capital on 2025-09-18 GBP 10"
+     }
+    ],
+    "officers": [
+     {
+      "name": "MCDONNELL, Stephen",
+      "role": "Director",
+      "appointed": "18 September 2025",
+      "resigned": false,
+      "identity_verification": "Verified",
+      "verified_by_ycf": false,
+      "date_of_birth": "December 1966",
+      "nationality": "British",
+      "residence": "United Arab Emirates",
+      "occupation": "",
+      "correspondence_address": "8 Sudbury Gardens, St Helens, Merseyside, United Kingdom, WA9 5FS",
+      "appointments_url": "/officers/IFr2cNZU-cHgbiRTNJtPMIWsiQs/appointments",
+      "appointments": {
+       "total": "1",
+       "items": [
+        {
+         "company": "OMID SMARTCARE LTD",
+         "number": "16727989",
+         "url": "https://find-and-update.company-information.service.gov.uk/company/16727989",
+         "status": "Active",
+         "role": "Director",
+         "appointed": "18 September 2025",
+         "resigned": false
+        }
+       ],
+       "url": "https://find-and-update.company-information.service.gov.uk/officers/IFr2cNZU-cHgbiRTNJtPMIWsiQs/appointments"
+      }
+     }
+    ],
+    "filing_history_url": "https://find-and-update.company-information.service.gov.uk/company/16727989/filing-history",
+    "officers_url": "https://find-and-update.company-information.service.gov.uk/company/16727989/officers"
+   },
+   "links": [
+    {
+     "label": "Groove ticket",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3756409",
+     "kind": "groove"
+    },
+    {
+     "label": "Email stephen@omidsmartcare.com",
+     "url": "mailto:stephen@omidsmartcare.com",
+     "kind": "email"
+    },
+    {
+     "label": "eFiling company record",
+     "url": "https://admin.efiling.co.uk/company-details/?i=3152420",
+     "kind": "efiling"
+    },
+    {
+     "label": "Registered email: Stephen@omidsmartcare.com",
+     "url": "mailto:Stephen@omidsmartcare.com",
+     "kind": "email"
+    },
+    {
+     "label": "eFiling order #3070504 (18/09/2025)",
+     "url": "https://admin.efiling.co.uk/order-details/?o=3070504",
+     "kind": "order"
+    },
+    {
+     "label": "Companies House record",
+     "url": "https://find-and-update.company-information.service.gov.uk/company/16727989",
+     "kind": "ch"
+    },
+    {
+     "label": "CH filing history",
+     "url": "https://find-and-update.company-information.service.gov.uk/company/16727989/filing-history",
+     "kind": "ch"
+    },
+    {
+     "label": "CH officers",
+     "url": "https://find-and-update.company-information.service.gov.uk/company/16727989/officers",
+     "kind": "ch"
+    },
+    {
+     "label": "Client portal login",
+     "url": "https://www.yourcompanyformations.co.uk/login/",
+     "kind": "portal"
+    }
+   ],
+   "prior_same_customer": [],
+   "prior_same_concern": [
+    {
+     "ticket_id": "3649707",
+     "subject": "Re: Confirmation Statement (Annual Return Due) for 28GRAMS NUTRACEUTICALS LTD",
+     "closed_date": "2026-07-27",
+     "agents": [
+      "Rona Cacao"
+     ],
+     "customer_email": "28g.nutraceuticals@gmail.com",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3649707",
+     "excerpt": "Amani Ismail started a conversation\nJul 27 @ 8:39 am\nHello,\n\n\nCan you send me more clarification on what I’m filing for?\n\n\nThank you,\nAmani \n\n\nRona Cacao took ownership\nJul 27 @ 8:46 am\nRona Cacao added a note\nJul 27 @ 8:54 am\nhttps://admin.efiling.co.uk/company-details/?i=3137370\nRona Cacao replied to Amani Ismail\nJul 27 @ 8:56 am\nTo: Amani Ismail\nHi Amani Ismail,\n \nThank you for your message.\n \nThe invoice is for the filing of your Confirmation Statement, which is a mandatory filing that every UK limited company must submit to Companies House, even if no company details have changed.\n \nThe purpose of the Confirmation Statement is to confirm that your company's information held by Companies House is accurate and up to date. This includes details such as:\n \nRegistered office address\nDirectors and company secretary (if applicable)\nPeople with Significant Control (PSCs)\nShareholders and share capital\nSIC code (business activity)\n \nI checked your account and can confirm that your Confirmation Statement is due by 11 September 2026.\n \nAs you have an active Premium 12 Month Company Filing Service, you're entitled to our discounted filing fee of £50 + VAT, instead of the standard £90 + VAT.\nRona Cacao closed the conversation\nJul 27 @ 8:56 am",
+     "match_score": 12
+    },
+    {
+     "ticket_id": "3631039",
+     "subject": "Re: Confirmation Statement (Annual Return Due) for HYDOCS LTD",
+     "closed_date": "2026-07-27",
+     "agents": [
+      "Jinny",
+      "Rona Cacao"
+     ],
+     "customer_email": "newchemicalcentre@yahoo.com",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3631039",
+     "excerpt": "NADEEM AJAZ started a conversation\nJul 19 @ 10:57 pm\nDear, \n\n\nI want this service from you and also want to get you to verify person with significant control at company house. Please offer some discount on same so that we can process this time. \n\n\nWaiting your earliest response. \n\n\nWarm Regards,\nTaha Nadeem\nNew Chemical Centre,\n3-Syed Mauj Darya (Edward) Road,\nLahore, Pakistan.\nPhone: +92-42-37312378, 37356445\nFax: +92-42-37350807\n\nE: newchemicalcentre@yahoo.com\n    info@newchemical.com.pk\nW: newchemical.com.pk\n\n\n\n-----------------------------------------------------------------------\n\nConfidentiality Disclaimer\n\nThe content of this email is confidential and intended for the recipient specified in message only. It is strictly forbidden to share any part of this message with any third party, without a written consent of the sender. If you received this message by mistake, please reply to this message and follow with its deletion, so that we can ensure such a mistake does not occur in the future.\n\n\n\n\n\n\nJinny replied to NADEEM AJAZ\nSEEN\nJul 19 @ 10:59 pm\nTo: NADEEM AJAZ\nDear Taha,\n \nPlease note that the Confirmation Statement only includes verification of director, as you need to verify the PSC directly with Companies House using the same code.\n \nWould you like to proceed?\nShow All Actions (2)\nSeen by NADEEM AJAZ\nJul 19 @ 11:20 pm\nNADEEM AJAZ replied to Jinny\nJul 19 @ 11:21 pm\nTo: Customer Services - Your Company Formations\nThe directors are same as PSC. \n\n\nWarm Regards,\nTaha Na",
+     "match_score": 12
+    },
+    {
+     "ticket_id": "3647369",
+     "subject": "Re: Confirmation Statement (Annual Return) overdue notice for CREATE - DESIGN INVEST BUILD LTD",
+     "closed_date": "2026-07-24",
+     "agents": [
+      "Rona Cacao"
+     ],
+     "customer_email": "create.build@pm.me",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3647369",
+     "excerpt": "CREATE - DESIGN | INVEST | BUILD started a conversation\nHi,\n\n\nJust to double check is that not part of the Premium 12 months Company Filling Services that I already pay for? \n\n\nThank you.\nBest \n\n\n\nMichael Bosacki\nDIRECTOR \n\n\nmobile: +44 771 6758 003\nemail: create.build@pm.me\nwebsite: www.createbuild.co.uk\n\n\n\n\nSent from Proton Mail for iOS.\n\n\n-------- Original Message --------\nOn Thursday, 07/02/26 at 20:28 Your Company Formations <info@yourcompanyformations.co.uk> wrote:\n\nRona Cacao took ownership\nJul 24 @ 9:39 am\nRona Cacao replied to CREATE - DESIGN | INVEST | BUILD\nSEEN\nJul 24 @ 9:40 am\nTo: CREATE - DESIGN | INVEST | BUILD\nHi Michael Bosacki,\n \nThat's a great question.\n \nYour Premium 12 Month Company Filing Service doesn't include the Confirmation Statement filing free of charge. However, while your Premium service is active, you receive a discounted rate for the filing.\n \nInstead of the standard £90 + VAT, the Confirmation Statement filing is £50 + VAT for customers with an active Premium service.\nRona Cacao closed the conversation\nJul 24 @ 9:40 am\nSeen by CREATE - DESIGN | INVEST | BUILD\nJul 24 @ 9:40 am",
+     "match_score": 12
+    },
+    {
+     "ticket_id": "3645063",
+     "subject": "Re: Confirmation Statement (Annual Return Due) for MIGHTYBOOTHMAKERS LTD",
+     "closed_date": "2026-07-24",
+     "agents": [
+      "Rona Cacao"
+     ],
+     "customer_email": "lee@mightybooth.com",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3645063",
+     "excerpt": "Lee Stewart started a conversation\nJul 24 @ 3:08 am\nPlease may i proceed with this payment of £99 plus vat \ni will purchase online by EOP today \n\n\n\nJoin 200+ UK founders learning how to scale past £10m. Get weekly tips and actionable frameworks on what actually works → Subscribe here\nRona Cacao took ownership\nJul 24 @ 3:30 am\nRona Cacao added a note\nJul 24 @ 4:08 am\nhttps://admin.efiling.co.uk/company-details/?i=3124557\nRona Cacao replied to Lee Stewart\nSEEN\nJul 24 @ 4:09 am\nTo: Lee Stewart\nHi  Lee Stewart,\n \nI have now raised the invoice for the Confirmation Statement.\n \nTo complete the payment, please log in to your client portal:\nhttps://www.yourcompanyformations.co.uk/login/\nOnce logged in:\nClick “My Invoice History”\n\n\nSelect Order #6038759\n\n\nClick “Make Payment”\n\n\nImportant: Once you have made the payment, please reply to this email to let me know. Our system does not notify us automatically, so your confirmation is essential for us to proceed with the service without delay.\nRona Cacao closed the conversation\nJul 24 @ 4:09 am\nSeen by Lee Stewart\nJul 24 @ 4:36 am",
+     "match_score": 12
+    }
+   ],
+   "draft": {
+    "concern_type": "confirmation_statement",
+    "concern_label": "Confirmation statement (CS01)",
+    "one_line": "Stephen is letting us know he's already filed OMID SMARTCARE LTD's first confirmation statement himself, so no action or payment is needed from us.",
+    "customer_mood": "neutral",
+    "urgency": "low",
+    "at_a_glance": [
+     "He's right, nothing is outstanding: Companies House shows the CS01 filed on 20 Sep 2026 (statement made 17 Sep 2026), so our 1 October 2026 due-by notice is now out of date and the next one isn't due until 18 June 2027.",
+     "The CS01 went in 'with updates' and Companies House now lists only SIC 63110, while our file has both 62012 and 63110, so 62012 appears to have dropped off the public register.",
+     "Our automated reminders may keep firing at him even though he's already filed, which is the exact complaint on ticket 3478010 that has no recorded fix."
+    ],
+    "risk_flags": [],
+    "proposed_message": "Hi Stephen,\n\nThanks for letting me know, and that's great news.\n\nI've just had a look at your file and at Companies House, and I can confirm it's all gone through for OMID SMARTCARE LTD (16727989). The confirmation statement was made on 17 September 2026 and accepted on 20 September 2026, so there's nothing outstanding and nothing for you to pay us. Your next one isn't due until 18 June 2027.\n\nI also checked your ID verification while I was in there, and that's showing as verified against your director appointment, so you're covered on that side too.\n\nOne small thing I spotted, and I didn't want you to be caught out by it. Your statement went in with updates, and the public register now shows just the one SIC code, 63110 (data processing and hosting). Our records had 62012 (business and domestic software development) on there as well. If dropping it was deliberate then all is well, but if you'd like both back on the record just say the word and I'll sort it for you.\n\nOne last thing, if a reminder about the confirmation statement still lands in your inbox over the next week or so, please ignore it. Those go out automatically and can lag behind a filing that's already been accepted. Your registered office with us is fine until 18 September 2027.\n\nI hope I was able to assist you well. If there's anything else I can help you with, please don't hesitate to let me know.\n\nAlso, if you have a moment, I'd really appreciate it if you could complete a quick survey about your experience with my support. Your feedback helps me understand how satisfied you were with the assistance I provided and supports recognition of the service I deliver.\n\nKind regards,\nRona",
+    "suggested_actions": [
+     "Add an internal note on eFiling 3152420 with the admin link https://admin.efiling.co.uk/company-details/?i=3152420 recording that the customer self-filed the CS01 at Companies House on 20/09/2026 (made 17/09/2026), next due 18/06/2027.",
+     "Cancel or suppress the pending CS01 due/overdue reminder sequence for OMID SMARTCARE LTD so no further automated notices go out (same issue as ticket 3478010, which has no recorded fix, so flag it to the team if the reminder cannot be stopped from the admin panel).",
+     "Do not raise an invoice for the £90 + VAT CS01 filing, and make sure no CS01 order is sitting unpaid on the account.",
+     "Update the SIC codes held on our record to match Companies House (63110 only) unless the customer confirms he wants 62012 reinstated.",
+     "If he asks for 62012 to be added back, collect the SIC change and handle it as a record update rather than a new CS01, since the statement for this period is already accepted.",
+     "Confirm the Registered Office Address renewal on 18/09/2027 is set to auto-renew and leave it in place.",
+     "Send the reply, then close the ticket."
+    ],
+    "open_questions": [
+     "Was the removal of SIC code 62012 from the public register deliberate, or an accidental omission when he filed through the app?",
+     "Can the automated CS01 reminder sequence actually be stopped from the admin panel, given ticket 3478010 records no fix?"
+    ],
+    "needs_human": false,
+    "confidence": 0.92,
+    "sources_used": [
+     "knowledge",
+     "playbook",
+     "efiling",
+     "companies_house",
+     "prior_tickets"
+    ]
+   },
+   "errors": []
+  },
+  {
+   "number": 3756388,
+   "subject": "Inquiry About Opening a Bank Account",
+   "state": "UNREAD",
+   "created_at": "2026-09-23T10:32:02Z",
+   "updated_at": "2026-09-23T10:32:02Z",
+   "age_days": 0,
+   "contact": {
+    "name": "Marek Maciąga",
+    "email": "marekmaciaga@protonmail.com"
+   },
+   "tags": [],
+   "messages": [
+    {
+     "author": "Marek Maciąga",
+     "is_agent": false,
+     "is_note": false,
+     "created_at": "2026-09-23T10:32:02Z",
+     "text": "Hello,  I set up a UK Ltd company with you under the Non-Resident UK Company Formation Package.  I would like to open a bank account as part of this package.  Could you please advise how I can"
+    }
+   ],
+   "identifiers": {
+    "efiling_ids": [],
+    "ch_numbers": [],
+    "candidate_numbers": [],
+    "company_names": [],
+    "orders": []
+   },
+   "regex_concerns": [
+    "bank_referral"
+   ],
+   "efiling": null,
+   "companies_house": null,
+   "links": [
+    {
+     "label": "Groove ticket",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3756388",
+     "kind": "groove"
+    },
+    {
+     "label": "Email marekmaciaga@protonmail.com",
+     "url": "mailto:marekmaciaga@protonmail.com",
+     "kind": "email"
+    },
+    {
+     "label": "Client portal login",
+     "url": "https://www.yourcompanyformations.co.uk/login/",
+     "kind": "portal"
+    }
+   ],
+   "prior_same_customer": [],
+   "prior_same_concern": [
+    {
+     "ticket_id": "3524625",
+     "subject": "Assist with bank account",
+     "closed_date": "2026-05-26",
+     "agents": [
+      "Rona Cacao"
+     ],
+     "customer_email": "info@atzswiss.ch",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3524625",
+     "excerpt": "info@atzswiss.ch Hassan Zainou started a conversation\nMay 26 @ 3:09 am\nHello, good day.\n\n\nThanks we get today out UTR. Number.\n\n\nCan you assist with bank account (wise or revolut) ?\n\n\nCan you help with EORI Number?\n\n\nDo you offer packages for tax report to government?\n\n\nBest regards\n\n\n\n\nHassan Zainou\n\n\n\n\nZX AUTOMOTIVE PARTS LIMITED\nJinny assigned to You\nMay 26 @ 3:16 am\nRona Cacao added a note\nMay 26 @ 3:38 am\nhttps://admin.efiling.co.uk/company-details/?i=3290880\nRona Cacao replied to info@atzswiss.ch Hassan Zainou\nSEEN\nMay 26 @ 3:39 am\nTo: info@atzswiss.ch Hassan Zainou\nHi Hassan Zainou,\n \nCongratulations on receiving your UTR number. That’s a great milestone for your company setup.\n \nIn terms of business bank accounts, we can certainly assist with referrals for Wise. Wise is one of the most popular options for international clients due to the quick setup process and high approval rate.\n \nPlease see the attached Wise instructions to help you get started with the application.\n \nRegarding an EORI number, this is normally applied for directly with HMRC, especially if your company will be importing or exporting goods.\n \nFor tax reporting and filings, we do offer free consultation through our partnered accountants.\n1 Attachment\nWise bank offer.pdf\n194 KB\nRona Cacao closed the conversation\nMay 26 @ 3:39 am\nSeen by info@atzswiss.ch Hassan Zainou\nMay 26 @ 3:39 am",
+     "match_score": 8
+    },
+    {
+     "ticket_id": "3447490",
+     "subject": "INTERNATIONAL COMPANY INCORPORATIONS AND BARCLAYS BANK CORPORATE ACCOUNT OPENING REQUESTS",
+     "closed_date": "2026-04-16",
+     "agents": [
+      "Rona Cacao"
+     ],
+     "customer_email": "dr.habbay@gmail.com",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3447490",
+     "excerpt": "Adetunji Abraham started a conversation\nApr 14 @ 5:19 am\ncc: Adetunji Abraham\nDear Your Company Formation,\n\n\nA pleasant day to you and your entire team.\n\n\nWe wish to make enquiry on International Company Incorporations and Barclay bank account opening on the premises of the following questions or grounds.\n\n\n📌 INCORPORATIONS REQUIREMENTS\nWhat are the things you would need from us aside the payment for an INTERNATIONAL STANDARD INCORPORATIONS package registration?\n\n\n\n\n📌SOLE DIRECTOR\n Is sole Director possible if there organisation operate with sole ownership or sole director or shareholder?\n\n\n📌 DURATION\nHow long does the registration or Incorporations takes, please?\n\n\n📌BENEFITS\n What are the benefits for an organisation operating outside of UK?\n\n\n📌 ACCOUNT \nAfter the Incorporations, we want to open an account with Barclay bank, what are the requirements, opening amount, and documents needed aside that of the Incorporations [IF ANY]?\n\n\n📌 AMOUNT\nWhat is the required amount to open the BARCLAY bank account?\n\n\n📌 PERIOD/DURATION \nHow long does it takes to open the account for operations after submission of the necessary documents?\n\n\n📌 PROFESSIONAL ADVISE\nDo you have any professional advice for us on how to go about the INTERNATIONAL INCORPORATIONS and the BARCLAY BANK ACCOUNT OPENING?\nLooking forward for a prompt positive response from you.\n\n\nBest regards. \n\n\n\n\nABRAHAM Adetunji\n              GMD\nCristina Tudorache assigned to You\nApr 14 @ 5:21 am\nRona Cacao replied to Adetunji Abrah",
+     "match_score": 8
+    },
+    {
+     "ticket_id": "3542982",
+     "subject": "UK bank account opening - Pipara Excelus Limited_15793479",
+     "closed_date": "2026-06-03",
+     "agents": [
+      "Naman",
+      "Rona Cacao"
+     ],
+     "customer_email": "hashmita.pimple@pipara.com",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3542982",
+     "excerpt": "Hashmita Pimple started a conversation\nJun 03 @ 4:44 am\ncc: Namandivya.kacholiya@pipara.com\nHello Your Company formations team,\n\n\n\nWe would like to understand the UK bank account opening process for Pipara Excelus Limited, a company incorporated using your services.\n\nFrom the website, we understand that this service is already included in the company incorporation package for Non-residents.\n\n\n\n\n\n\nRegards,\n\n\nHashmita Pimple\n\n\nAssurance Manager\n\n\nPipara & Co LLP\n\n\nACCA\n\n\n \n\n\nPhone:  +91 79 40 370 370\n\n\nFax:      +91 79 40 370 370\n\n\nWebsite: http://www.pipara.com\n\n\n(H.O.: Pipara Corporate House, Ahmedabad)                            \n\n\nIndia | Singapore | Dubai | London | New York\n\n\nThis email may contain confidential information and is intended only for the recipient addressed.\n\n\n\n\n\n\nCristina Tudorache assigned to You\nJun 03 @ 4:46 am\nRona Cacao added a note\nJun 03 @ 4:50 am\nhttps://admin.efiling.co.uk/company-details/?i=2816982\n \nnaman@pipara.com\nRona Cacao replied to Hashmita Pimple\nJun 03 @ 4:50 am\nTo: Hashmita Pimplecc: Namandivya.kacholiya@pipara.com\nHi Hashmita Pimple,\n \nThank you for your message.\n \nTo assist you further and resolve the issue with your account, could you please resend your email from the email address linked to your account? For security and verification purposes, we can only discuss account-specific information when the request comes from the registered primary email.\n \nOnce we receive your message from the correct email, we’ll be able to look into the ",
+     "match_score": 7
+    },
+    {
+     "ticket_id": "3515069",
+     "subject": "NEW COMPANY BANK ACCOUNT",
+     "closed_date": "2026-05-20",
+     "agents": [
+      "Rona Cacao"
+     ],
+     "customer_email": "ccutrades@gmail.com",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3515069",
+     "excerpt": "Cornel Ukattah started a conversation\nMay 20 @ 7:05 am\nDear Support,\n\n\nI am NOT resident in UK if I get the process started how will you open the Bank Account?\n\n\nBest Regards,\nCornel Ukattah\nJinny assigned to You\nMay 20 @ 7:12 am\nRona Cacao replied to Cornel Ukattah\nSEEN\nMay 20 @ 7:52 am\nTo: Cornel Ukattah\nHi Cornel Ukattah,\n \nThank you for your interest.\n \nBefore we proceed, could you please let us know the country the officers are based in?\nRona Cacao closed the conversation\nMay 20 @ 7:52 am\nSeen by Cornel Ukattah\nMay 20 @ 7:55 am\nCornel Ukattah replied to You\nTo: Customer Services - Your Company Formations\nI will be the Only shareholder and only Director and I have Nigerian Passport and live in Cape Town South Africa..\n\n\nBest Regards,\nCornel Ukattah\n\n\nCornel Ukattah reopened the conversation\nMay 20 @ 7:56 am\nRona Cacao replied to Cornel Ukattah\nSEEN\nMay 20 @ 7:59 am\nTo: Cornel Ukattah\nHi Cornel Ukattah,\n \nThank you for your enquiry.\n \nYes, you can still start the company formation process even if you are not resident in the UK. We regularly assist international clients with forming UK companies.\n \nRegarding the bank account, we are able to provide bank referrals only. The actual bank account application and approval are always handled directly by the bank itself, and all applications remain subject to the bank’s own review and discretion.\n \nFor international clients, Wise is one of the most commonly used options as they are generally very international-friendly and support",
+     "match_score": 7
+    }
+   ],
+   "draft": {
+    "concern_type": "bank_referral",
+    "concern_label": "Bank referral / cashback",
+    "one_line": "Marek believes a business bank account is included in the non-resident formation package he bought and wants to know how to open it.",
+    "customer_mood": "neutral",
+    "urgency": "medium",
+    "at_a_glance": [
+     "He's named a \"Non-Resident UK Company Formation Package\", which isn't one of our listed packages, so the exact order and what it includes still needs identifying.",
+     "He's assumed the package opens a bank account for him; it doesn't, it's a referral only, and that's the core of the reply.",
+     "Nothing came back on eFiling or Companies House for this ticket, so his company name, number and incorporation status are all still unknown."
+    ],
+    "risk_flags": [
+     "No eFiling record located, so we cannot yet confirm the sender is the registered account holder before giving account-specific detail.",
+     "Incorporation and officer identity verification status unknown, and cashback cannot be actioned while either is outstanding."
+    ],
+    "proposed_message": "Hi Marek,\n\nCongratulations on getting your UK company set up, and thanks for getting in touch about the banking side.\n\nI want to be straight with you about how this works, because it's easy to read the package description and expect something different. We don't open bank accounts on behalf of clients. What we provide is a bank referral, and the application itself, the approval and all the processing sit entirely with the bank.\n\nFor non-UK residents like yourself, Wise is the option we refer to. It's popular with our international clients because setup is quick and the approval rate is high, though I can't guarantee the outcome as the decision is always the bank's own. I've attached the Wise instructions so you can get started.\n\nOne thing worth knowing in advance: Wise won't accept our registered office at 128 City Road as a trading address, because it's a virtual, non-physical mailing address that's already in use by other companies. A physical trading address would mean a traditional rental, which gets expensive quickly, so a lot of our clients use their own personal or residential address instead and find the bank accepts it. It does vary by bank, so it's worth checking what they'll take before you apply.\n\nI've tried to pull up your file, but I can't find the record from this email address on its own. Could you send me:\n\n1. Your company name and company number\n2. The email address registered on your account, if it's different from this one\n\nAs soon as I have those I'll check everything on your record and tell you exactly where you stand, including whether your package came with bank cashback. If it did, just let me know once the account has actually been approved and opened and I'll walk you through claiming it.\n\nAnything else you're unsure about, just ask and I'll help where I can.\n\nKind regards,\nRona",
+    "suggested_actions": [
+     "Search eFiling admin for marekmaciaga@protonmail.com and for the name Marek Maciaga to locate the order; add the https://admin.efiling.co.uk/company-details/?i=... link as an internal note on the ticket.",
+     "Confirm which package was actually bought (the \"Non-Resident UK Company Formation Package\" wording isn't ours) and whether bank cashback applies.",
+     "Confirm the company is incorporated and that all officers have completed identity verification with Compliance before any cashback step.",
+     "Verify \"Wise bank offer.pdf\" (194 KB, current version) is genuinely attached to the outgoing message before sending; the older \"Wise Bank.pdf\" is superseded.",
+     "If the record shows a different registered primary email, hold account-specific detail and ask him to resend from that address.",
+     "Send and close the conversation; it reopens if he replies with the company details.",
+     "If he raises tax or filing questions on reply, offer the free consultation with our partnered accountants; EORI goes direct to HMRC."
+    ],
+    "open_questions": [
+     "What is the company name and number?",
+     "Which package was actually purchased, and does it include bank cashback (GBP 55 or GBP 155)?",
+     "Is the company already incorporated, or still pending?",
+     "Is marekmaciaga@protonmail.com the registered primary email on the account?",
+     "Which country are the officers based in (relevant for AML high-risk screening)?"
+    ],
+    "needs_human": false,
+    "confidence": 0.72,
+    "sources_used": [
+     "knowledge",
+     "playbook",
+     "prior_tickets"
+    ]
+   },
+   "errors": []
+  },
+  {
+   "number": 3756387,
+   "subject": "Re: Confirmation Statement (Annual Return Due) for AQUA DASH PLUMBING LIMITED",
+   "state": "UNREAD",
+   "created_at": "2026-09-23T10:31:28Z",
+   "updated_at": "2026-09-23T10:31:28Z",
+   "age_days": 0,
+   "contact": {
+    "name": "Girnet Alex",
+    "email": "girnetalex41@gmail.com"
+   },
+   "tags": [],
+   "messages": [
+    {
+     "author": "Girnet Alex",
+     "is_agent": false,
+     "is_note": false,
+     "created_at": "2026-09-23T10:31:28Z",
+     "text": "Dear Your Company Formations Team, I would like to pay the £90 fee for the Confirmation Statement for AQUA DASH PLUMBING LIMITED (Registration No: 16713310). Please let me know how I can process this"
+    }
+   ],
+   "identifiers": {
+    "efiling_ids": [],
+    "ch_numbers": [],
+    "candidate_numbers": [
+     "16713310"
+    ],
+    "company_names": [
+     "AQUA DASH PLUMBING LIMITED"
+    ],
+    "orders": []
+   },
+   "regex_concerns": [
+    "confirmation_statement"
+   ],
+   "efiling": {
+    "efiling_id": "3136268",
+    "customer": "Aqua Dash Limited",
+    "company_name": "AQUA DASH PLUMBING LIMITED",
+    "company_number": "16713310",
+    "auth_code": "DA4FG2",
+    "incorporated": "12/09/2025",
+    "status": "Accepted",
+    "registered_email": "info.aquadash@gmail.com",
+    "registered_office": "128, City Road London EC1V 2NX UNITED KINGDOM",
+    "jurisdiction": "England and Wales",
+    "sic_codes": [
+     {
+      "code": "43220",
+      "description": "Plumbing, heat and air-conditioning installation"
+     }
+    ],
+    "officers": [
+     "Alexandru Girnet"
+    ],
+    "services": {
+     "counts": {
+      "active": 4,
+      "paused": 0,
+      "expired_cancelled": 0,
+      "critical": 0
+     },
+     "rows": [
+      {
+       "name": "Premium 12 Month Company ",
+       "renew_date": "12/09/2027",
+       "extra": "-\tDetails »"
+      },
+      {
+       "name": "Director's Service Addres",
+       "renew_date": "12/09/2027",
+       "extra": ""
+      },
+      {
+       "name": "Registered Office Address",
+       "renew_date": "12/09/2027",
+       "extra": ""
+      },
+      {
+       "name": "Mail Forwarding Service -",
+       "renew_date": "12/09/2027",
+       "extra": ""
+      }
+     ],
+     "raw": "Active: 4 Paused: 0 Expired / Cancelled: 0 Critical: 0\n\nName\tRenew Date\tRenew\tForward Address\t\nPremium 12 Month Company ...\t12/09/2027\t\t-\tDetails »\nDirector's Service Addres...\t12/09/2027\t\t\nOL120PT\tDetails »\nRegistered Office Address...\t12/09/2027\t\t\nOL120PT\tDetails »\nMail Forwarding Service -...\t12/09/2027\t\t\nOL120PT\tDetails »"
+    },
+    "notes": [
+     {
+      "date": "31/08/2026",
+      "text": "3714547 credas sent to Alexandru Girnet",
+      "author": "Miss Zoe"
+     },
+     {
+      "date": "13/07/2026",
+      "text": "1 general letter posted",
+      "author": "Santiago Perera"
+     },
+     {
+      "date": "30/06/2026",
+      "text": "1 general letter posted",
+      "author": "Mr Lewis Buck"
+     },
+     {
+      "date": "16/06/2026",
+      "text": "1 general letter - posted",
+      "author": "Cristina Tudorache"
+     },
+     {
+      "date": "30/04/2026",
+      "text": "1 general letter posted",
+      "author": "Mikala Cornish"
+     },
+     {
+      "date": "16/02/2026",
+      "text": "transferred account over to info.aquadash@gmail.com https://admin.efiling.co.uk/customer-details/?u=1989664",
+      "author": "Jeremiah King"
+     },
+     {
+      "date": "16/02/2026",
+      "text": "no access to account email anymore, Passed ID check #3326810",
+      "author": "Jeremiah King"
+     },
+     {
+      "date": "13/02/2026",
+      "text": "ID and POA PASSED - Alexandru Girnet - AQUA DASH PLUMBING LIMITED",
+      "author": "Darryl Ignalague"
+     },
+     {
+      "date": "13/02/2026",
+      "text": "Updated address for Alexandru Girnet #3326810",
+      "author": "Darryl Ignalague"
+     },
+     {
+      "date": "13/02/2026",
+      "text": "ID PASSED: requested to verify address for Alexandru Girnet to new email #3326810",
+      "author": "Darryl Ignalague"
+     },
+     {
+      "date": "12/02/2026",
+      "text": "disregard previous note- - -",
+      "author": "Clarice Villalon-Castillo"
+     },
+     {
+      "date": "12/02/2026",
+      "text": "resent Credas invite for Alexandru Girnet to new email : info.aquadash@gmail.com #3326810",
+      "author": "Clarice Villalon-Castillo"
+     },
+     {
+      "date": "11/02/2026",
+      "text": "C-Connect invite sent - Alexandru Girnet - info.aquadashplumbing@gmail.com #3326810",
+      "author": "Darryl Ignalague"
+     },
+     {
+      "date": "20/01/2026",
+      "text": "1 general letter posted",
+      "author": "Mr Lewis Buck"
+     },
+     {
+      "date": "19/01/2026",
+      "text": "1 general letter posted",
+      "author": "Davina Sudra"
+     },
+     {
+      "date": "08/01/2026",
+      "text": "1 court letter posted to RO",
+      "author": "Mr Lewis Buck"
+     },
+     {
+      "date": "22/12/2025",
+      "text": "1 Royal Mail 'Signed For' letter posted",
+      "author": "Davina Sudra"
+     },
+     {
+      "date": "24/09/2025",
+      "text": "1 general letter posted - 1st letter free",
+      "author": "Claudia Zamorano"
+     },
+     {
+      "date": "12/09/2025",
+      "text": "Company formation documents printed and sent.",
+      "author": "Samira Akhmedova"
+     },
+     {
+      "date": "12/09/2025",
+      "text": "Company Passed Compliance check, Company submitted",
+      "author": "Jeany Menguito"
+     },
+     {
+      "date": "12/09/2025",
+      "text": "ID & POA PASSED - Alexandru Girnet - AQUA DASH PLUMBING LIMITED",
+      "author": "Jeany Menguito"
+     },
+     {
+      "date": "11/09/2025",
+      "text": "ID received. POA does not show any/enough transactions. Sent email to send another POA for: Mr Alexandru Girnet #3029089",
+      "author": "Clarice Villalon-Castillo"
+     },
+     {
+      "date": "22/08/2025",
+      "text": "C-connect invite sent for Mr Alexandru Girnet #3029089",
+      "author": "Judee Bayog"
+     }
+    ],
+    "url": "https://admin.efiling.co.uk/company-details/?i=3136268",
+    "orders": [
+     {
+      "number": "3326810",
+      "kind": "order",
+      "date": "16/02/2026",
+      "note": "no access to account email anymore, Passed ID check #3326810",
+      "url": "https://admin.efiling.co.uk/order-details/?o=3326810"
+     },
+     {
+      "number": "3029089",
+      "kind": "order",
+      "date": "11/09/2025",
+      "note": "ID received. POA does not show any/enough transactions. Sent email to send another POA for: Mr Alexandru Girnet #3029089",
+      "url": "https://admin.efiling.co.uk/order-details/?o=3029089"
+     }
+    ],
+    "verification": {
+     "state": "complete",
+     "label": "ID/POA passed",
+     "date": "13/02/2026",
+     "note": "ID and POA PASSED - Alexandru Girnet - AQUA DASH PLUMBING LIMITED",
+     "author": "Darryl Ignalague"
+    },
+    "matched_by": "number search: 16713310"
+   },
+   "companies_house": {
+    "url": "https://find-and-update.company-information.service.gov.uk/company/16713310",
+    "name": "AQUA DASH PLUMBING LIMITED",
+    "number": "16713310",
+    "status": "Active",
+    "incorporated": "12 September 2025",
+    "registered_office": "128 City Road, London, United Kingdom, EC1V 2NX",
+    "dissolved_on": "",
+    "accounts_overdue": false,
+    "accounts_due_by": "",
+    "accounts_next_made_up_to": "",
+    "accounts_last_made_up_to": "",
+    "cs_overdue": false,
+    "cs_due_by": "12 June 2027",
+    "cs_next_statement_date": "",
+    "cs_last_statement_dated": "",
+    "sic_codes": [
+     {
+      "code": "43220",
+      "description": "Plumbing, heat and air-conditioning installation"
+     }
+    ],
+    "screenshot": "ch_3756387_16713310.jpg",
+    "note": "uptodate; CS due 12 June 2027",
+    "filing_history": [
+     {
+      "date": "12 Sep 2025",
+      "type": "NEWINC",
+      "description": "Incorporation Statement of capital on 2025-09-12 GBP 1"
+     }
+    ],
+    "officers": [
+     {
+      "name": "GIRNET, Alexandru",
+      "role": "Director",
+      "appointed": "12 September 2025",
+      "resigned": false,
+      "identity_verification": "",
+      "verified_by_ycf": false,
+      "date_of_birth": "July 1980",
+      "nationality": "Romanian",
+      "residence": "United Kingdom",
+      "occupation": "",
+      "correspondence_address": "128 City Road, London, United Kingdom, EC1V 2NX",
+      "appointments_url": "/officers/Rj_BsIzAVBnmM42NRBnPI5DFHWI/appointments",
+      "appointments": {
+       "total": "1",
+       "items": [
+        {
+         "company": "AQUA DASH PLUMBING LIMITED",
+         "number": "16713310",
+         "url": "https://find-and-update.company-information.service.gov.uk/company/16713310",
+         "status": "Active",
+         "role": "Director",
+         "appointed": "12 September 2025",
+         "resigned": false
+        }
+       ],
+       "url": "https://find-and-update.company-information.service.gov.uk/officers/Rj_BsIzAVBnmM42NRBnPI5DFHWI/appointments"
+      }
+     }
+    ],
+    "filing_history_url": "https://find-and-update.company-information.service.gov.uk/company/16713310/filing-history",
+    "officers_url": "https://find-and-update.company-information.service.gov.uk/company/16713310/officers"
+   },
+   "links": [
+    {
+     "label": "Groove ticket",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3756387",
+     "kind": "groove"
+    },
+    {
+     "label": "Email girnetalex41@gmail.com",
+     "url": "mailto:girnetalex41@gmail.com",
+     "kind": "email"
+    },
+    {
+     "label": "eFiling company record",
+     "url": "https://admin.efiling.co.uk/company-details/?i=3136268",
+     "kind": "efiling"
+    },
+    {
+     "label": "Registered email: info.aquadash@gmail.com",
+     "url": "mailto:info.aquadash@gmail.com",
+     "kind": "email"
+    },
+    {
+     "label": "eFiling order #3326810 (16/02/2026)",
+     "url": "https://admin.efiling.co.uk/order-details/?o=3326810",
+     "kind": "order"
+    },
+    {
+     "label": "eFiling order #3029089 (11/09/2025)",
+     "url": "https://admin.efiling.co.uk/order-details/?o=3029089",
+     "kind": "order"
+    },
+    {
+     "label": "Companies House record",
+     "url": "https://find-and-update.company-information.service.gov.uk/company/16713310",
+     "kind": "ch"
+    },
+    {
+     "label": "CH filing history",
+     "url": "https://find-and-update.company-information.service.gov.uk/company/16713310/filing-history",
+     "kind": "ch"
+    },
+    {
+     "label": "CH officers",
+     "url": "https://find-and-update.company-information.service.gov.uk/company/16713310/officers",
+     "kind": "ch"
+    },
+    {
+     "label": "Client portal login",
+     "url": "https://www.yourcompanyformations.co.uk/login/",
+     "kind": "portal"
+    }
+   ],
+   "prior_same_customer": [],
+   "prior_same_concern": [
+    {
+     "ticket_id": "3649707",
+     "subject": "Re: Confirmation Statement (Annual Return Due) for 28GRAMS NUTRACEUTICALS LTD",
+     "closed_date": "2026-07-27",
+     "agents": [
+      "Rona Cacao"
+     ],
+     "customer_email": "28g.nutraceuticals@gmail.com",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3649707",
+     "excerpt": "Amani Ismail started a conversation\nJul 27 @ 8:39 am\nHello,\n\n\nCan you send me more clarification on what I’m filing for?\n\n\nThank you,\nAmani \n\n\nRona Cacao took ownership\nJul 27 @ 8:46 am\nRona Cacao added a note\nJul 27 @ 8:54 am\nhttps://admin.efiling.co.uk/company-details/?i=3137370\nRona Cacao replied to Amani Ismail\nJul 27 @ 8:56 am\nTo: Amani Ismail\nHi Amani Ismail,\n \nThank you for your message.\n \nThe invoice is for the filing of your Confirmation Statement, which is a mandatory filing that every UK limited company must submit to Companies House, even if no company details have changed.\n \nThe purpose of the Confirmation Statement is to confirm that your company's information held by Companies House is accurate and up to date. This includes details such as:\n \nRegistered office address\nDirectors and company secretary (if applicable)\nPeople with Significant Control (PSCs)\nShareholders and share capital\nSIC code (business activity)\n \nI checked your account and can confirm that your Confirmation Statement is due by 11 September 2026.\n \nAs you have an active Premium 12 Month Company Filing Service, you're entitled to our discounted filing fee of £50 + VAT, instead of the standard £90 + VAT.\nRona Cacao closed the conversation\nJul 27 @ 8:56 am",
+     "match_score": 12
+    },
+    {
+     "ticket_id": "3631039",
+     "subject": "Re: Confirmation Statement (Annual Return Due) for HYDOCS LTD",
+     "closed_date": "2026-07-27",
+     "agents": [
+      "Jinny",
+      "Rona Cacao"
+     ],
+     "customer_email": "newchemicalcentre@yahoo.com",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3631039",
+     "excerpt": "NADEEM AJAZ started a conversation\nJul 19 @ 10:57 pm\nDear, \n\n\nI want this service from you and also want to get you to verify person with significant control at company house. Please offer some discount on same so that we can process this time. \n\n\nWaiting your earliest response. \n\n\nWarm Regards,\nTaha Nadeem\nNew Chemical Centre,\n3-Syed Mauj Darya (Edward) Road,\nLahore, Pakistan.\nPhone: +92-42-37312378, 37356445\nFax: +92-42-37350807\n\nE: newchemicalcentre@yahoo.com\n    info@newchemical.com.pk\nW: newchemical.com.pk\n\n\n\n-----------------------------------------------------------------------\n\nConfidentiality Disclaimer\n\nThe content of this email is confidential and intended for the recipient specified in message only. It is strictly forbidden to share any part of this message with any third party, without a written consent of the sender. If you received this message by mistake, please reply to this message and follow with its deletion, so that we can ensure such a mistake does not occur in the future.\n\n\n\n\n\n\nJinny replied to NADEEM AJAZ\nSEEN\nJul 19 @ 10:59 pm\nTo: NADEEM AJAZ\nDear Taha,\n \nPlease note that the Confirmation Statement only includes verification of director, as you need to verify the PSC directly with Companies House using the same code.\n \nWould you like to proceed?\nShow All Actions (2)\nSeen by NADEEM AJAZ\nJul 19 @ 11:20 pm\nNADEEM AJAZ replied to Jinny\nJul 19 @ 11:21 pm\nTo: Customer Services - Your Company Formations\nThe directors are same as PSC. \n\n\nWarm Regards,\nTaha Na",
+     "match_score": 12
+    },
+    {
+     "ticket_id": "3647369",
+     "subject": "Re: Confirmation Statement (Annual Return) overdue notice for CREATE - DESIGN INVEST BUILD LTD",
+     "closed_date": "2026-07-24",
+     "agents": [
+      "Rona Cacao"
+     ],
+     "customer_email": "create.build@pm.me",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3647369",
+     "excerpt": "CREATE - DESIGN | INVEST | BUILD started a conversation\nHi,\n\n\nJust to double check is that not part of the Premium 12 months Company Filling Services that I already pay for? \n\n\nThank you.\nBest \n\n\n\nMichael Bosacki\nDIRECTOR \n\n\nmobile: +44 771 6758 003\nemail: create.build@pm.me\nwebsite: www.createbuild.co.uk\n\n\n\n\nSent from Proton Mail for iOS.\n\n\n-------- Original Message --------\nOn Thursday, 07/02/26 at 20:28 Your Company Formations <info@yourcompanyformations.co.uk> wrote:\n\nRona Cacao took ownership\nJul 24 @ 9:39 am\nRona Cacao replied to CREATE - DESIGN | INVEST | BUILD\nSEEN\nJul 24 @ 9:40 am\nTo: CREATE - DESIGN | INVEST | BUILD\nHi Michael Bosacki,\n \nThat's a great question.\n \nYour Premium 12 Month Company Filing Service doesn't include the Confirmation Statement filing free of charge. However, while your Premium service is active, you receive a discounted rate for the filing.\n \nInstead of the standard £90 + VAT, the Confirmation Statement filing is £50 + VAT for customers with an active Premium service.\nRona Cacao closed the conversation\nJul 24 @ 9:40 am\nSeen by CREATE - DESIGN | INVEST | BUILD\nJul 24 @ 9:40 am",
+     "match_score": 12
+    },
+    {
+     "ticket_id": "3645063",
+     "subject": "Re: Confirmation Statement (Annual Return Due) for MIGHTYBOOTHMAKERS LTD",
+     "closed_date": "2026-07-24",
+     "agents": [
+      "Rona Cacao"
+     ],
+     "customer_email": "lee@mightybooth.com",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3645063",
+     "excerpt": "Lee Stewart started a conversation\nJul 24 @ 3:08 am\nPlease may i proceed with this payment of £99 plus vat \ni will purchase online by EOP today \n\n\n\nJoin 200+ UK founders learning how to scale past £10m. Get weekly tips and actionable frameworks on what actually works → Subscribe here\nRona Cacao took ownership\nJul 24 @ 3:30 am\nRona Cacao added a note\nJul 24 @ 4:08 am\nhttps://admin.efiling.co.uk/company-details/?i=3124557\nRona Cacao replied to Lee Stewart\nSEEN\nJul 24 @ 4:09 am\nTo: Lee Stewart\nHi  Lee Stewart,\n \nI have now raised the invoice for the Confirmation Statement.\n \nTo complete the payment, please log in to your client portal:\nhttps://www.yourcompanyformations.co.uk/login/\nOnce logged in:\nClick “My Invoice History”\n\n\nSelect Order #6038759\n\n\nClick “Make Payment”\n\n\nImportant: Once you have made the payment, please reply to this email to let me know. Our system does not notify us automatically, so your confirmation is essential for us to proceed with the service without delay.\nRona Cacao closed the conversation\nJul 24 @ 4:09 am\nSeen by Lee Stewart\nJul 24 @ 4:36 am",
+     "match_score": 12
+    }
+   ],
+   "draft": {
+    "concern_type": "confirmation_statement",
+    "concern_label": "Confirmation statement (CS01)",
+    "one_line": "Alexandru Girnet wants to pay the £90 Confirmation Statement fee for AQUA DASH PLUMBING LIMITED (16713310) and is asking how to pay.",
+    "customer_mood": "neutral",
+    "urgency": "low",
+    "at_a_glance": [
+     "The email has come from girnetalex41@gmail.com, but the account was transferred to info.aquadash@gmail.com on 16/02/2026, so this is not the registered primary email and account specifics have to wait until it is resent from there.",
+     "Nothing is actually due: Companies House shows the confirmation statement not due until 12 June 2027 and nothing overdue, so the customer is paying roughly nine months early.",
+     "With the Premium 12 Month Company Filing Service active (renews 12/09/2027), the filing is £50 + VAT rather than the £90 + VAT they have offered to pay."
+    ],
+    "risk_flags": [
+     "HARD STOP: unknown/unverified sender. The request has not come from the registered primary email (info.aquadash@gmail.com), so it must be resent from there before anything account-specific is discussed.",
+     "Customer is offering £90 + VAT when the Premium discount rate of £50 + VAT applies. Do not take the higher amount.",
+     "Credas invite sent to Alexandru Girnet on 31/08/2026 (ticket 3714547) with no completion recorded since, so officer verification may be an outstanding blocker before any filing can go out."
+    ],
+    "proposed_message": "Hi Alexandru,\n\nThanks for getting in touch about the Confirmation Statement for AQUA DASH PLUMBING LIMITED, and for offering to sort it straight away.\n\nBefore I go into anything to do with the account, I have to ask a small favour. This message has come through from girnetalex41@gmail.com, and the registered email we hold for the company is a different one (it starts info.aq... and ends @gmail.com). It's a security thing on our side rather than any doubt about you, so could you send the same request again from that registered address? As soon as it lands I can pick it straight up.\n\nIn the meantime, one thing I can tell you from the public Companies House record, because anyone can look that up: your confirmation statement isn't due until 12 June 2027, and there's nothing overdue on the company at all. So there's genuinely no rush here, and I didn't want you paying for something months earlier than you need to.\n\nWorth knowing too, if there's an active Premium 12 Month Company Filing Service on a company, we file the Confirmation Statement at £50 + VAT rather than the standard £90 + VAT. Once you write in from the registered email I'll check exactly what applies to yours and raise the invoice for the right amount, so you're not overpaying.\n\nJust send that email over whenever suits and I'll take it from there.\n\nBest wishes,\nRona",
+    "suggested_actions": [
+     "Add internal note with the eFiling link: https://admin.efiling.co.uk/company-details/?i=3136268",
+     "Send the reply asking the customer to resend from the registered primary email info.aquadash@gmail.com (mask the address in the outgoing email); do not discuss account specifics until then.",
+     "On receipt from info.aquadash@gmail.com, confirm the CS01 due date of 12 June 2027 and check whether they still want to pay this far ahead.",
+     "If they proceed, raise the invoice at £50 + VAT (Premium 12 Month Company Filing Service active, renews 12/09/2027), not the £90 + VAT they offered; send the login > My Invoice History > Make Payment route and ask them to reply once paid.",
+     "Use IP02 wording for the CS01 after payment, including the PSC verification warning (separate PSC obligation, 14-day window from the direction letter, personal code via GOV.UK One Login, 12-month transition to late 2026).",
+     "Collect the six filing items before filing: directors' Companies House personal codes, any company changes, SIC code (currently 43220), total share capital, authentication code, and registered email address.",
+     "Check with compliance on the Credas invite sent to Alexandru Girnet on 31/08/2026 (ticket 3714547) and confirm officer verification is complete before committing to a filing date."
+    ],
+    "open_questions": [
+     "Why did the request come from girnetalex41@gmail.com when the account was transferred to info.aquadash@gmail.com on 16/02/2026? Is this a second personal address of the same director?",
+     "Has the Credas invite sent on 31/08/2026 been completed? The record shows ID and POA passed 13/02/2026 but no outcome for the August re-check.",
+     "Does the customer actually want to pay now for a statement not due until 12 June 2027, or did an automated notice mislead them?"
+    ],
+    "needs_human": true,
+    "confidence": 0.78,
+    "sources_used": [
+     "knowledge",
+     "playbook",
+     "efiling",
+     "companies_house",
+     "prior_tickets"
+    ]
+   },
+   "errors": []
+  },
+  {
+   "number": 3756378,
+   "subject": "4 Kimmeridge Avenue Management Ltd",
+   "state": "OPENED",
+   "created_at": "2026-09-23T10:27:37Z",
+   "updated_at": "2026-09-23T10:27:37Z",
+   "age_days": 0,
+   "contact": {
+    "name": "markymeadows@gmail.com Meadows",
+    "email": "markymeadows@gmail.com"
+   },
+   "tags": [],
+   "messages": [
+    {
+     "author": "markymeadows@gmail.com Meadows",
+     "is_agent": false,
+     "is_note": false,
+     "created_at": "2026-09-23T10:27:37Z",
+     "text": "Hi I purchased this company name and completed all the relevant information on 21st September 2026. When will it show on Companies House as being live?  I look forward to hearing from you soon.  Kind"
+    }
+   ],
+   "identifiers": {
+    "efiling_ids": [],
+    "ch_numbers": [],
+    "candidate_numbers": [],
+    "company_names": [
+     "4 Kimmeridge Avenue Management Ltd"
+    ],
+    "orders": []
+   },
+   "regex_concerns": [
+    "general_enquiry"
+   ],
+   "efiling": {
+    "efiling_id": "3375635",
+    "customer": "Mr Mark Meadows",
+    "company_name": "4 KIMMERIDGE AVENUE MANAGEMENT LTD",
+    "company_number": "",
+    "auth_code": "-",
+    "incorporated": "",
+    "status": "Submitted",
+    "registered_email": "markymeadows@gmail.com",
+    "registered_office": "128, City Road London EC1V 2NX UNITED KINGDOM",
+    "jurisdiction": "England and Wales",
+    "sic_codes": [
+     {
+      "code": "68320",
+      "description": "Management of real estate on a fee or contract basis"
+     }
+    ],
+    "officers": [
+     "Mark John Meadows"
     ],
     "services": {
      "counts": {
@@ -279,9 +1735,23 @@
      "rows": [],
      "raw": "Active: 0 Paused: 0 Expired / Cancelled: 0 Critical: 0\n\n\nNo Active services"
     },
-    "notes": [],
-    "url": "https://admin.efiling.co.uk/company-details/?i=3376790",
-    "orders": [],
+    "notes": [
+     {
+      "date": "21/09/2026",
+      "text": "Requested Credas for Mr Mark Meadows #3753014",
+      "author": "Clarice Villalon-Castillo"
+     }
+    ],
+    "url": "https://admin.efiling.co.uk/company-details/?i=3375635",
+    "orders": [
+     {
+      "number": "3753014",
+      "kind": "order",
+      "date": "21/09/2026",
+      "note": "Requested Credas for Mr Mark Meadows #3753014",
+      "url": "https://admin.efiling.co.uk/order-details/?o=3753014"
+     }
+    ],
     "verification": {
      "state": "unknown",
      "label": "",
@@ -289,29 +1759,228 @@
      "note": "",
      "author": ""
     },
+    "matched_by": "name search: 4 Kimmeridge Avenue Management Ltd"
+   },
+   "companies_house": null,
+   "links": [
+    {
+     "label": "Groove ticket",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3756378",
+     "kind": "groove"
+    },
+    {
+     "label": "Email markymeadows@gmail.com",
+     "url": "mailto:markymeadows@gmail.com",
+     "kind": "email"
+    },
+    {
+     "label": "eFiling company record",
+     "url": "https://admin.efiling.co.uk/company-details/?i=3375635",
+     "kind": "efiling"
+    },
+    {
+     "label": "Registered email: markymeadows@gmail.com",
+     "url": "mailto:markymeadows@gmail.com",
+     "kind": "email"
+    },
+    {
+     "label": "eFiling order #3753014 (21/09/2026)",
+     "url": "https://admin.efiling.co.uk/order-details/?o=3753014",
+     "kind": "order"
+    },
+    {
+     "label": "Client portal login",
+     "url": "https://www.yourcompanyformations.co.uk/login/",
+     "kind": "portal"
+    }
+   ],
+   "prior_same_customer": [],
+   "prior_same_concern": [],
+   "draft": {
+    "concern_type": "incorporation_pending",
+    "concern_label": "Incorporation / formation status",
+    "one_line": "Mark Meadows wants to know when 4 Kimmeridge Avenue Management Ltd, ordered on 21 September 2026, will appear as live on Companies House.",
+    "customer_mood": "neutral",
+    "urgency": "medium",
+    "at_a_glance": [
+     "Sender markymeadows@gmail.com matches the registered primary email on eFiling, so no verification challenge is needed here.",
+     "The customer believes he has 'completed all the relevant information', but the Credas identity check requested on 21/09/2026 is still outstanding, which is what is holding the submission.",
+     "No Companies House record exists yet, so there is no company number to quote and nothing for him to look up."
+    ],
+    "risk_flags": [
+     "eFiling status is Submitted and cannot go to Companies House until identity verification is complete (legal requirement since 18 November 2025).",
+     "Credas requested 21/09/2026 for Mr Mark Meadows (order #3753014) and not yet returned, so incorporation is stalled with no automatic progress."
+    ],
+    "proposed_message": "Hi Mark,\n\nThanks for getting in touch, and congratulations on getting 4 Kimmeridge Avenue Management Ltd under way.\n\nI've just had a look at your file. The application is sitting with us as Submitted, with you (Mark John Meadows) as the officer, the registered office at 128 City Road, London EC1V 2NX, and SIC code 68320 for management of real estate. Everything on the form itself is in good order.\n\nThe one thing still outstanding is your identity check. On 21 September 2026 we requested a Credas verification link for you, and we haven't had that back yet. Since 18 November 2025 Companies House require identity verification by law before a company can be incorporated, so we aren't able to send the application over to them until that check is completed and reviewed.\n\nI didn't want you sitting and waiting for something that won't move along on its own, which is why I'm flagging it now rather than later. The link comes by email, so it's worth a quick look in your spam or junk folder if you can't spot it. It only takes a few minutes and you'll need three things:\n\n1. A short liveness check (a selfie-style scan on your phone).\n2. A valid photo ID.\n3. A proof of address dated within the last 3 months, in English, showing your full name.\n\nOnce that's done and our compliance team have reviewed it, incorporation is usually quick, often within 3 to 6 hours, depending on how busy Companies House are that day. Your company then shows on the public register within 24 hours of being incorporated.\n\nIf the link has gone astray or you'd rather I send a fresh one, just say the word and I'll get that out to you today.\n\nBest wishes,\nRona",
+    "suggested_actions": [
+     "Confirm sender markymeadows@gmail.com matches the registered primary email on eFiling id 3375635 (it does), so no verification template is required.",
+     "Check the Credas request raised by Clarice Villalon-Castillo on 21/09/2026 (order #3753014) for Mr Mark Meadows and record its current status (sent / opened / not started / expired) in an internal note.",
+     "Send the reply explaining the outstanding ID verification and the post-verification timelines.",
+     "Ask the compliance team to reissue the Credas link if it has expired or was never delivered, and reply to the customer confirming it has been resent.",
+     "Add an internal note with the eFiling company-details URL (https://admin.efiling.co.uk/company-details/?i=3375635) and the registered primary email.",
+     "Keep the ticket open and follow up in 2 to 3 working days if the Credas check is still not returned, rather than closing on one touch.",
+     "Once verification clears and the company incorporates, confirm the company number and incorporation date to the customer and use the RR part 1 review request."
+    ],
+    "open_questions": [
+     "Has Mark actually received and opened the Credas link, or does it need reissuing?",
+     "Is the Credas request still live or has it expired since 21/09/2026?",
+     "Are any other officers, shareholders or PSCs on this application who also need to verify, or is Mark John Meadows the only one?"
+    ],
+    "needs_human": false,
+    "confidence": 0.82,
+    "sources_used": [
+     "knowledge",
+     "playbook",
+     "efiling",
+     "companies_house"
+    ],
+    "concern_detail": "Incorporation pending (waiting on ID verification)"
+   },
+   "errors": []
+  },
+  {
+   "number": 3756152,
+   "subject": "Order ID: 6143246",
+   "state": "UNREAD",
+   "created_at": "2026-09-23T09:40:12Z",
+   "updated_at": "2026-09-23T11:03:41Z",
+   "age_days": 0,
+   "contact": {
+    "name": "dominiccorley100@gmail.com Corley",
+    "email": "dominiccorley100@gmail.com"
+   },
+   "tags": [],
+   "messages": [
+    {
+     "author": "dominiccorley100@gmail.com Corley",
+     "is_agent": false,
+     "is_note": false,
+     "created_at": "2026-09-23T09:40:12Z",
+     "text": "Hi, Could you please confirm whether you need anything further from me to incorporate GUERRILLA SYNDICATE LIMITED? If nothing is outstanding, when can I expect to receive confirmation? Kind regards,"
+    },
+    {
+     "author": "Rona Cacao",
+     "is_agent": true,
+     "is_note": true,
+     "created_at": "2026-09-23T10:24:51Z",
+     "text": "https://admin.efiling.co.uk/company-details/?i=3375994"
+    },
+    {
+     "author": "Rona Cacao",
+     "is_agent": true,
+     "is_note": false,
+     "created_at": "2026-09-23T10:26:03Z",
+     "text": "Hi Dominic Corley,   I’ve checked your application, and our Compliance Team sent you a Credas verification invitation yesterday.   This verification is part of the legal compliance process for"
+    },
+    {
+     "author": "dominiccorley100@gmail.com Corley",
+     "is_agent": false,
+     "is_note": false,
+     "created_at": "2026-09-23T11:03:41Z",
+     "text": "Hi,   Thanks for getting back to me, I completed the verification yesterday, please see below.  Best, Dominic Corley"
+    }
+   ],
+   "identifiers": {
+    "efiling_ids": [
+     "3375994"
+    ],
+    "ch_numbers": [],
+    "candidate_numbers": [],
+    "company_names": [
+     "GUERRILLA SYNDICATE LIMITED"
+    ],
+    "orders": []
+   },
+   "regex_concerns": [
+    "id_verification_credas",
+    "incorporation_pending"
+   ],
+   "efiling": {
+    "efiling_id": "3375994",
+    "customer": "Mr Dominic Corley",
+    "company_name": "GUERRILLA SYNDICATE LIMITED",
+    "company_number": "",
+    "auth_code": "-",
+    "incorporated": "",
+    "status": "Submitted",
+    "registered_email": "dominiccorley100@gmail.com",
+    "registered_office": "128, City Road London EC1V 2NX UNITED KINGDOM",
+    "jurisdiction": "England and Wales",
+    "sic_codes": [
+     {
+      "code": "63110",
+      "description": "Data processing, hosting and related activities"
+     },
+     {
+      "code": "63910",
+      "description": "News agency activities"
+     }
+    ],
+    "officers": [
+     "Dominic Christopher Corley"
+    ],
+    "services": {
+     "counts": {
+      "active": 0,
+      "paused": 0,
+      "expired_cancelled": 0,
+      "critical": 0
+     },
+     "rows": [],
+     "raw": "Active: 0 Paused: 0 Expired / Cancelled: 0 Critical: 0\n\n\nNo Active services"
+    },
+    "notes": [
+     {
+      "date": "22/09/2026",
+      "text": "C-Connect invite sent - Mr Dominic Christopher Corley #3753259",
+      "author": "Jeany Menguito"
+     }
+    ],
+    "url": "https://admin.efiling.co.uk/company-details/?i=3375994",
+    "orders": [
+     {
+      "number": "3753259",
+      "kind": "order",
+      "date": "22/09/2026",
+      "note": "C-Connect invite sent - Mr Dominic Christopher Corley #3753259",
+      "url": "https://admin.efiling.co.uk/order-details/?o=3753259"
+     }
+    ],
+    "verification": {
+     "state": "pending",
+     "label": "Credas invite sent",
+     "date": "22/09/2026",
+     "note": "C-Connect invite sent - Mr Dominic Christopher Corley #3753259",
+     "author": "Jeany Menguito"
+    },
     "matched_by": "link in ticket"
    },
    "companies_house": null,
    "links": [
     {
      "label": "Groove ticket",
-     "url": "https://yourcompanyformations.groovehq.com/tickets/3756362",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3756152",
      "kind": "groove"
     },
     {
-     "label": "Email josepb@gestoriavalenciana.es",
-     "url": "mailto:josepb@gestoriavalenciana.es",
+     "label": "Email dominiccorley100@gmail.com",
+     "url": "mailto:dominiccorley100@gmail.com",
      "kind": "email"
     },
     {
      "label": "eFiling company record",
-     "url": "https://admin.efiling.co.uk/company-details/?i=3376790",
+     "url": "https://admin.efiling.co.uk/company-details/?i=3375994",
      "kind": "efiling"
     },
     {
-     "label": "Registered email: josepb@gestoriavalenciana.es",
-     "url": "mailto:josepb@gestoriavalenciana.es",
+     "label": "Registered email: dominiccorley100@gmail.com",
+     "url": "mailto:dominiccorley100@gmail.com",
      "kind": "email"
+    },
+    {
+     "label": "eFiling order #3753259 (22/09/2026)",
+     "url": "https://admin.efiling.co.uk/order-details/?o=3753259",
+     "kind": "order"
     },
     {
      "label": "Client portal login",
@@ -321,6 +1990,18 @@
    ],
    "prior_same_customer": [],
    "prior_same_concern": [
+    {
+     "ticket_id": "3646395",
+     "subject": "Re: Your Company Formations Action Required: Officer ID Verification",
+     "closed_date": "2026-07-24",
+     "agents": [
+      "Rona Cacao"
+     ],
+     "customer_email": "sajandfaiza@gmail.com",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3646395",
+     "excerpt": "Saj and Faiza started a conversation\nHi There,\n\n\nI received this email, but I cannot see where I am supposed to upload documents, please can you advise.\n\n\nThank you\nFaiza.\nRona Cacao took ownership\nJul 24 @ 6:44 am\nRona Cacao replied to Saj and Faiza\nSEEN\nJul 24 @ 6:44 am\nTo: Saj and Faiza\nHI Faiza,\n \nI’ve checked your application, and I can confirm that it is currently with our Compliance Team for the next steps of the incorporation process. They will reach out to you shortly with an update, so please keep an eye on your inbox (and spam folder just in case).\n \nWe appreciate your patience, and rest assured, your application is being processed.\nRona Cacao closed the conversation\nJul 24 @ 6:44 am\nSeen by Saj and Faiza\nJul 24 @ 6:45 am",
+     "match_score": 14
+    },
     {
      "ticket_id": "3644896",
      "subject": "Re: Your Company Formations Action Required: Officer ID Verification",
@@ -334,34 +2015,6 @@
      "match_score": 14
     },
     {
-     "ticket_id": "3001142",
-     "subject": "Verification required - Compliance check      -  CANOPY LIMITED",
-     "closed_date": "2026-07-22",
-     "agents": [
-      "Clarice Castillo",
-      "Jan Alveir A",
-      "Madel Nahid",
-      "Rona Cacao",
-      "leo.abery@btinternet.com"
-     ],
-     "customer_email": "harrybreezelamb@gmail.com",
-     "url": "https://yourcompanyformations.groovehq.com/tickets/3001142",
-     "excerpt": "Clarice Castillo started a conversation\nSEEN\nAug 04, 2025 @ 8:27 am\nTo: harrybreezelamb@gmail.com Breeze-lamb\nHi          Mr Harry Breeze-Lamb                                                                         \n \nYou will shortly receive an email from Credas requesting you to upload your identity documents via their secure verification platform. This step is essential to move forward with your order.\n \nIf you don’t receive the email within 40 minutes, please check your Spam/Junk folder. \nStill missing? Let us know immediately so we can assist you.\n \nPLEASE RESPOND TO THIS EMAIL WHEN THE CREDAS VERIFICATION HAS BEEN COMPLETED AND WE CAN PROCESS YOUR ORDER.\n \nWhat You Need to Do Now:\n✅ Check Your Inbox – Look out for an email from Credas inviting you to upload your documents.  Didn’t receive it within 30 minutes? Let us know!\n✅ Get Your Docs Ready – You’ll need: 1 ID and 1 Proof of address \n✅ Log in & Upload – Follow the simple steps in the Credas invitation email to submit your documents.\n✅ Reply to This Email Once Done – IMPORTANT: We can’t process your order unless you confirm completion!\n✅   No QUESTION should be missed. This include your date of birth and address during the REGISTRATION process.\n📄 Full Details & Requirements:\n📱 Smartphone access required for identity verification\n🆔 Valid ID document needed\n💡 Please click this link guide for how to use the verification app.\n \n📌🆔 Accepted ID Documents (Enable the NFC and Biometric function when uploading) \nYour ID must ",
-     "match_score": 14
-    },
-    {
-     "ticket_id": "3646395",
-     "subject": "Re: Your Company Formations Action Required: Officer ID Verification",
-     "closed_date": "2026-07-24",
-     "agents": [
-      "Rona Cacao"
-     ],
-     "customer_email": "sajandfaiza@gmail.com",
-     "url": "https://yourcompanyformations.groovehq.com/tickets/3646395",
-     "excerpt": "Saj and Faiza started a conversation\nHi There,\n\n\nI received this email, but I cannot see where I am supposed to upload documents, please can you advise.\n\n\nThank you\nFaiza.\nRona Cacao took ownership\nJul 24 @ 6:44 am\nRona Cacao replied to Saj and Faiza\nSEEN\nJul 24 @ 6:44 am\nTo: Saj and Faiza\nHI Faiza,\n \nI’ve checked your application, and I can confirm that it is currently with our Compliance Team for the next steps of the incorporation process. They will reach out to you shortly with an update, so please keep an eye on your inbox (and spam folder just in case).\n \nWe appreciate your patience, and rest assured, your application is being processed.\nRona Cacao closed the conversation\nJul 24 @ 6:44 am\nSeen by Saj and Faiza\nJul 24 @ 6:45 am",
-     "match_score": 13
-    },
-    {
      "ticket_id": "3643705",
      "subject": "Re: Your Company Formations Action Required: Officer ID Verification",
      "closed_date": "2026-07-23",
@@ -371,59 +2024,463 @@
      "customer_email": "volodymyr.chupylka@outlook.com",
      "url": "https://yourcompanyformations.groovehq.com/tickets/3643705",
      "excerpt": "VOLODYMYR CHUPYLKA started a conversation\nJul 23 @ 9:45 am\nPlease tell me when you will send me the data for verification?\nRona Cacao took ownership\nJul 23 @ 9:48 am\nRona Cacao added a note\nJul 23 @ 9:51 am\nhttps://admin.efiling.co.uk/company-details/?i=3342818\nRona Cacao replied to VOLODYMYR CHUPYLKA\nSEEN\nJul 23 @ 9:51 am\nTo: VOLODYMYR CHUPYLKA\nHi VOLODYMYR CHUPYLKA,\n \nI’ve checked your application, and I can confirm that it is currently with our Compliance Team for the next steps of the incorporation process. They will reach out to you shortly with an update, so please keep an eye on your inbox (and spam folder just in case).\n \nWe appreciate your patience, and rest assured, your application is being processed.\nRona Cacao closed the conversation\nJul 23 @ 9:51 am\nSeen by VOLODYMYR CHUPYLKA\nJul 23 @ 9:52 am",
-     "match_score": 13
+     "match_score": 14
+    },
+    {
+     "ticket_id": "3456352",
+     "subject": "Your Company Formations - Compliance check - DUALFORCE CAPITAL LTD",
+     "closed_date": "2026-07-24",
+     "agents": [
+      "Averil",
+      "Darryl Ignalague",
+      "Justin Villanueva",
+      "Marianne",
+      "Rona Cacao"
+     ],
+     "customer_email": "rgisweb3@gmail.com",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3456352",
+     "excerpt": "Averil started a conversation\nSEEN\nApr 17 @ 8:05 pm\nTo: Régis Fourrier\nHi ABESSOLO EVINA REGIS FOURRIER\n \nPLEASE RESPOND TO THIS EMAIL WHEN THE CREDAS VERIFICATION HAS BEEN COMPLETED AND WE CAN PROCESS YOUR ORDER.\n \nYou will shortly receive an email from Credas, our government-approved AML partner, requesting you to upload your identification documents. If you do not receive the email within 30 minutes, please check your Spam/Junk folder and reply to this email if it is still not visible.\n \nWho Needs to Verify?\nDirectors & Persons of Significant Control (PSC) owning 20% or more of shares\nThe account holder (if not already an officer)\nCorporate shareholders in your ownership structure\nIf a company is listed as an officer, we’ll also need its incorporation document with officer details\n💡 Note: For more than 3 officers, there’s an extra £4.50 + VAT per additional person.\n \nNeed Help?\n👉 Please click this link for a guide on how to use the verification app.\n \nNext Steps (under 5 minutes):\nReceive the Credas invite via email/SMS\nGather your valid photographic ID \nLog in to Credas and upload your documents\nReply to this email once complete—this keeps your order on track!\n \n✅ Accepted Proof of photographic Identification\n \nWe require a clear and readable coloured copy of the ID for compliance reasons. \nThis must show an issue date and should not expire within 45days from today\n  Passport (Should reflect issuing/expiry date)\n  Drivers Licence (photocard only) (Should reflect issuing/e",
+     "match_score": 11
     }
    ],
    "draft": {
-    "concern_type": "pvc_code",
-    "concern_label": "Personal Verification Code (PVC)",
-    "one_line": "Josep Borras is replying to our Officer ID Verification request to say the Companies House personal verification has already been done and a personal code issued, so he expects nothing further is needed for CODEBYME LTD.",
+    "concern_type": "id_verification_credas",
+    "concern_label": "ID / AML verification (Credas)",
+    "one_line": "Dominic wants to know if anything else is outstanding before GUERRILLA SYNDICATE LIMITED can be incorporated, and says he already completed the Credas verification yesterday.",
     "customer_mood": "neutral",
-    "urgency": "high",
+    "urgency": "medium",
     "at_a_glance": [
-     "Company: CODEBYME LTD, eFiling ID 3376790, status Submitted (not yet incorporated, so no company number and no incorporation date yet).",
-     "Companies House record: not found for this ticket, consistent with the application still sitting at Submitted on eFiling.",
-     "Registered office on the application is our own address, 128 City Road, London EC1V 2NX, jurisdiction England and Wales.",
-     "Services block on the account shows Active 0, Paused 0, Expired/Cancelled 0, Critical 0, so no address or filing service is recorded as active even though our address is on the application. Needs checking against the order.",
-     "Officer listed: Ernesto Miguel Rodriguez Rodriguez (sole officer). Account customer name is Mr Ernesto Rodriguez Rodriguez; the registered email on file is josepb@gestoriavalenciana.es, which is the address this email came from, so the sender is the registered contact.",
-     "Latest eFiling activity on the ticket: Rona's internal note of 23 Sep 2026 10:34 recording the company-details link, 10 minutes after the customer's message at 10:24.",
-     "Customer says (23 Sep 2026) the Companies House personal verification is complete and a personal code has been assigned, but the code itself has not been given to us anywhere in the thread.",
-     "Accounts and confirmation statement positions: not applicable and not found, as the company is not incorporated.",
-     "SIC codes selected: 62012, 63110, 70229, 85590.",
-     "No prior tickets on record for this customer."
+     "Customer says the verification is done, but the record still shows verification pending with only the 22/09/2026 invite logged, so compliance needs to confirm it actually passed before we tell him he's finished.",
+     "He wrote 'please see below', which usually means documents pasted or attached to the ticket. Anything sent that way doesn't count and has to go through the Credas portal.",
+     "The application uses our 128 City Road registered office but the record shows no active services at all, which is worth checking internally before submission."
     ],
     "risk_flags": [
-     "eFiling status is Submitted: per policy the application cannot go to Companies House without the PVC, so the incorporation is stalled until the code is with us.",
-     "The Companies House personal code does not satisfy our own MLR/KYC obligation. Credas identity and AML verification is still legally required before we can process the order.",
-     "The account shows zero active services while our 128 City Road address is set as the registered office on the application. Worth confirming the Registered Office service is on the order and paid before incorporation.",
-     "The PVC has not been quoted in the thread, so nothing can be actioned until the customer sends it."
+     "eFiling status is Submitted and cannot go to Companies House until identity verification is confirmed passed",
+     "Verification still showing as pending against the 22/09/2026 Credas invite"
     ],
-    "proposed_message": "Hi Josep,\n\nThanks for coming back to me, and good to hear the Companies House verification is already done. That's a helpful step out of the way.\n\nI've just had a look at the file for CODEBYME LTD and it's still showing as Submitted on our side, which means it hasn't gone across to Companies House yet. To move it on, could you reply here with Ernesto's Companies House personal code? We can't retrieve it from Companies House ourselves, so we do need it from you in writing.\n\nThe other thing I didn't want you to be caught out by is that there are two separate checks going on here, and it's easily missed. The Companies House verification is one. On top of that, we're legally required to run our own identity and anti-money-laundering check on the officers, which we do through Credas, and the application can't be processed until that's complete. Our Compliance Team will send Ernesto a Credas invitation by email.\n\nHere's what would help most:\n\n1. Reply to this email with Ernesto's Companies House personal code.\n2. Keep an eye out for the Credas invitation. If it hasn't landed within 30 minutes, please check the spam or junk folder and tell me if it's still missing so I can chase it.\n3. Complete it on a smartphone. You'll need one photo ID (a passport, photocard driving licence or national identity card), in colour, clear and readable, showing an issue date and not expiring within the next 45 days. You'll also need one proof of address dated within the last 3 months, personally addressed, showing the full home address, and in English or with an official sworn translation.\n4. Please don't skip any question during the Credas registration, including date of birth and address, as missed fields are the most common cause of a failed check.\n5. Reply to me once the upload is done. Our system doesn't notify us automatically, so your confirmation is genuinely what keeps the order moving.\n\nOne small note on ID: a driving licence is fine as photo ID, but it isn't accepted as proof of address, and neither are tenancy agreements or residence certificates. If you're using a bank statement, it needs to show a few transactions rather than being a brand new account.\n\nIf anything above is unclear, or if you'd like me to have the Credas invite sent to a different email for Ernesto, just say and I'll sort it.\n\nBest wishes,\nRona",
+    "proposed_message": "Hi Dominic,\n\nThanks for letting me know, that's really helpful.\n\nI've just had another look at your file for GUERRILLA SYNDICATE LIMITED. The Credas invitation went out to you on 22 September, and I can see the check is still showing as pending on our side. That doesn't necessarily mean anything is wrong, it often just means our Compliance Team hasn't finished reviewing what you submitted yet.\n\nI've passed your confirmation straight to them and asked them to review it as a priority, so nothing is sitting waiting on you right now. If they do need anything else from you, they'll come back to you directly by email, and it's worth keeping an eye on your spam or junk folder just in case.\n\nOne thing I didn't want you to get caught out by: if you've sent any ID or proof of address as an attachment or pasted into an email, it unfortunately won't register on our system. Everything has to go through the Credas portal itself to count, so if anything was sent that way, please do upload it there and give me a shout once it's done.\n\nOn timing, once the verification is confirmed we can submit the application to Companies House. I'd love to give you a firm date, but incorporation depends on all officers passing verification and on Companies House processing at their end, so I'd rather not promise you something I can't be sure of. As soon as it's through, you'll get the confirmation and documents by email.\n\nI'll keep an eye on this one and come back to you the moment I hear from Compliance.\n\nKind regards,\nRona",
     "suggested_actions": [
-     "Reply to Josep asking for Ernesto's Companies House personal code in writing and explaining that Credas is a separate legal AML requirement (ID01 wording for document rules).",
-     "Ask the Compliance Team to send (or resend) the Credas verification invitation to Ernesto Miguel Rodriguez Rodriguez on eFiling 3376790, and confirm which email or mobile it goes to.",
-     "Check the note history on the record first so a Credas invite compliance has already sent is not duplicated.",
-     "Check the order behind eFiling 3376790: the services block shows 0 active services while 128 City Road is set as the registered office, so confirm the Registered Office service is on the order and paid. Raise the invoice via the portal path (login, My Invoice History, select order, Make Payment) if anything is outstanding.",
-     "Once the personal code arrives, pass it to Compliance so the Submitted application can proceed to Companies House.",
-     "When the customer confirms the Credas upload is complete, notify the Compliance Team and tell the customer it has been passed on.",
-     "Keep the ticket open until both the personal code and the Credas pass are confirmed, then close. Review/survey ask only once the company is formed and the customer is happy."
+     "Re-open the eFiling record (https://admin.efiling.co.uk/company-details/?i=3375994) and read the note history before replying so a resend isn't duplicated.",
+     "Notify the Compliance team that Dominic Corley has confirmed he completed the Credas check against the invite sent 22/09/2026 (C-Connect invite #3753259, raised by Jeany Menguito), and ask them to confirm pass/fail or name the document that failed.",
+     "Check whether the customer attached or pasted ID / proof of address into the ticket. If so, do not forward it as evidence; the upload must be redone in the Credas portal.",
+     "Check internally why the application lists our 128 City Road registered office while the services block shows 0 active services, and raise any unpaid Registered Office / Director's Service Address invoice if one is missing.",
+     "Once Compliance confirms the check has passed, reply to confirm and let the application move to Companies House submission.",
+     "If Compliance reports a failure, go back to Dominic with the exact document that failed and ask him to re-upload it in Credas, then close and reopen on his reply."
     ],
     "open_questions": [
-     "What is Ernesto's Companies House personal code? It has not been quoted anywhere in the thread.",
-     "Has the Credas invitation already been sent, and to which email or mobile? Not visible in the material provided.",
-     "Is Credas currently pending, passed or failed for Ernesto? Compliance needs to confirm.",
-     "Why does the account show 0 active services when our 128 City Road address is the registered office on the application? Is the Registered Office service on the order and paid?",
-     "Is Josep Borras acting as agent for Ernesto Rodriguez Rodriguez? He is writing from the registered email on file, but he is not the named officer."
+     "Has Compliance actually passed the Credas check, or is a document outstanding?",
+     "What did Dominic mean by 'please see below', a forwarded Credas confirmation or an attached document?",
+     "Why does the application use our 128 City Road registered office with no active address service on the record?"
     ],
     "needs_human": false,
-    "confidence": 0.72,
+    "confidence": 0.82,
     "sources_used": [
      "knowledge",
      "playbook",
      "efiling",
      "prior_tickets"
+    ]
+   },
+   "errors": []
+  },
+  {
+   "number": 3755861,
+   "subject": "Re: Important: Service Renewal Overdue - Your Company Formations Ltd",
+   "state": "OPENED",
+   "created_at": "2026-09-23T07:28:22Z",
+   "updated_at": "2026-09-23T11:09:47Z",
+   "age_days": 0,
+   "contact": {
+    "name": "Uday",
+    "email": "udaylondon2021@gmail.com"
+   },
+   "tags": [],
+   "messages": [
+    {
+     "author": "Uday",
+     "is_agent": false,
+     "is_note": false,
+     "created_at": "2026-09-23T07:28:22Z",
+     "text": "Hi Team, I would like to renew my subscription for registered address service please. Could it be possible to provide the payment link. Regards Uday"
+    },
+    {
+     "author": "Rona Cacao",
+     "is_agent": true,
+     "is_note": true,
+     "created_at": "2026-09-23T08:18:00Z",
+     "text": "https://admin.efiling.co.uk/company-details/?i=3154261"
+    },
+    {
+     "author": "Rona Cacao",
+     "is_agent": true,
+     "is_note": false,
+     "created_at": "2026-09-23T08:19:11Z",
+     "text": "Hi Uday Bhaskar Das,   Absolutely, we can help you renew the address services.   I’ve checked and can confirm that you are currently using our address as both the Registered Office Address and"
+    },
+    {
+     "author": "Uday",
+     "is_agent": false,
+     "is_note": false,
+     "created_at": "2026-09-23T11:09:47Z",
+     "text": "Hi, Thanks for your email. I'd like to proceed with the address services mentioned in your email.  Please arrange the invoice for the registered address and the Director Service address. Regards  Uday"
+    }
+   ],
+   "identifiers": {
+    "efiling_ids": [
+     "3154261"
     ],
-    "concern_detail": "Companies House personal code (PVC) supplied / ID verification"
+    "ch_numbers": [],
+    "candidate_numbers": [],
+    "company_names": [],
+    "orders": []
+   },
+   "regex_concerns": [
+    "address_expired_renewal",
+    "registered_office",
+    "service_address",
+    "invoice_payment"
+   ],
+   "efiling": {
+    "efiling_id": "3154261",
+    "customer": "Mr Uday Bhaskar Das",
+    "company_name": "EARTHMATES LTD",
+    "company_number": "16732344",
+    "auth_code": "TPKK47",
+    "incorporated": "22/09/2025",
+    "status": "Accepted",
+    "registered_email": "udaylondon2021@gmail.com",
+    "registered_office": "128, City Road London EC1V 2NX UNITED KINGDOM",
+    "jurisdiction": "England and Wales",
+    "sic_codes": [
+     {
+      "code": "10710",
+      "description": "Manufacture of bread; manufacture of fresh pastry goods and cakes"
+     },
+     {
+      "code": "46190",
+      "description": "Agents involved in the sale of a variety of goods"
+     },
+     {
+      "code": "47910",
+      "description": "Retail sale via mail order houses or via Internet"
+     },
+     {
+      "code": "49320",
+      "description": "Taxi operation"
+     }
+    ],
+    "officers": [
+     "Uday Bhaskar Das"
+    ],
+    "services": {
+     "counts": {
+      "active": 0,
+      "paused": 0,
+      "expired_cancelled": 4,
+      "critical": 2
+     },
+     "rows": [],
+     "raw": "Active: 0 Paused: 0 Expired / Cancelled: 4 Critical: 2\n\n\nNo Active services"
+    },
+    "notes": [
+     {
+      "date": "01/09/2026",
+      "text": "paid CH Filing Fee for CS",
+      "author": "Anthony Hoang"
+     },
+     {
+      "date": "01/06/2026",
+      "text": "1 general letter posted",
+      "author": "Mr Lewis Buck"
+     },
+     {
+      "date": "06/10/2025",
+      "text": "1 general letter received- posted as first free letter",
+      "author": "Mikala Cornish"
+     },
+     {
+      "date": "30/09/2025",
+      "text": "Company formation documents printed and sent",
+      "author": "Jodi Klashman"
+     },
+     {
+      "date": "20/09/2025",
+      "text": "Company passed compliance check. Company Submitted.",
+      "author": "Madel Nahid"
+     },
+     {
+      "date": "20/09/2025",
+      "text": "ID & POA PASSED - Uday Bhaskar Das - EARTHMATES LTD",
+      "author": "Madel Nahid"
+     },
+     {
+      "date": "19/09/2025",
+      "text": "passed credas photo ID check, requested new POA for Mr Uday Bhaskar Das #3076144",
+      "author": "Judee Bayog"
+     },
+     {
+      "date": "18/09/2025",
+      "text": "Company name changed to EARTHMATES LTD. #3076140",
+      "author": "Mr Shawn Bolivar"
+     },
+     {
+      "date": "18/09/2025",
+      "text": "Requested Credas for Mr Uday Bhaskar Das #3076144",
+      "author": "Clarice Villalon-Castillo"
+     }
+    ],
+    "url": "https://admin.efiling.co.uk/company-details/?i=3154261",
+    "orders": [
+     {
+      "number": "3076144",
+      "kind": "order",
+      "date": "19/09/2025",
+      "note": "passed credas photo ID check, requested new POA for Mr Uday Bhaskar Das #3076144",
+      "url": "https://admin.efiling.co.uk/order-details/?o=3076144"
+     },
+     {
+      "number": "3076140",
+      "kind": "order",
+      "date": "18/09/2025",
+      "note": "Company name changed to EARTHMATES LTD. #3076140",
+      "url": "https://admin.efiling.co.uk/order-details/?o=3076140"
+     }
+    ],
+    "verification": {
+     "state": "complete",
+     "label": "Compliance passed",
+     "date": "20/09/2025",
+     "note": "Company passed compliance check. Company Submitted.",
+     "author": "Madel Nahid"
+    },
+    "matched_by": "link in ticket"
+   },
+   "companies_house": {
+    "url": "https://find-and-update.company-information.service.gov.uk/company/16732344",
+    "name": "EARTHMATES LTD",
+    "number": "16732344",
+    "status": "Active",
+    "incorporated": "22 September 2025",
+    "registered_office": "128 City Road, London, United Kingdom, EC1V 2NX",
+    "dissolved_on": "",
+    "accounts_overdue": false,
+    "accounts_due_by": "",
+    "accounts_next_made_up_to": "",
+    "accounts_last_made_up_to": "",
+    "cs_overdue": false,
+    "cs_due_by": "22 June 2027",
+    "cs_next_statement_date": "2 September 2027",
+    "cs_last_statement_dated": "2 September 2026",
+    "sic_codes": [
+     {
+      "code": "10710",
+      "description": "Manufacture of bread; manufacture of fresh pastry goods and cakes"
+     },
+     {
+      "code": "46190",
+      "description": "Agents involved in the sale of a variety of goods"
+     },
+     {
+      "code": "47910",
+      "description": "Retail sale via mail order houses or via Internet"
+     },
+     {
+      "code": "49320",
+      "description": "Taxi operation"
+     }
+    ],
+    "screenshot": "ch_3755861_16732344.jpg",
+    "note": "uptodate; CS due 22 June 2027",
+    "filing_history": [
+     {
+      "date": "02 Sep 2026",
+      "type": "CS01",
+      "description": "Confirmation statement made on 2 September 2026 with no updates"
+     },
+     {
+      "date": "22 Sep 2025",
+      "type": "NEWINC",
+      "description": "Incorporation Statement of capital on 2025-09-22 GBP 1"
+     }
+    ],
+    "officers": [
+     {
+      "name": "DAS, Uday Bhaskar",
+      "role": "Director",
+      "appointed": "22 September 2025",
+      "resigned": false,
+      "identity_verification": "Verified",
+      "verified_by_ycf": false,
+      "date_of_birth": "November 1979",
+      "nationality": "Indian",
+      "residence": "United Kingdom",
+      "occupation": "",
+      "correspondence_address": "128 City Road, London, United Kingdom, EC1V 2NX",
+      "appointments_url": "/officers/_Tx178n2CEVuo_6u2gbAdkV7Fx8/appointments",
+      "appointments": {
+       "total": "1",
+       "items": [
+        {
+         "company": "EARTHMATES LTD",
+         "number": "16732344",
+         "url": "https://find-and-update.company-information.service.gov.uk/company/16732344",
+         "status": "Active",
+         "role": "Director",
+         "appointed": "22 September 2025",
+         "resigned": false
+        }
+       ],
+       "url": "https://find-and-update.company-information.service.gov.uk/officers/_Tx178n2CEVuo_6u2gbAdkV7Fx8/appointments"
+      }
+     }
+    ],
+    "filing_history_url": "https://find-and-update.company-information.service.gov.uk/company/16732344/filing-history",
+    "officers_url": "https://find-and-update.company-information.service.gov.uk/company/16732344/officers"
+   },
+   "links": [
+    {
+     "label": "Groove ticket",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3755861",
+     "kind": "groove"
+    },
+    {
+     "label": "Email udaylondon2021@gmail.com",
+     "url": "mailto:udaylondon2021@gmail.com",
+     "kind": "email"
+    },
+    {
+     "label": "eFiling company record",
+     "url": "https://admin.efiling.co.uk/company-details/?i=3154261",
+     "kind": "efiling"
+    },
+    {
+     "label": "Registered email: udaylondon2021@gmail.com",
+     "url": "mailto:udaylondon2021@gmail.com",
+     "kind": "email"
+    },
+    {
+     "label": "eFiling order #3076144 (19/09/2025)",
+     "url": "https://admin.efiling.co.uk/order-details/?o=3076144",
+     "kind": "order"
+    },
+    {
+     "label": "eFiling order #3076140 (18/09/2025)",
+     "url": "https://admin.efiling.co.uk/order-details/?o=3076140",
+     "kind": "order"
+    },
+    {
+     "label": "Companies House record",
+     "url": "https://find-and-update.company-information.service.gov.uk/company/16732344",
+     "kind": "ch"
+    },
+    {
+     "label": "CH filing history",
+     "url": "https://find-and-update.company-information.service.gov.uk/company/16732344/filing-history",
+     "kind": "ch"
+    },
+    {
+     "label": "CH officers",
+     "url": "https://find-and-update.company-information.service.gov.uk/company/16732344/officers",
+     "kind": "ch"
+    },
+    {
+     "label": "Client portal login",
+     "url": "https://www.yourcompanyformations.co.uk/login/",
+     "kind": "portal"
+    }
+   ],
+   "prior_same_customer": [],
+   "prior_same_concern": [
+    {
+     "ticket_id": "3649020",
+     "subject": "ARRWAY LTD (14804708) – Incoming PayPal Business Debit Card at 128 City Road – receive & forward?",
+     "closed_date": "2026-07-27",
+     "agents": [
+      "Rona Cacao"
+     ],
+     "customer_email": "ningxiaowa@gmail.com",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3649020",
+     "excerpt": "Jensen Ning started a conversation\nJul 27 @ 4:41 am\ncc: Compliance - Your Company Formations\nHi Judee / Compliance / Customer Services team,\n\nCompany: ARRWAY LTD (Company No. 14804708)\nOrder: #38980 – London Registered Office + Directors Service Address\nRegistered office / service address in use: 128 City Road, London EC1V 2NX\n\nI have ordered a PayPal Business Debit Mastercard (physical card) for\nARRWAY LTD. PayPal shows the physical card is scheduled to arrive\naround 10 August 2026 (within about 10 business days).\n\nThe card is expected to be addressed to this company’s registered office at:\n\nARRWAY LTD / Jing Ning (Director)\n128 City Road\nLondon\nEC1V 2NX\nUnited Kingdom\n\nCould you please confirm:\n\n1) Whether you can accept and hold a bank / payment card package\n(PayPal Business Debit Mastercard) delivered to 128 City Road for\nARRWAY LTD;\n2) Whether you can scan / notify me when it arrives, and forward the\noriginal sealed package internationally to me (or to an address I will\nprovide);\n3) Any fees, ID checks, or restrictions that apply to receiving or\nforwarding bank/payment cards;\n4) The best email/phone to send tracking details once available.\n\nI already use the digital card online; I only need the physical card\nheld safely and forwarded if possible. If bank cards cannot be\naccepted at this address, please let me know as soon as possible so I\ncan update the shipping address with PayPal.\n\nThank you for your help.\n\nKind regards,\nJing Ning\nDirector, ARRWAY LTD\nEmail: ningxiaowa",
+     "match_score": 10
+    },
+    {
+     "ticket_id": "3648290",
+     "subject": "Re: Service Will Renew Soon - Your Company Formations",
+     "closed_date": "2026-07-27",
+     "agents": [
+      "Jinny",
+      "Rona Cacao"
+     ],
+     "customer_email": "expanse365@hotmail.com",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3648290",
+     "excerpt": "David Patel started a conversation\nJul 26 @ 3:09 pm\nGood evening,\n\n\nI’ve just logged into my account however I can’t see any options to change the requirements.\n\n\nI don’t need the premium filing service for the renewal, just the registered office address and registered directors address service please.\n\n\nCan this be updated to avoid any services that are not required.\n\n\nThank you\nDavid Patel\nExpanse365@hotmail.com\n07865397206\n\n\nSent from Outlook for iOS\nJinny took ownership\nJul 26 @ 9:06 pm\nJinny replied to David Patel\nSEEN\nJul 26 @ 9:19 pm\nTo: David Patel\nDear David Patel,\n \nGood morning!\n \nNo worries, I have stopped the renewal for premium filing and mail forwarding service. Both the registered office and director's service address will auto renew on 02/09/2026 and payment will be taken from your account.\n \nTake care now and have an amazing week!\nJinny closed the conversation\nJul 26 @ 9:19 pm\nSeen by David Patel\nJul 27 @ 2:46 am\nDavid Patel replied to Jinny\nJul 27 @ 2:47 am\nTo: Customer Services - Your Company Formations\nThank you. Can you confirm how much the renewal will now be with just the registered office address and registered directors address services please?\n\n\nThanks \nDavid\n\n\nSent from Outlook for iOS\nShow All Actions (2)\nRona Cacao added a note\nJul 27 @ 4:37 am\nhttps://admin.efiling.co.uk/company-details/?i=3139312\nRona Cacao replied to David Patel\nSEEN\nJul 27 @ 4:38 am\nTo: David Patel\nHi David Patel,\n \nOf course.\n \nIf you renew only your Registered Office Addres",
+     "match_score": 10
+    },
+    {
+     "ticket_id": "3649720",
+     "subject": "Re: Important: Service Renewal Overdue - Your Company Formations Ltd",
+     "closed_date": "2026-07-27",
+     "agents": [
+      "Rona Cacao"
+     ],
+     "customer_email": "business@co-burn-services.com",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3649720",
+     "excerpt": "Co-Burn Services Limited - Business started a conversation\nJul 27 @ 8:42 am\nDear Team,\n\n\nI paid for these services on Friday against invoice Ref: EF5-006039198.\n\n\nCould you please confirm whether the payment was received? If it did not go through, I would appreciate it if you could let me know.\n\n\nThanks,\nWilliam Cockbum\n\n\nOn Mon, 27 Jul 2026, at 9:11 AM, Your Company Formations wrote:\nRona Cacao took ownership\nJul 27 @ 8:46 am\nRona Cacao added a note\nJul 27 @ 9:02 am\nhttps://admin.efiling.co.uk/company-details/?i=2310468\nRona Cacao replied to Co-Burn Services Limited - Business\nSEEN\nJul 27 @ 9:04 am\nTo: Co-Burn Services Limited - Business\nHi William Cockbum,\n \nThank you for your message.\n \nI checked your account and can confirm that we've successfully received your payment for your Registered Office Address, Director's Service Address, and Mail Forwarding Service.\n \nBefore we can activate these services, there's one outstanding requirement. Our Compliance Team sent a Credas identity verification invitation to William Cockburn on 24 July.\n \nThis verification is a legal requirement that must be completed every two years, or before certain filings, to comply with Companies House regulations.\n \nOnce you have completed the Credas verification, please let us know.\nRona Cacao closed the conversation\nJul 27 @ 9:04 am\nSeen by Co-Burn Services Limited - Business\nJul 27 @ 9:04 am\nCo-Burn Services Limited - Business replied to You\nJul 27 @ 9:35 am\nTo: Customer Services - Your Company For",
+     "match_score": 9
+    },
+    {
+     "ticket_id": "3649631",
+     "subject": "Re: Important: Service Renewal Overdue - Your Company Formations Ltd",
+     "closed_date": "2026-07-27",
+     "agents": [
+      "Rona Cacao"
+     ],
+     "customer_email": "kasia.basamania@hotmail.com",
+     "url": "https://yourcompanyformations.groovehq.com/tickets/3649631",
+     "excerpt": "Kasia Basamania started a conversation\nJul 27 @ 7:52 am\nHello, \n\n\nThe company has been registered for a voluntary strike off. \n\n\nKind regards, \n\n\n\nKasia Basamania \n\n\n\n\n0755 261 8561 \n\nCristina Tudorache assigned to You\nJul 27 @ 7:54 am\nRona Cacao added a note\nJul 27 @ 8:23 am\nhttps://admin.efiling.co.uk/company-details/?i=2715664\nRona Cacao replied to Kasia Basamania\nSEEN\nJul 27 @ 8:25 am\nTo: Kasia Basamania\nHi Kasia Basamania,\n \nThank you for your message.\n \nI checked your company on Companies House and can see that it is still showing as active, so the voluntary strike off has not yet been registered.\n \nIf you'd like us to assist with the dissolution, we can take care of the application for £50 + VAT.\n \nAs your company uses our address services, we also recommend keeping your Registered Office Address and Director's Service Address active while the dissolution is being processed. We offer a 3-month extension for £17.10 + VAT, which helps ensure that any official correspondence from Companies House or HMRC can still be received during the strike off process.\nRona Cacao closed the conversation\nJul 27 @ 8:25 am\nSeen by Kasia Basamania\nJul 27 @ 8:32 am\nKasia Basamania replied to You\nTo: Customer Services - Your Company Formations\nThank you Rona. I am awaiting the confirmation from Companies House so don't require any help with dissolution, but thank you anyway. \n\n\nI think it can however be a good idea to opt for the 3 month extension. How do I do that please? \n\n\nThank you,\n\n\n\nK",
+     "match_score": 9
+    }
+   ],
+   "draft": {
+    "concern_type": "address_expired_renewal",
+    "concern_label": "Address service expired / renewal",
+    "one_line": "Uday wants to renew the Registered Office and Director's Service Address for EARTHMATES LTD and has asked for the invoice and payment link.",
+    "customer_mood": "neutral",
+    "urgency": "medium",
+    "at_a_glance": [
+     "All services are showing expired/cancelled on eFiling while 128 City Road is still live at Companies House as the registered office, so the company is currently sitting on our address with nothing active behind it.",
+     "Only one officer on the record (Uday Bhaskar Das), so the Director's Service Address is a single charge, not multiple.",
+     "Nothing outstanding on compliance or filings: ID verification shows Verified at CH, ID & POA passed 20/09/2025, and the CS01 was filed 2 September 2026 with the CH fee paid on our side (note 01/09/2026)."
+    ],
+    "risk_flags": [
+     "0 active services, 4 expired/cancelled, 2 flagged critical on eFiling",
+     "Our address still on the Companies House register as registered office while the services are lapsed",
+     "Statutory mail cannot be scanned or forwarded while the services sit expired"
+    ],
+    "proposed_message": "Hi Uday,\n\nThat's great, thanks for confirming. I've raised the invoice for you covering both the Registered Office Address and the Director's Service Address for EARTHMATES LTD (company number 16732344).\n\nThe renewal comes to £29 + VAT for the Registered Office Address and £28 + VAT for the Director's Service Address, so £57 + VAT altogether, which is £68.40 including VAT. You're the only officer on the record, so that's just the one service address charge.\n\nTo pay, please:\n\n1. Log in at https://www.yourcompanyformations.co.uk/login/\n2. Click \"My Invoice History\"\n3. Select the order number for this renewal\n4. Click \"Make Payment\"\n\nOne thing I'd ask, our system doesn't tell us when a payment lands, so could you drop me a quick reply once you've paid? I'll then get everything reactivated straight away rather than it sitting there waiting.\n\nI did want to flag one thing gently, just so you're not caught out. I've had a look at your file and the address services are currently showing as expired, but 128 City Road is still listed at Companies House as your registered office. While the services are lapsed we can't scan or forward anything that arrives for you, and that's the sort of post (Companies House and HMRC letters) you really don't want to miss. Getting the renewal paid clears that up completely, so there's nothing for you to do at Companies House.\n\nAnything else you'd like me to look at while I'm in your account, just say.\n\nKind regards,\nRona",
+    "suggested_actions": [
+     "Raise the renewal invoice in eFiling admin (https://admin.efiling.co.uk/company-details/?i=3154261) for Registered Office Address £29 + VAT and Director's Service Address £28 + VAT for the single officer, Uday Bhaskar Das",
+     "Insert the actual Order # into the draft before sending so he can find it in My Invoice History",
+     "Confirm from the services block which of the 4 expired/cancelled items and 2 critical flags relate to the address services versus other products, so nothing unwanted is added to the invoice",
+     "Send the reply and leave the ticket open pending payment confirmation",
+     "On payment confirmation, reactivate both address services and check whether any mail has accumulated since the services lapsed; pass anything held to the Digital Mailroom (digitalmailroom@yourcompanyformations.co.uk)",
+     "If he goes quiet or starts comparing providers, offer the retention rates of £20.30 + VAT (RO) and £19.60 + VAT (DS) before accepting any cancellation",
+     "Add the review request (RR part 1) only once the renewal is paid and active"
+    ],
+    "open_questions": [
+     "The Order # for the renewal invoice, which needs to be generated and dropped into the reply before it goes out",
+     "Whether the 2 'critical' items on the eFiling services block are the address services themselves or separate products such as Mail Forwarding or Premium Filing",
+     "Whether any statutory or general post has arrived and been held since the services lapsed"
+    ],
+    "needs_human": false,
+    "confidence": 0.82,
+    "sources_used": [
+     "knowledge",
+     "playbook",
+     "efiling",
+     "companies_house",
+     "prior_tickets"
+    ]
    },
    "errors": []
   }

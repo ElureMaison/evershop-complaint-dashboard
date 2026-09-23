@@ -125,6 +125,11 @@ ol.acts li{margin-bottom:7px;line-height:1.6}
 button.copy{font:inherit;font-size:10.5px;font-weight:600;padding:4px 11px;border-radius:5px;cursor:pointer;
   border:1px solid rgba(82,156,202,.45);background:rgba(82,156,202,.18);color:#8ec0ea}
 button.copy:hover{background:rgba(82,156,202,.3)}
+button.minicopy{font:inherit;font-size:9.5px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.05em;margin-left:8px;padding:1px 6px;border-radius:4px;cursor:pointer;
+  border:1px solid var(--line);background:transparent;color:var(--dim);vertical-align:1px}
+button.minicopy:hover{color:#8ec0ea;border-color:rgba(82,156,202,.5)}
+button.minicopy.ok{color:var(--green);border-color:rgba(52,211,153,.5)}
 button.copy.ok{border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.18);color:var(--green)}
 
 .links{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
@@ -482,10 +487,19 @@ function select(n){
 const P = (head, body, hint) =>
   `<div class="panel"><div class="panel-head"><span class="grow">${head}</span>`+
   `${hint||""}</div><div class="section">${body}</div></div>`;
-const fact = (k,v,cls) => v ? `<div class="fact ${cls||""}"><span>${esc(k)}</span><span>${v}</span></div>` : "";
+
+// A fact row. `raw` makes the value copyable: putting the whole value on a
+// button beats asking someone to select text that wraps across lines, which
+// is how company numbers and auth codes get mistyped.
+function fact(k, v, raw, cls){
+  if(!v) return "";
+  const cp = raw ? `<button class="minicopy" data-copy="${esc(raw)}" title="Copy">copy</button>` : "";
+  return `<div class="fact ${cls||""}"><span>${esc(k)}</span><span>${v}${cp}</span></div>`;
+}
+const plain = (k,v) => v ? `${k}: ${v}` : "";
 
 function detailHTML(t){
-  const d=t.draft||{}, ef=t.efiling, ch=t.companies_house, out=[];
+  const d=t.draft||{}, ef=t.efiling||null, ch=t.companies_house||null, out=[];
 
   // ---- header
   const links = (t.links||[]).map(l=>
@@ -494,7 +508,8 @@ function detailHTML(t){
     ${(t.errors||[]).map(e=>`<div class="warn" style="margin-bottom:11px">${esc(e)}</div>`).join("")}
     <h2 class="title">${esc(t.subject||"(no subject)")}</h2>
     <div class="sub">#${t.number} · ${esc((t.contact&&t.contact.name)||"")}
-      ${t.contact&&t.contact.email?`&lt;<a href="mailto:${esc(t.contact.email)}">${esc(t.contact.email)}</a>&gt;`:""}
+      ${t.contact&&t.contact.email?`&lt;<a href="mailto:${esc(t.contact.email)}">${esc(t.contact.email)}</a>&gt;
+        <button class="minicopy" data-copy="${esc(t.contact.email)}" title="Copy email">copy</button>`:""}
       · opened ${fmtDate(t.created_at)}${t.age_days!=null&&t.age_days!==""?` · ${t.age_days} days old`:""}
       · ${esc(t.state||"")}</div>
     ${d.one_line?`<p class="oneline">${esc(d.one_line)}</p>`:""}
@@ -509,6 +524,73 @@ function detailHTML(t){
     <div class="links">${links}</div>
   </div></div>`);
 
+  // ---- company: what the two systems know, as fields rather than prose
+  const svc = (ef&&ef.services)||{}, sc = svc.counts||{}, ver = (ef&&ef.verification)||{};
+  const chName = ch&&(ch.name||ch.number), efName = ef&&ef.company_name;
+  const num = (ch&&ch.number) || (ef&&ef.company_number) || "";
+  let comp = `<div class="facts">
+    ${fact("Company", chName?`<a href="${esc(ch.url)}" target="_blank" rel="noopener">${esc(chName)}</a>`
+        : efName?`<a href="${esc(ef.url)}" target="_blank" rel="noopener">${esc(efName)}</a>` : "", chName||efName||"")}
+    ${fact("Company number", esc(num), num)}
+    ${fact("CH status", ch&&ch.status?`<span class="badge ${/active/i.test(ch.status)?"done":"stop"}">${esc(ch.status)}</span>`:"")}
+    ${fact("eFiling status", esc(ef&&ef.status))}
+    ${fact("Incorporated", esc((ch&&ch.incorporated)||(ef&&ef.incorporated)))}
+    ${fact("Dissolved", esc(ch&&ch.dissolved_on), "", "bad")}
+    ${fact("Registered office", esc((ch&&ch.registered_office)||(ef&&ef.registered_office)),
+           (ch&&ch.registered_office)||(ef&&ef.registered_office)||"")}
+    ${fact("Registered email", ef&&ef.registered_email?`<a href="mailto:${esc(ef.registered_email)}">${esc(ef.registered_email)}</a>`:"", ef&&ef.registered_email)}
+    ${fact("Auth code", esc(ef&&ef.auth_code), ef&&ef.auth_code)}
+    ${fact("Account customer", esc(ef&&ef.customer), ef&&ef.customer)}
+    ${fact("eFiling ID", esc(ef&&ef.efiling_id), ef&&ef.efiling_id)}
+    ${fact("Jurisdiction", esc(ef&&ef.jurisdiction))}
+    ${fact("Accounts due", ch?((ch.accounts_overdue?'<span class="badge stop">overdue</span> ':"")+esc(ch.accounts_due_by||"not stated")):"", "", ch&&ch.accounts_overdue?"bad":"")}
+    ${fact("Accounts made up to", esc(ch&&ch.accounts_next_made_up_to))}
+    ${fact("Accounts last filed", esc(ch&&ch.accounts_last_made_up_to))}
+    ${fact("Conf. stmt due", ch?((ch.cs_overdue?'<span class="badge stop">overdue</span> ':"")+esc(ch.cs_due_by||"not stated")):"", "", ch&&ch.cs_overdue?"bad":"")}
+    ${fact("Next statement date", esc(ch&&ch.cs_next_statement_date))}
+    ${fact("Last statement", esc(ch&&ch.cs_last_statement_dated))}
+    ${fact("SIC", ((ch&&ch.sic_codes)||(ef&&ef.sic_codes)||[]).map(s=>esc(s.code+" "+s.description)).join("<br>"))}
+    ${fact("Verification", ver.state&&ver.state!=="unknown"
+        ? `<span class="badge ${ver.state==="complete"?"done":"open"}">${esc(ver.state)}</span> ${esc(ver.label)}${ver.date?" on "+esc(ver.date):""}` : "")}
+    ${fact("Matched by", esc(ef&&ef.matched_by))}
+  </div>`;
+  if(sc.active!=null || (svc.rows||[]).length){
+    comp += `<div style="margin-top:13px"><div class="fact"><span>Services</span><span>
+      <span class="badge done">active ${sc.active??"?"}</span>
+      <span class="badge ${sc.expired_cancelled?"stop":""}">expired ${sc.expired_cancelled??"?"}</span>
+      <span class="badge ${sc.critical?"stop":""}">critical ${sc.critical??"?"}</span>
+      <span class="badge">paused ${sc.paused??"?"}</span></span></div>`;
+    if((svc.rows||[]).length) comp += `<table class="tl" style="margin-top:7px">${svc.rows.map(r=>
+      `<tr><td>${esc(r.name)}</td><td class="a">renews ${esc(r.renew_date)}</td></tr>`).join("")}</table>`;
+    comp += `</div>`;
+  }
+  if(ef&&(ef.orders||[]).length){
+    comp += `<div style="margin-top:13px"><div class="fact"><span>Orders &amp; invoices</span><span></span></div>
+      <div class="links" style="margin-top:5px">${ef.orders.map(o=>
+        `<a href="${esc(o.url)}" target="_blank" rel="noopener"><span class="k">${esc(o.kind)}</span>#${esc(o.number)} · ${esc(o.date)}</a>`).join("")}</div></div>`;
+  }
+  if(!ef && !ch) comp = `<div class="vstate">Neither record was matched to this ticket.</div>`;
+  out.push(P("Company", comp, `<button class="copy" id="copyFacts">Copy all details</button>`));
+
+  // ---- notes up front: this is where "pending verification" actually lives
+  if(ef && (ef.notes||[]).length){
+    out.push(P(`Notes (${ef.notes.length})`,
+      `<table class="tl">${ef.notes.slice(0,25).map(n=>
+        `<tr><td class="d">${esc(n.date)}</td><td>${esc(n.text)}</td><td class="a">${esc(n.author)}</td></tr>`).join("")}</table>`,
+      `<button class="copy" id="copyNotes">Copy</button>`));
+  }
+
+  // ---- only the judgement the fields cannot give you
+  if((d.at_a_glance||[]).length || (d.risk_flags||[]).length || (d.open_questions||[]).length){
+    let body = "";
+    if((d.at_a_glance||[]).length) body += `<ul class="bul">${d.at_a_glance.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;
+    if((d.risk_flags||[]).length) body += `<div style="margin-top:${body?"12px":"0"}"><div class="fact"><span>Risks &amp; deadlines</span><span></span></div>
+      <ul class="bul risk">${d.risk_flags.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`;
+    if((d.open_questions||[]).length) body += `<div style="margin-top:12px"><div class="fact"><span>Still unknown</span><span></span></div>
+      <ul class="bul">${d.open_questions.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`;
+    out.push(P("Worth knowing", body));
+  }
+
   // ---- verdict
   const fb = fbGet(t.number);
   out.push(P("Is this card right?", `
@@ -518,22 +600,11 @@ function detailHTML(t){
       <span class="vstate" id="vstate">${fb?esc(`marked ${fb.verdict.toLowerCase()} ${fmtDate(fb.at)}`):""}</span>
     </div>
     <div id="fbwrap" ${fb&&fb.verdict==="Inaccurate"?"":"hidden"}>
-      <textarea id="fb" placeholder="What's wrong with it? The wrong fact, the wrong next step, the wrong tone. This is what gets fixed.">${fb?esc(fb.comment||""):""}</textarea>
+      <textarea id="fb" placeholder="What is wrong with it? The wrong fact, the wrong next step, the wrong tone. This is what gets fixed.">${fb?esc(fb.comment||""):""}</textarea>
       <div class="fbrow"><button class="vb no" id="fbsend">Send feedback</button>
         <span class="vstate">saved so the drafting can be corrected. Nothing is sent to the customer from here.</span></div>
     </div>`,
     `<span class="hint">nothing is emailed from this page</span>`));
-
-  // ---- at a glance
-  if((d.at_a_glance||[]).length || (d.risk_flags||[]).length || (d.open_questions||[]).length){
-    let body = "";
-    if((d.at_a_glance||[]).length) body += `<ul class="bul">${d.at_a_glance.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;
-    if((d.risk_flags||[]).length) body += `<div style="margin-top:13px"><div class="fact"><span>Risks &amp; deadlines</span><span></span></div>
-      <ul class="bul risk">${d.risk_flags.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`;
-    if((d.open_questions||[]).length) body += `<div style="margin-top:13px"><div class="fact"><span>Still unknown</span><span></span></div>
-      <ul class="bul">${d.open_questions.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`;
-    out.push(P("At a glance", body));
-  }
 
   // ---- proposed message
   if(d.proposed_message){
@@ -542,95 +613,55 @@ function detailHTML(t){
       <div class="section"><pre class="draft" id="msgBox">${esc(d.proposed_message)}</pre></div></div>`);
   }
   if((d.suggested_actions||[]).length){
-    out.push(P("Suggested action", `<ol class="acts">${d.suggested_actions.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>`));
+    out.push(P("Suggested action", `<ol class="acts">${d.suggested_actions.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>`,
+      `<button class="copy" id="copyActs">Copy</button>`));
   }
 
-  // ---- eFiling
-  if(ef){
-    const svc = ef.services||{}, c = svc.counts||{}, v = ef.verification||{};
-    let body = `<div class="facts">
-      ${fact("Company", `<a href="${esc(ef.url)}" target="_blank" rel="noopener">${esc(ef.company_name||"open record")}</a>`)}
-      ${fact("Company number", esc(ef.company_number))}
-      ${fact("eFiling ID", esc(ef.efiling_id))}
-      ${fact("Status", esc(ef.status))}
-      ${fact("Incorporated", esc(ef.incorporated))}
-      ${fact("Account customer", esc(ef.customer))}
-      ${fact("Registered email", ef.registered_email?`<a href="mailto:${esc(ef.registered_email)}">${esc(ef.registered_email)}</a>`:"")}
-      ${fact("Auth code", esc(ef.auth_code))}
-      ${fact("Registered office", esc(ef.registered_office))}
-      ${fact("Jurisdiction", esc(ef.jurisdiction))}
-      ${fact("Officers", (ef.officers||[]).map(esc).join("<br>"))}
-      ${fact("SIC", (ef.sic_codes||[]).map(s=>esc(s.code+" "+s.description)).join("<br>"))}
-      ${fact("Account", ef.customer_url?`<a href="${esc(ef.customer_url)}" target="_blank" rel="noopener">open customer account</a>`:"")}
-      ${fact("Matched by", esc(ef.matched_by))}
-    </div>`;
-    body += `<div style="margin-top:14px"><div class="badges" style="margin-top:0">
-      <span class="badge done">active ${c.active??"?"}</span>
-      <span class="badge ${c.expired_cancelled?"stop":""}">expired/cancelled ${c.expired_cancelled??"?"}</span>
-      <span class="badge ${c.critical?"stop":""}">critical ${c.critical??"?"}</span>
-      <span class="badge">paused ${c.paused??"?"}</span></div>`;
-    body += (svc.rows||[]).length
-      ? `<table class="tl" style="margin-top:9px">${svc.rows.map(r=>
-          `<tr><td>${esc(r.name)}</td><td class="a">renews ${esc(r.renew_date)}</td></tr>`).join("")}</table>`
-      : `<div class="vstate" style="margin-top:8px">No dated service rows parsed.</div>`;
-    body += `</div>`;
-    if(v.state && v.state!=="unknown"){
-      body += `<div style="margin-top:14px"><div class="facts">${fact("Verification",
-        `<span class="badge ${v.state==="complete"?"done":"open"}">${esc(v.state)}</span> ${esc(v.label)} on ${esc(v.date)}`)}
-        ${fact("Latest note", esc(v.note))}</div></div>`;
+  // ---- directors, with their other companies
+  const offs = (ch&&ch.officers)||[];
+  if(offs.length || (ef&&(ef.officers||[]).length)){
+    let body = offs.map(o=>{
+      const ap = o.appointments||null;
+      const rows = ap&&(ap.items||[]).length
+        ? `<table class="tl" style="margin-top:6px">${ap.items.map(a=>
+            `<tr><td><a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.company)}</a>
+              <span class="vstate">(${esc(a.number)})</span>${a.resigned?' <span class="badge">resigned</span>':""}</td>
+             <td class="a">${esc(a.role||"")}${a.status?" · "+esc(a.status):""}${a.appointed?" · "+esc(a.appointed):""}</td></tr>`).join("")}</table>`
+        : "";
+      const meta = [o.role, o.appointed?("appointed "+o.appointed):"", o.date_of_birth?("born "+o.date_of_birth):"",
+                    o.nationality, o.residence?("lives "+o.residence):"", o.occupation].filter(Boolean).join(" · ");
+      return `<div class="prior">
+        <div class="h"><b style="font-size:12.5px">${esc(o.name)}</b>
+          ${o.resigned?'<span class="badge">resigned</span>':'<span class="badge done">serving</span>'}
+          ${o.identity_verification?`<span class="badge ${/verified/i.test(o.identity_verification)?"done":"open"}">ID ${esc(o.identity_verification)}</span>`:""}
+          ${o.verified_by_ycf?'<span class="badge info">verified by us</span>':""}
+          ${ap&&ap.total?`<span class="badge ${Number(ap.total)>1?"open":""}">${esc(ap.total)} appointment${ap.total==="1"?"":"s"}</span>`:""}
+          ${o.appointments_url?`<a href="https://find-and-update.company-information.service.gov.uk${esc(o.appointments_url)}" target="_blank" rel="noopener" style="font-size:11px;color:var(--blue);text-decoration:none">on CH</a>`:""}
+        </div>
+        ${meta?`<div class="vstate">${esc(meta)}</div>`:""}
+        ${o.correspondence_address?`<div class="vstate">${esc(o.correspondence_address)}</div>`:""}
+        ${rows}</div>`;
+    }).join("");
+    if(ef&&(ef.officers||[]).length){
+      body += `<div class="fact" style="margin-top:9px"><span>On eFiling</span><span>${(ef.officers||[]).map(esc).join("<br>")}</span></div>`;
     }
-    if((ef.notes||[]).length){
-      body += `<div style="margin-top:14px"><div class="fact"><span>Notes, newest first</span><span></span></div>
-        <table class="tl">${ef.notes.slice(0,16).map(n=>
-          `<tr><td class="d">${esc(n.date)}</td><td>${esc(n.text)}</td><td class="a">${esc(n.author)}</td></tr>`).join("")}</table></div>`;
-    }
-    if((ef.orders||[]).length){
-      body += `<div style="margin-top:14px"><div class="fact"><span>Orders &amp; invoices</span><span></span></div>
-        <div class="links" style="margin-top:6px">${ef.orders.map(o=>
-          `<a href="${esc(o.url)}" target="_blank" rel="noopener"><span class="k">${esc(o.kind)}</span>#${esc(o.number)} · ${esc(o.date)}</a>`).join("")}</div></div>`;
-    }
-    out.push(P("eFiling record", body));
-  } else {
-    out.push(P("eFiling record", `<div class="vstate">No eFiling record matched this ticket.</div>`));
+    out.push(P("Directors &amp; officers", body, `<button class="copy" id="copyOffs">Copy</button>`));
   }
 
-  // ---- Companies House
-  if(ch){
-    let body = `<div class="facts">
-      ${fact("Company", `<a href="${esc(ch.url)}" target="_blank" rel="noopener">${esc(ch.name||ch.number)}</a>`)}
-      ${fact("Company number", esc(ch.number))}
-      ${fact("Status", `<span class="badge ${/active/i.test(ch.status||"")?"done":"stop"}">${esc(ch.status)}</span>`)}
-      ${fact("Incorporated", esc(ch.incorporated))}
-      ${fact("Dissolved", esc(ch.dissolved_on), "bad")}
-      ${fact("Registered office", esc(ch.registered_office))}
-      ${fact("Accounts next due", (ch.accounts_overdue?'<span class="badge stop">overdue</span> ':"")+esc(ch.accounts_due_by||"not stated"), ch.accounts_overdue?"bad":"")}
-      ${fact("Accounts made up to", esc(ch.accounts_next_made_up_to))}
-      ${fact("Accounts last filed to", esc(ch.accounts_last_made_up_to))}
-      ${fact("Conf. stmt due", (ch.cs_overdue?'<span class="badge stop">overdue</span> ':"")+esc(ch.cs_due_by||"not stated"), ch.cs_overdue?"bad":"")}
-      ${fact("Next statement date", esc(ch.cs_next_statement_date))}
-      ${fact("Last statement dated", esc(ch.cs_last_statement_dated))}
-      ${fact("SIC", (ch.sic_codes||[]).map(s=>esc(s.code+" "+s.description)).join("<br>"))}
-    </div>`;
-    if((ch.officers||[]).length){
-      body += `<div style="margin-top:14px"><div class="fact"><span>Officers</span><span></span></div>
-        <table class="tl">${ch.officers.map(o=>
-          `<tr><td>${esc(o.name)}${o.resigned?' <span class="badge">resigned</span>':""}</td>
-           <td class="a">${esc(o.role||"")}${o.identity_verification?` · ID ${esc(o.identity_verification)}`:""}${o.verified_by_ycf?" · by us":""}</td></tr>`).join("")}</table></div>`;
-    }
+  // ---- filing history + screenshot
+  if(ch && ((ch.filing_history||[]).length || ch.screenshot)){
+    let body = "";
     if((ch.filing_history||[]).length){
-      body += `<div style="margin-top:14px"><div class="fact"><span>Filing history</span>
-        <span><a href="${esc(ch.filing_history_url)}" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:none">open on CH →</a></span></div>
-        <table class="tl">${ch.filing_history.slice(0,12).map(f=>
-          `<tr><td class="d">${esc(f.date)}</td><td>${esc(f.description)}</td><td class="a">${esc(f.type)}</td></tr>`).join("")}</table></div>`;
+      body += `<table class="tl">${ch.filing_history.slice(0,12).map(f=>
+        `<tr><td class="d">${esc(f.date)}</td><td>${esc(f.description)}</td><td class="a">${esc(f.type)}</td></tr>`).join("")}</table>`;
     }
     if(ch.screenshot){
       body += `<div class="shotwrap collapsed" id="shotwrap">
         <img loading="lazy" src="shots/${esc(ch.screenshot)}" alt="Companies House record for ${esc(ch.name||ch.number)}">
         <button class="toggle" id="shotToggle">Expand</button></div>`;
     }
-    out.push(P("Companies House", body));
-  } else {
-    out.push(P("Companies House", `<div class="vstate">No Companies House record matched this ticket.</div>`));
+    out.push(P("Filing history", body,
+      ch.filing_history_url?`<a href="${esc(ch.filing_history_url)}" target="_blank" rel="noopener" class="hint" style="color:var(--blue);text-decoration:none">open on CH</a>`:""));
   }
 
   // ---- precedent
@@ -638,7 +669,7 @@ function detailHTML(t){
   if(pc.length||pk.length){
     let body="";
     if(pc.length) body += `<div class="fact"><span>This customer before</span><span></span></div>`+pc.map(priorHTML).join("");
-    if(pk.length) body += `<div class="fact" style="margin-top:${pc.length?"13px":"0"}"><span>Same concern, how it was solved</span><span></span></div>`+pk.map(priorHTML).join("");
+    if(pk.length) body += `<div class="fact" style="margin-top:13px"><span>Same concern, how it was solved</span><span></span></div>`+pk.map(priorHTML).join("");
     out.push(P("Precedent", body));
   }
 
@@ -652,6 +683,49 @@ function detailHTML(t){
   return `<div class="column">${out.join("")}</div>`;
 }
 
+// Plain-text company panel, for pasting into an internal note.
+function factsText(t){
+  const ef=t.efiling||{}, ch=t.companies_house||{}, svc=ef.services||{}, sc=svc.counts||{};
+  const L=[
+    plain("Company", ch.name||ef.company_name),
+    plain("Company number", ch.number||ef.company_number),
+    plain("CH status", ch.status), plain("eFiling status", ef.status),
+    plain("Incorporated", ch.incorporated||ef.incorporated),
+    plain("Dissolved", ch.dissolved_on),
+    plain("Registered office", ch.registered_office||ef.registered_office),
+    plain("Registered email", ef.registered_email),
+    plain("Auth code", ef.auth_code),
+    plain("Account customer", ef.customer),
+    plain("eFiling ID", ef.efiling_id),
+    plain("Accounts due", (ch.accounts_overdue?"OVERDUE ":"")+(ch.accounts_due_by||"")),
+    plain("Conf. stmt due", (ch.cs_overdue?"OVERDUE ":"")+(ch.cs_due_by||"")),
+    plain("CH record", ch.url), plain("eFiling record", ef.url),
+    plain("eFiling account", ef.customer_url),
+  ].filter(Boolean);
+  if(sc.active!=null) L.push(`Services: active ${sc.active}, expired ${sc.expired_cancelled}, critical ${sc.critical}, paused ${sc.paused}`);
+  (svc.rows||[]).forEach(r=>L.push(`  ${r.name} renews ${r.renew_date}`));
+  (ef.orders||[]).forEach(o=>L.push(`  ${o.kind} #${o.number} (${o.date}) ${o.url}`));
+  return L.join("\n");
+}
+function notesText(t){
+  return ((t.efiling&&t.efiling.notes)||[]).map(n=>`${n.date}  ${n.text}  [${n.author}]`).join("\n");
+}
+function officersText(t){
+  const L=[];
+  (((t.companies_house||{}).officers)||[]).forEach(o=>{
+    const ap=o.appointments;
+    L.push(`${o.name}${o.role?" ("+o.role+")":""}${o.resigned?" RESIGNED":""}`+
+      `${o.identity_verification?" · ID "+o.identity_verification:""}`+
+      `${o.verified_by_ycf?" · verified by us":""}${ap&&ap.total?" · "+ap.total+" appointments":""}`);
+    const meta=[o.appointed?("appointed "+o.appointed):"", o.date_of_birth?("born "+o.date_of_birth):"",
+                o.nationality, o.residence, o.occupation].filter(Boolean).join(" · ");
+    if(meta) L.push("  "+meta);
+    if(o.correspondence_address) L.push("  "+o.correspondence_address);
+    if(ap) (ap.items||[]).forEach(a=>L.push(`    ${a.company} (${a.number})${a.role?" "+a.role:""}${a.status?" · "+a.status:""}${a.resigned?" RESIGNED":""}`));
+  });
+  return L.join("\n");
+}
+
 function priorHTML(p){
   return `<div class="prior">
     <div class="h"><a href="${esc(p.url)}" target="_blank" rel="noopener">#${esc(p.ticket_id)} ${esc(p.subject||"")}</a>
@@ -660,17 +734,50 @@ function priorHTML(p){
     <div class="x">${esc((p.excerpt||"").slice(0,420))}</div></div>`;
 }
 
-function wire(t){
-  const copy = $("#copyMsg");
-  if(copy) copy.onclick = async () => {
-    try{ await navigator.clipboard.writeText(t.draft.proposed_message); }
-    catch(e){
-      const r=document.createRange(); r.selectNodeContents($("#msgBox"));
-      const s=getSelection(); s.removeAllRanges(); s.addRange(r);
-    }
-    copy.textContent="Copied"; copy.classList.add("ok");
-    setTimeout(()=>{ copy.textContent="Copy"; copy.classList.remove("ok"); },1400);
+// One clipboard path for every copy control. navigator.clipboard needs a
+// secure context, so there is a textarea+execCommand fallback: the page is
+// also opened from dist/ over plain http while testing.
+async function toClipboard(text){
+  try{
+    await navigator.clipboard.writeText(text);
+    return true;
+  }catch(e){
+    try{
+      const ta=document.createElement("textarea");
+      ta.value=text; ta.style.position="fixed"; ta.style.opacity="0";
+      document.body.appendChild(ta); ta.select();
+      const ok=document.execCommand("copy");
+      document.body.removeChild(ta);
+      return ok;
+    }catch(e2){ return false; }
+  }
+}
+function copyButton(id, getText, label){
+  const b = $("#"+id);
+  if(!b) return;
+  b.onclick = async () => {
+    const ok = await toClipboard(getText());
+    b.textContent = ok ? "Copied" : "Press Ctrl+C";
+    b.classList.add("ok");
+    setTimeout(()=>{ b.textContent = label; b.classList.remove("ok"); }, 1500);
   };
+}
+
+function wire(t){
+  copyButton("copyMsg", ()=>t.draft.proposed_message, "Copy");
+  copyButton("copyFacts", ()=>factsText(t), "Copy all details");
+  copyButton("copyNotes", ()=>notesText(t), "Copy");
+  copyButton("copyOffs", ()=>officersText(t), "Copy");
+  copyButton("copyActs", ()=>((t.draft&&t.draft.suggested_actions)||[])
+    .map((x,i)=>`${i+1}. ${x}`).join("\n"), "Copy");
+  // Per-field copy buttons are rendered inside the fact rows.
+  document.querySelectorAll("#detail [data-copy]").forEach(b=>b.onclick=async()=>{
+    const ok = await toClipboard(b.dataset.copy);
+    const was = b.textContent;
+    b.textContent = ok ? "copied" : "failed";
+    b.classList.add("ok");
+    setTimeout(()=>{ b.textContent = was; b.classList.remove("ok"); }, 1200);
+  });
   const tog = $("#shotToggle");
   if(tog) tog.onclick = () => {
     const w=$("#shotwrap"); w.classList.toggle("collapsed");
