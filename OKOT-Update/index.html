@@ -109,6 +109,20 @@ header{border-bottom:1px solid var(--ring);background:var(--surface);margin-bott
 .tile.alert .v{color:var(--critical)}
 
 
+
+/* ---------------- staleness banner ---------------- */
+.stale{display:flex;gap:11px;align-items:flex-start;padding:13px 16px;margin-bottom:18px;
+       border-radius:10px;border:1px solid var(--critical);
+       background:color-mix(in srgb, var(--critical) 9%, var(--surface));
+       font-size:13.5px;line-height:1.5}
+.stale.warn{border-color:var(--serious);
+            background:color-mix(in srgb, var(--serious) 10%, var(--surface))}
+.stale b{display:block;margin-bottom:2px}
+.stale .ico{flex:0 0 auto;width:19px;height:19px;border-radius:50%;background:var(--critical);
+            color:#fff;font-weight:700;font-size:12px;display:flex;align-items:center;
+            justify-content:center;margin-top:1px}
+.stale.warn .ico{background:var(--serious)}
+
 /* ---------------- summary bullets ---------------- */
 .sum{list-style:none;margin:0;padding:2px 0 4px}
 .sum li{display:flex;gap:11px;padding:9px 0;border-bottom:1px solid var(--grid);
@@ -466,11 +480,35 @@ function renderWeeks(){
   });
 }
 
+// The digest once sat eight days stale without saying so: the page looked
+// fine, and the Refresh button truthfully reported "already current" because
+// nothing new had been published. Age is now stated on the page itself, so a
+// broken refresh job cannot hide behind a page that renders perfectly.
+function staleBanner(){
+  if(!DATA || !DATA.generated_at) return null;
+  var age = (Date.now() - new Date(DATA.generated_at).getTime()) / 3600000;
+  if(age < 30) return null;
+  var bad = age >= 72;
+  var days = Math.floor(age / 24), hrs = Math.round(age % 24);
+  var howLong = days ? (plural(days,'day') + (hrs ? ' ' + hrs + 'h' : '')) : Math.round(age)+' hours';
+  return el(
+    '<div class="stale'+(bad?'':' warn')+'">'+
+      '<span class="ico">!</span>'+
+      '<span><b>This digest is '+esc(howLong)+' old.</b>'+
+      'It was built '+esc(clock(DATA.generated_at))+'. The daily refresh should run every '+
+      'morning, so this means the job has not completed since then &mdash; what you are '+
+      'reading below is not current.</span>'+
+    '</div>');
+}
+
 function renderMain(){
   var wk = DATA.data[WEEK] || {gmail:[],monday:[],trello:[],insights:{}};
   var ins = wk.insights || {}, c = ins.counts || {};
   var meta = DATA.weeks.filter(function(w){return w.start===WEEK;})[0] || {};
   var host=document.getElementById('main'); host.innerHTML='';
+
+  var warn = staleBanner();
+  if(warn) host.appendChild(warn);
 
   /* headline */
   host.appendChild(el(
