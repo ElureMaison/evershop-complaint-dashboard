@@ -37,6 +37,12 @@
   .counts .stamp{flex-basis:100%;color:var(--soft);font-size:10.5px;
                  padding-top:2px;letter-spacing:.01em}
   .counts .stamp b{color:var(--text)}
+  /* The page serves its last good build quite happily when the refresh has
+     stopped, so staleness has to announce itself. The longest gap between
+     scheduled runs is 12h; past 16h something is wrong. */
+  .stale{flex-basis:100%;margin-top:6px;padding:7px 9px;border-radius:5px;font-size:11px;
+         line-height:1.5;color:#ffd7a1;background:rgba(255,163,68,.13);
+         border:1px solid rgba(255,163,68,.45)}
   input#q{width:100%;font:inherit;font-size:12px;padding:6px 9px;border-radius:5px;margin-bottom:8px;
           border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--text)}
   input#q::placeholder{color:var(--dim)}
@@ -263,6 +269,10 @@ const REAMAZE_BRAND = {
 };
 
 let DB = {orders: [], built: ""};
+// When this page last re-read data.json. Without it a Refresh that finds
+// nothing new looks identical to a Refresh that did nothing at all, which is
+// exactly how a working button gets reported as broken.
+let LAST_CHECKED = "";
 let ORDERS = [];
 const $ = s => document.querySelector(s);
 const esc = s => (s==null?"":String(s)).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -334,7 +344,9 @@ function renderList(){
     `<span><b>${ORDERS.length}</b> in WIIO's queue</span>`+
     `<span><b>${ORDERS.filter(o=>o.open).length}</b> with no reply logged</span>`+
     `<span><b>${DB.done_on_wiio||0}</b> done — on the sheet, off this list</span>`+
-    `<span class="stamp">Updated ${esc(DB.built)}</span>`;
+    `<span class="stamp">Updated ${esc(DB.built)}${
+        LAST_CHECKED ? ` · checked ${LAST_CHECKED}` : ""}</span>` +
+    staleWarning();
   $("#filters").innerHTML = FILTERS.map(([k,l]) =>
     `<button data-f="${esc(k)}" class="${filter===k?'on':''}">${esc(l)}</button>`).join("");
   $("#rows").innerHTML = shown.length ? shown.slice(0,600).map(o =>
@@ -343,6 +355,22 @@ function renderList(){
        <div class="meta"><span class="dot ${dotClass(o)}"></span>${esc(o.store)} · ${esc(KINDS[o.kind]||o.kind)} · ${esc(o.reported||"")}</div>
      </div>`).join("") + (shown.length>600?`<div class="list-empty">showing first 600 of ${shown.length} — narrow with search</div>`:"")
     : `<div class="list-empty">Nothing matches.</div>`;
+}
+// Scheduled runs are 23:50 / 06:50 / 11:50 PHT, so the longest healthy gap is
+// twelve hours. Past sixteen the refresh has stopped, and saying so here is the
+// only thing that turns a silent failure into a noticed one -- the page itself
+// is where someone is already looking.
+const STALE_AFTER_HOURS = 16;
+function staleWarning(){
+  const e = DB.built_epoch;
+  if (!e) return "";
+  const hrs = (Date.now()/1000 - e) / 3600;
+  if (hrs < STALE_AFTER_HOURS) return "";
+  const days = hrs >= 48 ? `${Math.floor(hrs/24)} days` : `${Math.floor(hrs)} hours`;
+  return `<div class="stale"><b>This data is ${days} old.</b> The scheduled
+    refresh runs three times a day, so it has stopped. Check the Actions tab on
+    the evershop-tools repo for a failed run &mdash; the page is still showing
+    its last good copy, which is why nothing looks obviously wrong.</div>`;
 }
 function fact(label, value, opts={}){
   const v = (value==null?"":String(value)).trim();
@@ -582,6 +610,7 @@ async function load(){
     }catch(e){ /* no config yet: the page stays read-only, which it says */ }
     const r = await fetch("data.json?t=" + Date.now(), {cache: "no-store"});
     DB = await r.json(); ORDERS = DB.orders;
+    LAST_CHECKED = new Date().toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
     const keep = current && ORDERS.find(o => o.order === current.order && o.store === current.store);
     current = keep || null;
     renderList();
@@ -589,7 +618,9 @@ async function load(){
   }catch(e){
     $("#rows").innerHTML = `<div class="list-empty">Could not load data.json — ${esc(e.message)}</div>`;
   }
-  b.classList.remove("busy"); b.textContent = "Refresh";
+  b.classList.remove("busy");
+  b.textContent = "Up to date";
+  setTimeout(() => { b.textContent = "Refresh"; }, 1800);
 }
 $("#refresh").addEventListener("click", load);
 
