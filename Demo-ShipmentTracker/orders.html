@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orders &mdash; Vantage Shipment Tracker (Demo)</title>
+<meta name="description" content="Order pipeline from placement through proofs, shipping and delivery. Sample data only.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%A6%3C/text%3E%3C/svg%3E">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>body { font-family: 'Inter', system-ui, sans-serif; }</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+<div class="bg-purple-700 text-white text-center text-xs font-semibold px-4 py-2">
+  PORTFOLIO DEMO &middot; every figure on this page is generated sample data &mdash; no real customer, order or shipment is shown
+</div>
+<nav class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between flex-wrap gap-3">
+  <div class="flex items-center gap-2 text-gray-900 font-bold text-lg">
+    <span class="text-2xl">&#128230;</span>
+    <span>Vantage Shipment Tracker</span>
+    <span class="ml-2 text-xs font-medium bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Demo</span>
+  </div>
+  <div class="flex items-center gap-5 text-sm text-gray-500">
+    <a href="index.html" class="flex items-center gap-1 hover:text-purple-700 transition-colors">&#128202; Dashboard</a>
+    <a href="tracking.html" class="flex items-center gap-1 hover:text-purple-700 transition-colors">&#128666; Tracking</a>
+    <span class="text-gray-900 font-semibold flex items-center gap-1 border-b-2 border-purple-600 pb-0.5">&#128451; Orders</span>
+    <a href="calendar.html" class="flex items-center gap-1 hover:text-purple-700 transition-colors">&#128197; Calendar</a>
+    <a href="inventory.html" class="flex items-center gap-1 hover:text-purple-700 transition-colors">&#128230; Inventory</a>
+  </div>
+</nav>
+<main class="max-w-6xl mx-auto px-6 py-8">
+
+<div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">Orders</h1>
+    <p class="text-sm text-gray-400 mt-1" id="count-label">Loading&hellip;</p>
+  </div>
+  <div id="market-filter" class="flex flex-wrap rounded-xl border border-gray-200 overflow-hidden text-sm font-semibold"></div>
+</div>
+<div id="cards" class="space-y-4"></div>
+
+</main>
+<script src="data.js"></script>
+<script>
+
+let _m='All';
+const PHASES=['Ordered','Proofs','Shipped','Delivered'];
+const fmt=d=>d?new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'pending';
+const statusPill=o=>o.order_status===2?['Behind','bg-red-50 text-red-600']
+  :o.order_status===0?['Ahead','bg-green-50 text-green-700']:['On schedule','bg-blue-50 text-blue-600'];
+function buildFilter(){
+  const markets=['All',...new Set(DEMO.orders.map(o=>o.market))].sort((a,b)=>a==='All'?-1:b==='All'?1:a.localeCompare(b));
+  const w=document.getElementById('market-filter'); w.innerHTML='';
+  markets.forEach(m=>{
+    const b=document.createElement('button'); b.textContent=m;
+    b.className = m===_m ? 'px-4 py-2 bg-purple-600 text-white' : 'px-4 py-2 bg-white text-gray-600 hover:bg-gray-50';
+    b.onclick=()=>{_m=m; buildFilter(); render();};
+    w.appendChild(b);
+  });
+}
+function render(){
+  const list=_m==='All'?DEMO.orders:DEMO.orders.filter(o=>o.market===_m);
+  document.getElementById('count-label').textContent=list.length+' order'+(list.length===1?'':'s')+(_m==='All'?'':' · '+_m);
+  document.getElementById('cards').innerHTML = list.map(o=>{
+    const reached=Math.min(o.current_phase,4);
+    const [txt,cls]=statusPill(o);
+    const steps=PHASES.map((p,i)=>{
+      const done=i<reached;
+      const date=[o.order_date,o.proof_date,o.ship_date,o.delivery_date][i];
+      return `<div class="flex-1 min-w-[120px]">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full ${done?'bg-purple-600':'bg-gray-200'}"></span>
+          <span class="text-xs font-semibold ${done?'text-gray-800':'text-gray-400'}">${p}</span>
+        </div>
+        <p class="text-xs text-gray-400 mt-1 ml-4.5">${done?fmt(date):'pending'}</p>
+      </div>`;}).join('');
+    const gear=(DEMO.markets[o.market]?.gear||[]).slice(0,4).map(g=>
+      `<span class="text-xs bg-gray-50 border border-gray-200 rounded-full px-2.5 py-1 text-gray-600">${g.gear_type}</span>`).join('');
+    return `<div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between flex-wrap gap-2">
+        <div>
+          <p class="font-bold text-gray-900">${o.label}</p>
+          <p class="text-xs text-gray-400 mt-0.5">${o.season} ${o.year} · ${o.sport}</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-semibold px-2 py-1 rounded-full ${cls}">${txt}</span>
+          ${o.is_delayed?'<span class="text-xs font-semibold px-2 py-1 rounded-full bg-red-50 text-red-600">Delayed</span>':''}
+        </div>
+      </div>
+      <div class="px-6 py-4 flex flex-wrap gap-4">${steps}</div>
+      <div class="px-6 pb-4 flex flex-wrap gap-2">${gear}</div>
+    </div>`;}).join('');
+}
+buildFilter(); render();
+
+</script>
+</body>
+</html>

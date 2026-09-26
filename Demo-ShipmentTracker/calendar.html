@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendar &mdash; Vantage Shipment Tracker (Demo)</title>
+<meta name="description" content="Order milestones by month: proofs due, ship dates and deliveries. Sample data only.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%A6%3C/text%3E%3C/svg%3E">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>body { font-family: 'Inter', system-ui, sans-serif; }</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+<div class="bg-purple-700 text-white text-center text-xs font-semibold px-4 py-2">
+  PORTFOLIO DEMO &middot; every figure on this page is generated sample data &mdash; no real customer, order or shipment is shown
+</div>
+<nav class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between flex-wrap gap-3">
+  <div class="flex items-center gap-2 text-gray-900 font-bold text-lg">
+    <span class="text-2xl">&#128230;</span>
+    <span>Vantage Shipment Tracker</span>
+    <span class="ml-2 text-xs font-medium bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Demo</span>
+  </div>
+  <div class="flex items-center gap-5 text-sm text-gray-500">
+    <a href="index.html" class="flex items-center gap-1 hover:text-purple-700 transition-colors">&#128202; Dashboard</a>
+    <a href="tracking.html" class="flex items-center gap-1 hover:text-purple-700 transition-colors">&#128666; Tracking</a>
+    <a href="orders.html" class="flex items-center gap-1 hover:text-purple-700 transition-colors">&#128451; Orders</a>
+    <span class="text-gray-900 font-semibold flex items-center gap-1 border-b-2 border-purple-600 pb-0.5">&#128197; Calendar</span>
+    <a href="inventory.html" class="flex items-center gap-1 hover:text-purple-700 transition-colors">&#128230; Inventory</a>
+  </div>
+</nav>
+<main class="max-w-6xl mx-auto px-6 py-8">
+
+<div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">Calendar</h1>
+    <p class="text-sm text-gray-400 mt-1" id="count-label">Loading&hellip;</p>
+  </div>
+  <div class="flex items-center gap-3">
+    <button id="prev" class="px-3 py-2 bg-white border border-gray-300 rounded-xl text-sm font-semibold text-gray-600 hover:border-purple-400">&larr;</button>
+    <span id="month-label" class="font-bold text-gray-800 text-base w-44 text-center"></span>
+    <button id="next" class="px-3 py-2 bg-white border border-gray-300 rounded-xl text-sm font-semibold text-gray-600 hover:border-purple-400">&rarr;</button>
+  </div>
+</div>
+<div class="flex flex-wrap gap-4 mb-4 text-xs text-gray-500">
+  <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>Proofs due</span>
+  <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-orange-400"></span>Ship</span>
+  <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-green-500"></span>Delivery</span>
+</div>
+<div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+  <div class="grid grid-cols-7 bg-gray-50 text-gray-500 text-xs font-semibold uppercase tracking-wide">
+    <div class="px-3 py-3 text-center">Sun</div><div class="px-3 py-3 text-center">Mon</div>
+    <div class="px-3 py-3 text-center">Tue</div><div class="px-3 py-3 text-center">Wed</div>
+    <div class="px-3 py-3 text-center">Thu</div><div class="px-3 py-3 text-center">Fri</div>
+    <div class="px-3 py-3 text-center">Sat</div>
+  </div>
+  <div id="grid" class="grid grid-cols-7"></div>
+</div>
+
+</main>
+<script src="data.js"></script>
+<script>
+
+const DOT={'Proofs due':'bg-purple-500','Ship':'bg-orange-400','Delivery':'bg-green-500'};
+const byDate={};
+DEMO.events.forEach(e=>{ (byDate[e.date]=byDate[e.date]||[]).push(e); });
+// open on the busiest month so the view is not empty on arrival
+const perMonth={};
+DEMO.events.forEach(e=>{ const k=e.date.slice(0,7); perMonth[k]=(perMonth[k]||0)+1; });
+const busiest=Object.entries(perMonth).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]))[0];
+let cur = busiest ? new Date(busiest[0]+'-01T00:00:00') : new Date();
+cur = new Date(cur.getFullYear(), cur.getMonth(), 1);
+function render(){
+  const y=cur.getFullYear(), m=cur.getMonth();
+  document.getElementById('month-label').textContent = cur.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  const first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
+  let cells='', monthCount=0;
+  for(let i=0;i<first;i++) cells+='<div class="min-h-[104px] border-t border-r border-gray-100 bg-gray-50/40"></div>';
+  for(let d=1;d<=days;d++){
+    const iso=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const evs=byDate[iso]||[]; monthCount+=evs.length;
+    const items=evs.slice(0,3).map(e=>
+      `<div class="flex items-start gap-1.5 mb-1">
+         <span class="w-2 h-2 rounded-full ${DOT[e.type]} mt-1 shrink-0"></span>
+         <span class="text-[11px] leading-tight text-gray-600 truncate" title="${e.type}: ${e.label}">${e.label.replace(/ Order /,' #')}</span>
+       </div>`).join('');
+    const more = evs.length>3 ? `<p class="text-[11px] text-gray-400">+${evs.length-3} more</p>` : '';
+    cells+=`<div class="min-h-[104px] border-t border-r border-gray-100 p-2">
+      <p class="text-xs font-semibold ${evs.length?'text-gray-800':'text-gray-400'} mb-1.5">${d}</p>
+      ${items}${more}</div>`;
+  }
+  const trail=(7-((first+days)%7))%7;
+  for(let i=0;i<trail;i++) cells+='<div class="min-h-[104px] border-t border-r border-gray-100 bg-gray-50/40"></div>';
+  document.getElementById('grid').innerHTML=cells;
+  document.getElementById('count-label').textContent =
+    monthCount+' milestone'+(monthCount===1?'':'s')+' this month · '+DEMO.events.length+' across the schedule';
+}
+document.getElementById('prev').onclick=()=>{cur=new Date(cur.getFullYear(),cur.getMonth()-1,1); render();};
+document.getElementById('next').onclick=()=>{cur=new Date(cur.getFullYear(),cur.getMonth()+1,1); render();};
+render();
+
+</script>
+</body>
+</html>
