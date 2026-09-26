@@ -1,0 +1,5 @@
+{
+  "monday_token": "paste the monday.com personal API token here",
+  "trello_key": "paste the Trello API key here",
+  "trello_token": "paste the Trello token here"
+}

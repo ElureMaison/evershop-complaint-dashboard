@@ -1,0 +1,108 @@
+# Keeps yourbadassvaronceph.com/OKOT-Update/ current without this Mac being on.
+#
+# Everything OKOT needs is an API call, so unlike the Evershop jobs there is
+# no browser step and nothing that has to stay on a laptop.
+name: OKOT daily refresh
+
+on:
+  schedule:
+    # GitHub cron is UTC and has no timezone field. 22:50 UTC is 06:50 PHT,
+    # so the digest is rebuilt BEFORE the working day rather than during it.
+    # Ten minutes early and off the hour: GitHub's scheduler is best-effort
+    # and :00 is its busiest minute.
+    - cron: "50 22 * * *"
+  workflow_dispatch:        # and on demand from the Actions tab
+
+concurrency:
+  group: okot-daily
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write       # the built-in token pushes the rebuilt digest
+
+    steps:
+      - name: Check out the site repo
+        uses: actions/checkout@v4
+
+      # Fail loudly naming the missing secret, rather than dying later inside
+      # a collector with a confusing traceback.
+      - name: Verify the secrets are set
+        env:
+          GMAIL_TOKEN: ${{ secrets.OKOT_GMAIL_TOKEN }}
+          OKOT_CONFIG: ${{ secrets.OKOT_CONFIG }}
+        run: |
+          missing=""
+          [ -z "$GMAIL_TOKEN" ] && missing="$missing OKOT_GMAIL_TOKEN"
+          [ -z "$OKOT_CONFIG" ] && missing="$missing OKOT_CONFIG"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing repository secret(s):$missing"
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # The collectors are standard library only, so the runner's stock
+      # python needs nothing installed.
+      - name: Restore credentials
+        env:
+          GMAIL_TOKEN: ${{ secrets.OKOT_GMAIL_TOKEN }}
+          OKOT_CONFIG: ${{ secrets.OKOT_CONFIG }}
+        run: |
+          cd okot-tools
+          printf '%s' "$GMAIL_TOKEN" > token_gmail_okot.json
+          printf '%s' "$OKOT_CONFIG" > okot_config.json
+          chmod 600 token_gmail_okot.json okot_config.json
+          python3 -c "import json;json.load(open('token_gmail_okot.json'))" || {
+            echo "::error::OKOT_GMAIL_TOKEN is not valid JSON"; exit 1; }
+          python3 -c "import json;json.load(open('okot_config.json'))" || {
+            echo "::error::OKOT_CONFIG is not valid JSON"; exit 1; }
+
+      - name: Collect Gmail
+        working-directory: okot-tools
+        timeout-minutes: 20
+        run: python3 -u collect_gmail.py
+
+      - name: Collect Monday
+        working-directory: okot-tools
+        timeout-minutes: 20
+        run: python3 -u collect_monday.py
+
+      - name: Collect Trello
+        working-directory: okot-tools
+        timeout-minutes: 15
+        run: python3 -u collect_trello.py
+
+      - name: Build and encrypt the digest
+        working-directory: okot-tools
+        run: |
+          python3 -u build_updates.py
+          PW=$(python3 -c "import json;print(json.load(open('okot_config.json'))['page_password'])")
+          node encrypt_data.js "$PW"
+          cp data/updates.enc.json ../OKOT-Update/data.json
+
+      # Nothing readable should survive into the pushed tree. The credentials
+      # are restored fresh every run, so there is no reason to keep them.
+      - name: Scrub credentials and raw data
+        if: always()
+        working-directory: okot-tools
+        run: rm -f token_gmail_okot.json okot_config.json data/*.json
+
+      - name: Publish
+        run: |
+          if git diff --quiet -- OKOT-Update; then
+            echo "no change in the digest — nothing to publish"
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add OKOT-Update
+          git commit -m "OKOT-Update: daily refresh $(date -u '+%Y-%m-%d')"
+          # Other jobs push to this repo too; land on top of them.
+          git pull --rebase --quiet origin main
+          git push
