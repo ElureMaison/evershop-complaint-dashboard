@@ -93,7 +93,32 @@ jobs:
         working-directory: okot-tools
         run: rm -f token_gmail_okot.json okot_config.json data/*.json
 
+      # A collector that fails writes an error payload and exits 0 on purpose,
+      # so the digest still publishes with whatever sources did work. That is
+      # right for the page and wrong for the run: a green tick on a digest
+      # missing all of its email is how this stays broken quietly.
+      - name: Report any source that failed
+        working-directory: okot-tools
+        run: |
+          python3 - <<'PY'
+          import json, sys
+          bad = []
+          for name in ("gmail", "monday", "trello"):
+              try:
+                  blob = json.load(open("data/%s.json" % name))
+              except Exception as exc:
+                  bad.append("%s: no output (%s)" % (name, exc))
+                  continue
+              if blob.get("status") not in ("ok", "partial"):
+                  bad.append("%s: %s — %s" % (name, blob.get("status"),
+                                              (blob.get("error") or "")[:300]))
+          for line in bad:
+              print("::error::%s" % line)
+          sys.exit(1 if bad else 0)
+          PY
+
       - name: Publish
+        if: always()
         run: |
           if git diff --quiet -- OKOT-Update; then
             echo "no change in the digest — nothing to publish"

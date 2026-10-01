@@ -18,6 +18,7 @@ import json
 import os
 import re
 import sys
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -59,17 +60,35 @@ def access_token():
     if not os.path.exists(TOKEN):
         raise SystemExit("No %s — run: python3 -u okot_gmail_auth.py" % TOKEN)
     tok = json.load(open(TOKEN))
+    for field in ("client_id", "client_secret", "refresh_token", "token_uri"):
+        if not tok.get(field):
+            raise RuntimeError("token_gmail_okot.json is missing %r — re-mint it "
+                               "with okot_gmail_auth.py" % field)
     body = urllib.parse.urlencode({
         "client_id": tok["client_id"], "client_secret": tok["client_secret"],
         "refresh_token": tok["refresh_token"], "grant_type": "refresh_token"}).encode()
     req = urllib.request.Request(tok["token_uri"], data=body,
                                  headers={"Content-Type": "application/x-www-form-urlencoded"})
-    return json.loads(urllib.request.urlopen(req).read())["access_token"]
+    try:
+        return json.loads(urllib.request.urlopen(req).read())["access_token"]
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", "replace")[:400]
+        raise RuntimeError("Refreshing the Gmail token failed (%s): %s"
+                           % (exc.code, detail)) from None
 
 
 def api(path, tok):
+    """Google puts the actual reason in the error body, never in the status
+    line. Swallowing it turns a one-line fix into guesswork — a 403 is
+    SERVICE_DISABLED, a bad scope, or a revoked grant, and only the body says
+    which."""
     req = urllib.request.Request(API + path, headers={"Authorization": "Bearer " + tok})
-    return json.loads(urllib.request.urlopen(req).read())
+    try:
+        return json.loads(urllib.request.urlopen(req).read())
+    except urllib.error.HTTPError as exc:
+        body = exc.read().decode("utf-8", "replace")[:800]
+        raise RuntimeError("Gmail API %s on %s\n%s"
+                           % (exc.code, path.split("?")[0], body)) from None
 
 
 def header(msg, name):
