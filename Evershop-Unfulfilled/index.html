@@ -578,6 +578,53 @@ $("#datesclear").addEventListener("click", () => {
   from = to = ""; $("#from").value = ""; $("#to").value = ""; renderList();
 });
 
+// Corrections from the Portal Feedback tab, applied to every order on load so
+// new orders pick them up too. They belong in the draft generator; until they
+// are there, this keeps agents from copying a draft the team already rejected.
+//
+// Out of stock: the supplier has cancelled the item, so "reserved one from the
+// next batch" promises something that is not coming. The team offers 120%
+// store credit, or another colour / alternative where one exists.
+function isOutOfStock(o){
+  return /reserved one from the next batch/.test(o.to_customer||"") ||
+         /^Out Of Stock$/i.test((o.case_type||"").trim());
+}
+// The product name as the old draft wrote it (without the "- Yellow / S"
+// variant suffix Shopify adds), falling back to the raw product field.
+function productName(o){
+  const m = /The (.+?) has sold out/.exec(o.to_customer||"");
+  return m ? m[1] : String(o.product||"").trim();
+}
+// The team's own wording from the Portal Feedback tab (#2780551), with the
+// "other colors or alternative" ask from #2776577 added.
+function storeCreditDraft(o){
+  const item = productName(o);
+  return `Dear Customer,
+
+I hope you’re doing well.
+
+Thank you for your patience regarding order ${o.order}${item ? ` for the ${item}` : ""}.
+
+We’d like to provide you with an important update. Unfortunately, the item you ordered is currently out of stock.
+
+We understand how disappointing it can be when an item you selected is unavailable. As an alternative, we’d be happy to offer you 120% store credit based on the value of the unavailable item, which you can use toward another purchase from our store. If this item is available in another color, or there is a similar alternative you’d prefer, we’d also be happy to arrange that for you.
+
+Please let us know if you would like us to arrange the 120% store credit, and we’ll be happy to assist you promptly.
+
+Thank you for your understanding and patience. We look forward to hearing from you.
+
+Warm regards,
+Ronce
+Customer Service Specialist`;
+}
+function applyFeedback(o){
+  if (o.fulfillment && /^fulfilled$/i.test(o.fulfillment.trim())) return;
+  if (isOutOfStock(o)) o.to_customer = storeCreditDraft(o);
+  // PayPal still processing: the order must not be fulfilled yet, so there is
+  // nothing to chase the supplier for.
+  if (/^pending$/i.test((o.payment||"").trim()))
+    o.to_supplier = `No message to the supplier yet. The payment for ${o.order} is still processing in PayPal, so wait until it is successful before this order is fulfilled.`;
+}
 async function load(){
   const b = $("#refresh"); b.classList.add("busy"); b.textContent = "Loading…";
   try{
@@ -588,6 +635,7 @@ async function load(){
     // cache-bust so Refresh really re-reads the file rather than the browser copy
     const r = await fetch("data.json?t=" + Date.now(), {cache: "no-store"});
     DB = await r.json(); ORDERS = DB.orders;
+    ORDERS.forEach(applyFeedback);
     const keep = current && ORDERS.find(o => o.order === current.order && o.store === current.store);
     current = keep || null;
     renderList();
