@@ -260,7 +260,7 @@ const esc = s => (s==null?"":String(s)).replace(/[&<>"]/g, c => ({'&':'&amp;','<
 // checked, not content -- show them greyed rather than as if they were data.
 const isNote = v => /^(No |Not |WIIO after-sale record on file)/i.test((v||"").trim());
 
-let filters = new Set(["open"]), q = "", current = null, from = "", to = "";
+let filter = "open", q = "", current = null, from = "", to = "";
 const DAY = 86400000;
 function ageDays(o){
   // Dates are ISO on every row (the Miyora/Lume Haven relative text was
@@ -268,20 +268,16 @@ function ageDays(o){
   const t = Date.parse(o.date);
   return isNaN(t) ? null : Math.floor((Date.now() - t) / DAY);
 }
-// Filters can be combined. Picks in the same group widen the list (Clarendale
-// + Miyora shows both stores); picks in different groups narrow it (Clarendale
-// + 30+ days + CJ shows only rows that are all three). "All" clears every pick.
 const FILTERS = [
-  ["open","Still unfulfilled","queue"], ["all","All",""],
-  ["age7","0-7 days","age"], ["age30","8-30 days","age"], ["age30plus","30+ days","age"],
-  ["Clarendale","Clarendale","store"], ["Lark & Clover","Lark & Clover","store"],
-  ["Miyora","Miyora","store"], ["Lume Haven","Lume Haven","store"],
-  ["notrack","No tracking","tracking"], ["cj","CJ","supplier"], ["wiio","WIIO","supplier"],
-  ["answered","Answered","queue"],
-  ["SOLVED","SOLVED","tag"], ["REPLACED","REPLACED","tag"], ["UNFULFILLED","UNFULFILLED","tag"],
-  ["CANCELLED","CANCELLED","tag"],
+  ["open","Still unfulfilled"], ["all","All"],
+  ["age7","0-7 days"], ["age30","8-30 days"], ["age30plus","30+ days"],
+  ["Clarendale","Clarendale"], ["Lark & Clover","Lark & Clover"],
+  ["Miyora","Miyora"], ["Lume Haven","Lume Haven"],
+  ["notrack","No tracking"], ["cj","CJ"], ["wiio","WIIO"],
+  ["answered","Answered"],
+  ["SOLVED","SOLVED"], ["REPLACED","REPLACED"], ["UNFULFILLED","UNFULFILLED"],
+  ["CANCELLED","CANCELLED"],
 ];
-const FILTER_GROUP = Object.fromEntries(FILTERS.map(([k,,g]) => [k, g]));
 
 function match(o){
   if (from && (!o.date || o.date < from)) return false;
@@ -290,12 +286,8 @@ function match(o){
     const hay = [o.order,o.customer,o.product,o.tracking,o.email,o.supplier].join(" ").toLowerCase();
     if (!hay.includes(q)) return false;
   }
-  const groups = {};
-  for (const k of filters) (groups[FILTER_GROUP[k]] ||= []).push(k);
-  return Object.values(groups).every(keys => keys.some(k => matchOne(o, k)));
-}
-function matchOne(o, filter){
   switch(filter){
+    case "all": return true;
     case "open": return o.checkin === "Still unfulfilled" && !isTrue(o.answered);
     case "answered": return isTrue(o.answered);
     case "age7":     { const d = ageDays(o); return d !== null && d <= 7; }
@@ -345,7 +337,7 @@ function renderList(){
     `<span class="built">Updated ${esc(DB.built)}</span>`+
     freshnessHtml();
   $("#filters").innerHTML = FILTERS.map(([k,l]) =>
-    `<button data-f="${esc(k)}" class="${(k==="all" ? !filters.size : filters.has(k))?'on':''}">${esc(l)}</button>`).join("");
+    `<button data-f="${esc(k)}" class="${filter===k?'on':''}">${esc(l)}</button>`).join("");
   $("#rows").innerHTML = shown.length ? shown.slice(0,600).map((o,i) =>
     `<div class="row ${current===o?'active':''}" data-i="${ORDERS.indexOf(o)}">
        <div class="subject"><span class="store s${storeKey(o.store)}">${esc(o.store)}</span> ${esc(o.order)} · ${esc(o.customer)}<span class="tag ${esc(o.tag||"")}">${esc(o.tag||"")}</span>${isTrue(o.answered)?'<span class="tag ANSWERED">ANSWERED</span>':""}</div>
@@ -487,13 +479,7 @@ function renderDetail(o){
 }
 document.addEventListener("click", e => {
   const f = e.target.closest("[data-f]");
-  if (f){
-    const k = f.dataset.f;
-    if (k === "all") filters.clear();
-    else if (filters.has(k)) filters.delete(k);
-    else filters.add(k);
-    renderList(); return;
-  }
+  if (f){ filter = f.dataset.f; renderList(); return; }
   const r = e.target.closest(".row");
   if (r){ renderDetail(ORDERS[+r.dataset.i]); return; }
   const v = e.target.closest("[data-verdict]");
@@ -578,53 +564,6 @@ $("#datesclear").addEventListener("click", () => {
   from = to = ""; $("#from").value = ""; $("#to").value = ""; renderList();
 });
 
-// Corrections from the Portal Feedback tab, applied to every order on load so
-// new orders pick them up too. They belong in the draft generator; until they
-// are there, this keeps agents from copying a draft the team already rejected.
-//
-// Out of stock: the supplier has cancelled the item, so "reserved one from the
-// next batch" promises something that is not coming. The team offers 120%
-// store credit, or another colour / alternative where one exists.
-function isOutOfStock(o){
-  return /reserved one from the next batch/.test(o.to_customer||"") ||
-         /^Out Of Stock$/i.test((o.case_type||"").trim());
-}
-// The product name as the old draft wrote it (without the "- Yellow / S"
-// variant suffix Shopify adds), falling back to the raw product field.
-function productName(o){
-  const m = /The (.+?) has sold out/.exec(o.to_customer||"");
-  return m ? m[1] : String(o.product||"").trim();
-}
-// The team's own wording from the Portal Feedback tab (#2780551), with the
-// "other colors or alternative" ask from #2776577 added.
-function storeCreditDraft(o){
-  const item = productName(o);
-  return `Dear Customer,
-
-I hope you’re doing well.
-
-Thank you for your patience regarding order ${o.order}${item ? ` for the ${item}` : ""}.
-
-We’d like to provide you with an important update. Unfortunately, the item you ordered is currently out of stock.
-
-We understand how disappointing it can be when an item you selected is unavailable. As an alternative, we’d be happy to offer you 120% store credit based on the value of the unavailable item, which you can use toward another purchase from our store. If this item is available in another color, or there is a similar alternative you’d prefer, we’d also be happy to arrange that for you.
-
-Please let us know if you would like us to arrange the 120% store credit, and we’ll be happy to assist you promptly.
-
-Thank you for your understanding and patience. We look forward to hearing from you.
-
-Warm regards,
-Ronce
-Customer Service Specialist`;
-}
-function applyFeedback(o){
-  if (o.fulfillment && /^fulfilled$/i.test(o.fulfillment.trim())) return;
-  if (isOutOfStock(o)) o.to_customer = storeCreditDraft(o);
-  // PayPal still processing: the order must not be fulfilled yet, so there is
-  // nothing to chase the supplier for.
-  if (/^pending$/i.test((o.payment||"").trim()))
-    o.to_supplier = `No message to the supplier yet. The payment for ${o.order} is still processing in PayPal, so wait until it is successful before this order is fulfilled.`;
-}
 async function load(){
   const b = $("#refresh"); b.classList.add("busy"); b.textContent = "Loading…";
   try{
@@ -635,7 +574,6 @@ async function load(){
     // cache-bust so Refresh really re-reads the file rather than the browser copy
     const r = await fetch("data.json?t=" + Date.now(), {cache: "no-store"});
     DB = await r.json(); ORDERS = DB.orders;
-    ORDERS.forEach(applyFeedback);
     const keep = current && ORDERS.find(o => o.order === current.order && o.store === current.store);
     current = keep || null;
     renderList();
