@@ -260,7 +260,7 @@ const esc = s => (s==null?"":String(s)).replace(/[&<>"]/g, c => ({'&':'&amp;','<
 // checked, not content -- show them greyed rather than as if they were data.
 const isNote = v => /^(No |Not |WIIO after-sale record on file)/i.test((v||"").trim());
 
-let filter = "open", q = "", current = null, from = "", to = "";
+let filters = new Set(["open"]), q = "", current = null, from = "", to = "";
 const DAY = 86400000;
 function ageDays(o){
   // Dates are ISO on every row (the Miyora/Lume Haven relative text was
@@ -268,16 +268,20 @@ function ageDays(o){
   const t = Date.parse(o.date);
   return isNaN(t) ? null : Math.floor((Date.now() - t) / DAY);
 }
+// Filters can be combined. Picks in the same group widen the list (Clarendale
+// + Miyora shows both stores); picks in different groups narrow it (Clarendale
+// + 30+ days + CJ shows only rows that are all three). "All" clears every pick.
 const FILTERS = [
-  ["open","Still unfulfilled"], ["all","All"],
-  ["age7","0-7 days"], ["age30","8-30 days"], ["age30plus","30+ days"],
-  ["Clarendale","Clarendale"], ["Lark & Clover","Lark & Clover"],
-  ["Miyora","Miyora"], ["Lume Haven","Lume Haven"],
-  ["notrack","No tracking"], ["cj","CJ"], ["wiio","WIIO"],
-  ["answered","Answered"],
-  ["SOLVED","SOLVED"], ["REPLACED","REPLACED"], ["UNFULFILLED","UNFULFILLED"],
-  ["CANCELLED","CANCELLED"],
+  ["open","Still unfulfilled","queue"], ["all","All",""],
+  ["age7","0-7 days","age"], ["age30","8-30 days","age"], ["age30plus","30+ days","age"],
+  ["Clarendale","Clarendale","store"], ["Lark & Clover","Lark & Clover","store"],
+  ["Miyora","Miyora","store"], ["Lume Haven","Lume Haven","store"],
+  ["notrack","No tracking","tracking"], ["cj","CJ","supplier"], ["wiio","WIIO","supplier"],
+  ["answered","Answered","queue"],
+  ["SOLVED","SOLVED","tag"], ["REPLACED","REPLACED","tag"], ["UNFULFILLED","UNFULFILLED","tag"],
+  ["CANCELLED","CANCELLED","tag"],
 ];
+const FILTER_GROUP = Object.fromEntries(FILTERS.map(([k,,g]) => [k, g]));
 
 function match(o){
   if (from && (!o.date || o.date < from)) return false;
@@ -286,8 +290,12 @@ function match(o){
     const hay = [o.order,o.customer,o.product,o.tracking,o.email,o.supplier].join(" ").toLowerCase();
     if (!hay.includes(q)) return false;
   }
+  const groups = {};
+  for (const k of filters) (groups[FILTER_GROUP[k]] ||= []).push(k);
+  return Object.values(groups).every(keys => keys.some(k => matchOne(o, k)));
+}
+function matchOne(o, filter){
   switch(filter){
-    case "all": return true;
     case "open": return o.checkin === "Still unfulfilled" && !isTrue(o.answered);
     case "answered": return isTrue(o.answered);
     case "age7":     { const d = ageDays(o); return d !== null && d <= 7; }
@@ -337,7 +345,7 @@ function renderList(){
     `<span class="built">Updated ${esc(DB.built)}</span>`+
     freshnessHtml();
   $("#filters").innerHTML = FILTERS.map(([k,l]) =>
-    `<button data-f="${esc(k)}" class="${filter===k?'on':''}">${esc(l)}</button>`).join("");
+    `<button data-f="${esc(k)}" class="${(k==="all" ? !filters.size : filters.has(k))?'on':''}">${esc(l)}</button>`).join("");
   $("#rows").innerHTML = shown.length ? shown.slice(0,600).map((o,i) =>
     `<div class="row ${current===o?'active':''}" data-i="${ORDERS.indexOf(o)}">
        <div class="subject"><span class="store s${storeKey(o.store)}">${esc(o.store)}</span> ${esc(o.order)} · ${esc(o.customer)}<span class="tag ${esc(o.tag||"")}">${esc(o.tag||"")}</span>${isTrue(o.answered)?'<span class="tag ANSWERED">ANSWERED</span>':""}</div>
@@ -479,7 +487,13 @@ function renderDetail(o){
 }
 document.addEventListener("click", e => {
   const f = e.target.closest("[data-f]");
-  if (f){ filter = f.dataset.f; renderList(); return; }
+  if (f){
+    const k = f.dataset.f;
+    if (k === "all") filters.clear();
+    else if (filters.has(k)) filters.delete(k);
+    else filters.add(k);
+    renderList(); return;
+  }
   const r = e.target.closest(".row");
   if (r){ renderDetail(ORDERS[+r.dataset.i]); return; }
   const v = e.target.closest("[data-verdict]");
