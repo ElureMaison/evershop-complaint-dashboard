@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>YCF Auto-Assign Monitor</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg:            #f4f4f1;
+    --surface-1:     #fcfcfb;
+    --surface-2:     #f0efec;
+    --border:        #dbdad4;
+    --text-primary:  #0b0b0b;
+    --text-secondary:#52514e;
+    --text-muted:    #86857e;
+    --series-1:      #2a78d6;
+    --series-2:      #eb6834;
+    --good:          #1a7f46;
+    --warn:          #9a6700;
+    --crit:          #b3261e;
+    --crit-bg:       #fdecea;
+    --good-bg:       #e8f5ee;
+    --grid:          #e7e6e1;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg:            #121211;
+      --surface-1:     #1a1a19;
+      --surface-2:     #232322;
+      --border:        #343431;
+      --text-primary:  #ffffff;
+      --text-secondary:#c3c2b7;
+      --text-muted:    #8d8c83;
+      --series-1:      #3987e5;
+      --series-2:      #d95926;
+      --good:          #4ac07d;
+      --warn:          #e0a62a;
+      --crit:          #f2776f;
+      --crit-bg:       #2e1917;
+      --good-bg:       #16271d;
+      --grid:          #2a2a28;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg:#121211; --surface-1:#1a1a19; --surface-2:#232322; --border:#343431;
+    --text-primary:#ffffff; --text-secondary:#c3c2b7; --text-muted:#8d8c83;
+    --series-1:#3987e5; --series-2:#d95926; --good:#4ac07d; --warn:#e0a62a;
+    --crit:#f2776f; --crit-bg:#2e1917; --good-bg:#16271d; --grid:#2a2a28;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text-primary);
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 28px 20px 72px; }
+  h1 { font-size: 1.35rem; margin: 0 0 4px; letter-spacing: -0.01em; }
+  h2 { font-size: 0.98rem; margin: 0 0 12px; letter-spacing: -0.005em; }
+  .muted { color: var(--text-muted); }
+  .sub { color: var(--text-secondary); font-size: 0.86rem; margin: 0; }
+  .card {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px; margin-bottom: 16px;
+  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+  .spread { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+
+  /* ---- gate ---- */
+  #gate {
+    position: fixed; inset: 0; background: var(--bg); z-index: 100;
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+  }
+  #gate .box { width: 100%; max-width: 360px; text-align: center; }
+  #gate input {
+    width: 100%; padding: 11px 13px; margin: 14px 0 10px; font-size: 1rem;
+    border: 1px solid var(--border); border-radius: 8px;
+    background: var(--surface-1); color: var(--text-primary);
+  }
+  #gate button {
+    width: 100%; padding: 11px; font-size: 0.95rem; font-weight: 600; cursor: pointer;
+    border: none; border-radius: 8px; background: var(--series-1); color: #fff;
+  }
+  #gateErr { color: var(--crit); font-size: 0.85rem; min-height: 1.2em; margin-top: 8px; }
+  #app { display: none; }
+
+  /* ---- status ---- */
+  .state-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-weight: 700; font-size: 0.95rem; padding: 7px 14px; border-radius: 999px;
+  }
+  .state-badge .dot { width: 9px; height: 9px; border-radius: 50%; background: currentColor; }
+  .state-on   { background: var(--good-bg); color: var(--good); }
+  .state-off  { background: var(--crit-bg); color: var(--crit); }
+  .banner {
+    border-left: 3px solid var(--crit); background: var(--crit-bg);
+    padding: 12px 14px; border-radius: 0 8px 8px 0; margin-bottom: 16px;
+    color: var(--text-primary); font-size: 0.9rem;
+  }
+  .banner.ok { border-left-color: var(--good); background: var(--good-bg); }
+
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px 20px; margin-top: 16px; }
+  .fact .k { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+  .fact .v { font-size: 0.92rem; margin-top: 2px; font-variant-numeric: tabular-nums; }
+
+  /* ---- KPI ---- */
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .kpi { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .kpi .n { font-size: 1.9rem; font-weight: 650; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .kpi .l { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
+
+  /* ---- charts ---- */
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 10px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 10px; height: 10px; border-radius: 3px; }
+  .chart-scroll { overflow-x: auto; }
+  svg { display: block; }
+  .tick { font-size: 10px; fill: var(--text-muted); }
+  .gridline { stroke: var(--grid); stroke-width: 1; }
+  .bar-seg { transition: opacity .12s; }
+  .bar-col:hover .bar-seg { opacity: .78; }
+  .tip {
+    position: fixed; pointer-events: none; z-index: 50; opacity: 0;
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 10px; font-size: 0.8rem; box-shadow: 0 6px 20px rgba(0,0,0,.16);
+    transition: opacity .1s; max-width: 260px;
+  }
+  .tip b { display: block; margin-bottom: 3px; }
+  .tip .tr { display: flex; justify-content: space-between; gap: 14px; font-variant-numeric: tabular-nums; }
+
+  /* ---- tables ---- */
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 600; }
+  td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tbody tr:last-child td { border-bottom: none; }
+  .pill {
+    display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.72rem;
+    background: var(--surface-2); color: var(--text-secondary); white-space: nowrap;
+  }
+  .pill.sweep { background: color-mix(in srgb, var(--series-2) 18%, transparent); color: var(--series-2); }
+  details { margin-top: 12px; }
+  summary { cursor: pointer; font-size: 0.84rem; color: var(--text-secondary); }
+  .scroll-y { max-height: 420px; overflow-y: auto; }
+  .empty { color: var(--text-muted); font-size: 0.88rem; padding: 10px 0; }
+  code { background: var(--surface-2); padding: 1px 5px; border-radius: 4px; font-size: 0.85em; }
+  .rules { font-size: 0.86rem; color: var(--text-secondary); }
+  .rules li { margin-bottom: 5px; }
+  .theme-btn {
+    background: var(--surface-2); border: 1px solid var(--border); color: var(--text-secondary);
+    border-radius: 8px; padding: 6px 11px; cursor: pointer; font-size: 0.8rem;
+  }
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="box">
+    <h1>YCF Auto-Assign Monitor</h1>
+    <p class="sub">Enter the password to continue.</p>
+    <input id="pw" type="password" placeholder="Password" autocomplete="current-password">
+    <button id="go">Unlock</button>
+    <div id="gateErr"></div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="wrap">
+    <div class="spread" style="margin-bottom:18px;">
+      <div>
+        <h1>YCF Auto-Assign Monitor</h1>
+        <p class="sub" id="subtitle">Groove inbox triage &rarr; Rona</p>
+      </div>
+      <button class="theme-btn" id="themeBtn">Theme</button>
+    </div>
+
+    <div id="staleBanner"></div>
+
+    <div class="card">
+      <div class="spread">
+        <div id="stateBadgeWrap"></div>
+        <div class="muted" style="font-size:0.8rem;text-align:right;" id="clocks"></div>
+      </div>
+      <div class="facts" id="facts"></div>
+    </div>
+
+    <div class="kpis" id="kpis"></div>
+
+    <div class="card">
+      <h2>Old tickets nobody picked up</h2>
+      <p class="sub" style="margin-bottom:12px;">
+        Past the sweep age but in a never-assign category, so the job flagged them instead of taking them.
+        These are the ones that need a human decision.
+      </p>
+      <div id="unpicked"></div>
+    </div>
+
+    <div class="card">
+      <h2>Assigned per day</h2>
+      <div class="legend">
+        <span><i class="swatch" style="background:var(--series-1)"></i> New (rubric)</span>
+        <span><i class="swatch" style="background:var(--series-2)"></i> Swept (old backlog)</span>
+      </div>
+      <div class="chart-scroll"><div id="dailyChart"></div></div>
+      <details>
+        <summary>Show as table</summary>
+        <div class="scroll-y" style="margin-top:10px;"><div id="dailyTable"></div></div>
+      </details>
+    </div>
+
+    <div class="card">
+      <h2>Why tickets were skipped</h2>
+      <p class="sub" style="margin-bottom:12px;">All-time, from the decision ledger.</p>
+      <div class="chart-scroll"><div id="skipChart"></div></div>
+    </div>
+
+    <div class="card">
+      <h2>Recent assignments</h2>
+      <div class="scroll-y" id="recent"></div>
+    </div>
+
+    <div class="card">
+      <h2>How it decides</h2>
+      <ul class="rules" id="rules"></ul>
+    </div>
+
+    <p class="muted" style="font-size:0.78rem;text-align:center;">
+      Static snapshot &mdash; the page stays up with the laptop off, but the data is only as fresh
+      as the last publish. Rebuild with <code>python refresh.py</code>.
+    </p>
+  </div>
+</div>
+
+<div class="tip" id="tip"></div>
+
+<script>
+const PW_HASH = "5f7485810427fb04b5dab17b3165ae57b83a95d1630ee6bde2230c9912f6024f";
+
+/* ---------- gate ---------- */
+async function sha256(s) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+async function tryUnlock(pw) {
+  if (await sha256(pw) !== PW_HASH) return false;
+  try { sessionStorage.setItem("ycfAssignOk", "1"); } catch (e) {}
+  reveal();
+  return true;
+}
+function reveal() {
+  document.getElementById("gate").style.display = "none";
+  document.getElementById("app").style.display = "block";
+  load();
+}
+document.getElementById("go").onclick = async () => {
+  const ok = await tryUnlock(document.getElementById("pw").value);
+  if (!ok) document.getElementById("gateErr").textContent = "Incorrect password.";
+};
+document.getElementById("pw").addEventListener("keydown", e => {
+  if (e.key === "Enter") document.getElementById("go").click();
+});
+try { if (sessionStorage.getItem("ycfAssignOk") === "1") reveal(); } catch (e) {}
+
+/* ---------- theme ---------- */
+document.getElementById("themeBtn").onclick = () => {
+  const cur = document.documentElement.getAttribute("data-theme");
+  const next = cur === "dark" ? "light" : cur === "light" ? "" : "dark";
+  if (next) document.documentElement.setAttribute("data-theme", next);
+  else document.documentElement.removeAttribute("data-theme");
+  try { localStorage.setItem("ycfAssignTheme", next); } catch (e) {}
+  if (window.__data) render(window.__data);
+};
+try {
+  const t = localStorage.getItem("ycfAssignTheme");
+  if (t) document.documentElement.setAttribute("data-theme", t);
+} catch (e) {}
+
+/* ---------- helpers ---------- */
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g,
+  c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const tip = document.getElementById("tip");
+function showTip(html, ev) {
+  tip.innerHTML = html;
+  tip.style.opacity = "1";
+  const r = tip.getBoundingClientRect();
+  let x = ev.clientX + 14, y = ev.clientY + 14;
+  if (x + r.width > innerWidth - 8) x = ev.clientX - r.width - 14;
+  if (y + r.height > innerHeight - 8) y = ev.clientY - r.height - 14;
+  tip.style.left = x + "px"; tip.style.top = y + "px";
+}
+const hideTip = () => { tip.style.opacity = "0"; };
+const shortDate = d => d.slice(5).replace("-", "/");
+function ago(days) {
+  if (days == null) return "";
+  if (days === 0) return "today";
+  if (days === 1) return "yesterday";
+  return days + " days ago";
+}
+
+/* ---------- load ---------- */
+async function load() {
+  try {
+    const r = await fetch("assign.json?t=" + Date.now());
+    const d = await r.json();
+    window.__data = d;
+    render(d);
+  } catch (e) {
+    document.getElementById("staleBanner").innerHTML =
+      '<div class="banner">Could not load <code>assign.json</code>. ' + esc(e.message) + "</div>";
+  }
+}
+
+function render(d) {
+  const s = d.status, t = d.totals;
+  const running = s.task_state === "Ready" || s.task_state === "Running";
+
+  document.getElementById("subtitle").innerHTML =
+    "Groove inbox triage &rarr; Rona &middot; snapshot " + esc(d.generated_at.replace("T", " "));
+
+  document.getElementById("clocks").innerHTML =
+    "UK " + esc(d.clocks.uk.slice(11)) + " &middot; PH " + esc(d.clocks.ph.slice(11)) +
+    "<br>window " + esc(s.window_uk) + " UK (" + esc(s.window_ph) + " PH)";
+
+  document.getElementById("stateBadgeWrap").innerHTML =
+    '<span class="state-badge ' + (running ? "state-on" : "state-off") + '">' +
+    '<i class="dot"></i>' + (running ? "Running" : "Paused") + "</span>" +
+    (s.live ? "" : ' <span class="pill">dry run</span>');
+
+  /* stale / paused banner -- the single most important thing on the page */
+  let banner = "";
+  if (!running) {
+    banner = "<b>The job is paused.</b> The scheduled task <code>RonaGrooveAutoAssign</code> is Disabled, " +
+      "so nothing is being assigned. Last activity " + esc(s.last_activity || "unknown") +
+      (s.stale_days != null ? " (" + ago(s.stale_days) + ")" : "") +
+      ". Start it from the control panel, or run " +
+      "<code>Enable-ScheduledTask -TaskName RonaGrooveAutoAssign -TaskPath '\\YCF\\'</code>.";
+  } else if (s.stale_days != null && s.stale_days >= 2) {
+    banner = "<b>Enabled, but quiet.</b> No log activity since " + esc(s.last_activity) +
+      " (" + ago(s.stale_days) + "). The laptop was most likely off during the active window.";
+  }
+  document.getElementById("staleBanner").innerHTML =
+    banner ? '<div class="banner">' + banner + "</div>" : "";
+
+  const capTxt = s.max_assign_per_cycle == null ? "no cap" : s.max_assign_per_cycle + " per run";
+  const intervalTxt = (s.interval || "").replace("PT", "").replace("M", " min").toLowerCase();
+  document.getElementById("facts").innerHTML = [
+    ["Runs every", intervalTxt || "unknown"],
+    ["Sweep age", s.sweep_age_hours + "h and older"],
+    ["Assign limit", capTxt],
+    ["Last run", s.last_run ? s.last_run.replace("T", " ") : "never"],
+    ["Next run", running && s.next_run ? s.next_run.replace("T", " ") : "--"],
+    ["Never assigned", (s.excluded || []).join(", ").replace(/_/g, " ")],
+  ].map(([k, v]) => '<div class="fact"><div class="k">' + esc(k) + '</div><div class="v">' +
+      esc(v) + "</div></div>").join("");
+
+  const lastScan = d.last_scan || {};
+  document.getElementById("kpis").innerHTML = [
+    [t.assigned, "assigned all-time"],
+    [t.skipped, "skipped all-time"],
+    [d.unpicked.length, "flagged, not picked up"],
+    [lastScan.unassigned != null ? lastScan.unassigned : "--", "unassigned at last scan"],
+  ].map(([n, l]) => '<div class="kpi"><div class="n">' + esc(n) + '</div><div class="l">' +
+      esc(l) + "</div></div>").join("");
+
+  renderUnpicked(d.unpicked);
+  renderDaily(d.daily);
+  renderSkips(d.skip_reasons);
+  renderRecent(d.recent_assignments);
+
+  document.getElementById("rules").innerHTML = [
+    "Scans <b>oldest ticket first</b>, every " + (intervalTxt || "cycle") + ", only during " +
+      s.window_uk + " UK (" + s.window_ph + " PH).",
+    "<b>Newer than " + s.sweep_age_hours + "h:</b> assigned only if simple, neutral in tone and " +
+      "answerable in one reply.",
+    "<b>" + s.sweep_age_hours + "h and older:</b> assigned regardless of difficulty &mdash; the old " +
+      "backlog is cleared before any new ticket is looked at.",
+    "<b>Never assigned at any age:</b> " + esc((s.excluded || []).join(", ").replace(/_/g, " ")) +
+      ". Those get flagged above instead (popups muted for " +
+      esc((s.notify_muted || []).join(" and ").replace(/_/g, " ")) + ").",
+    "Every ticket is judged once and remembered, so nothing is re-judged or double-assigned.",
+  ].map(x => "<li>" + x + "</li>").join("");
+}
+
+function renderUnpicked(rows) {
+  const el = document.getElementById("unpicked");
+  if (!rows.length) {
+    el.innerHTML = '<div class="empty">Nothing flagged. Every old ticket has either been ' +
+      "assigned or is in a category that is deliberately left alone.</div>";
+    return;
+  }
+  el.innerHTML = "<table><thead><tr><th>Ticket</th><th>Category</th><th>Age when flagged</th>" +
+    "<th>Subject &amp; reason</th></tr></thead><tbody>" +
+    rows.map(r => "<tr>" +
+      '<td class="num">#' + esc(r.number) + "</td>" +
+      '<td><span class="pill">' + esc(String(r.category || "?").replace(/_/g, " ")) + "</span></td>" +
+      '<td class="num">' + (r.age_hours != null ? Math.round(r.age_hours) + "h" : "--") + "</td>" +
+      "<td><b>" + esc(r.subject || "(no subject)") + "</b>" +
+        (r.reason ? '<br><span class="muted">' + esc(r.reason) + "</span>" : "") + "</td>" +
+      "</tr>").join("") + "</tbody></table>";
+}
+
+/* stacked bars: new-rubric assignments + swept old ones */
+function renderDaily(daily) {
+  const host = document.getElementById("dailyChart");
+  if (!daily.length) { host.innerHTML = '<div class="empty">No activity recorded.</div>'; return; }
+
+  const W = Math.max(640, daily.length * 44), H = 230;
+  const padL = 34, padR = 10, padT = 10, padB = 34;
+  const iw = W - padL - padR, ih = H - padT - padB;
+  const max = Math.max(1, ...daily.map(d => d.assigned + d.swept));
+  const step = Math.ceil(max / 4) || 1;
+  const top = step * 4;
+  const y = v => padT + ih - (v / top) * ih;
+  const bw = Math.min(26, iw / daily.length - 8);
+
+  let g = "";
+  for (let i = 0; i <= 4; i++) {
+    const v = step * i;
+    g += '<line class="gridline" x1="' + padL + '" x2="' + (W - padR) + '" y1="' + y(v) +
+         '" y2="' + y(v) + '"/>' +
+         '<text class="tick" x="' + (padL - 7) + '" y="' + (y(v) + 3.5) + '" text-anchor="end">' + v + "</text>";
+  }
+
+  daily.forEach((d, i) => {
+    const cx = padL + (iw / daily.length) * (i + 0.5);
+    const x = cx - bw / 2;
+    const total = d.assigned + d.swept;
+    // 2px surface gap between stacked segments; 4px rounded top on the data-end
+    const hA = (d.assigned / top) * ih, hS = (d.swept / top) * ih;
+    let yCur = padT + ih;
+    let seg = "";
+    if (d.assigned > 0) {
+      yCur -= hA;
+      const topSeg = d.swept === 0;
+      seg += '<rect class="bar-seg" x="' + x + '" y="' + yCur + '" width="' + bw +
+             '" height="' + Math.max(1, hA) + '" rx="' + (topSeg ? 4 : 0) +
+             '" fill="var(--series-1)"/>';
+    }
+    if (d.swept > 0) {
+      yCur -= (hS + 2);
+      seg += '<rect class="bar-seg" x="' + x + '" y="' + yCur + '" width="' + bw +
+             '" height="' + Math.max(1, hS) + '" rx="4" fill="var(--series-2)"/>';
+    }
+    if (total === 0) {
+      seg += '<rect x="' + x + '" y="' + (padT + ih - 2) + '" width="' + bw +
+             '" height="2" fill="var(--grid)"/>';
+    }
+    const tipHtml = "<b>" + d.date + "</b>" +
+      '<div class="tr"><span>New</span><span>' + d.assigned + "</span></div>" +
+      '<div class="tr"><span>Swept</span><span>' + d.swept + "</span></div>" +
+      '<div class="tr"><span>Skipped</span><span>' + d.skipped + "</span></div>" +
+      '<div class="tr"><span>Cycles</span><span>' + d.cycles + "</span></div>";
+    g += '<g class="bar-col" data-tip="' + esc(tipHtml).replace(/"/g, "&quot;") + '">' +
+         '<rect x="' + x + '" y="' + padT + '" width="' + bw + '" height="' + ih +
+         '" fill="transparent"/>' + seg + "</g>";
+    if (daily.length <= 20 || i % 2 === 0) {
+      g += '<text class="tick" x="' + cx + '" y="' + (H - 12) + '" text-anchor="middle">' +
+           shortDate(d.date) + "</text>";
+    }
+  });
+
+  host.innerHTML = '<svg width="' + W + '" height="' + H + '" role="img" ' +
+    'aria-label="Tickets assigned per day, split into new and swept">' + g + "</svg>";
+  host.querySelectorAll(".bar-col").forEach(el => {
+    el.addEventListener("mousemove", e => showTip(el.dataset.tip, e));
+    el.addEventListener("mouseleave", hideTip);
+  });
+
+  document.getElementById("dailyTable").innerHTML =
+    "<table><thead><tr><th>Date</th><th>New</th><th>Swept</th><th>Skipped</th><th>Cycles</th></tr></thead><tbody>" +
+    daily.slice().reverse().map(d => "<tr><td>" + d.date + '</td><td class="num">' + d.assigned +
+      '</td><td class="num">' + d.swept + '</td><td class="num">' + d.skipped +
+      '</td><td class="num">' + d.cycles + "</td></tr>").join("") + "</tbody></table>";
+}
+
+/* single-series horizontal bars -- magnitude, so one hue, no legend */
+function renderSkips(rows) {
+  const host = document.getElementById("skipChart");
+  if (!rows.length) { host.innerHTML = '<div class="empty">No skips recorded.</div>'; return; }
+  const max = Math.max(...rows.map(r => r.count));
+  const total = rows.reduce((a, r) => a + r.count, 0);
+  host.innerHTML = rows.map(r => {
+    const pct = Math.round((r.count / total) * 100);
+    return '<div style="display:grid;grid-template-columns:148px 1fr 86px;align-items:center;gap:10px;margin-bottom:7px;">' +
+      '<div style="font-size:0.84rem;color:var(--text-secondary);">' +
+        esc(r.category.replace(/_/g, " ")) + "</div>" +
+      '<div style="background:var(--surface-2);border-radius:4px;height:16px;overflow:hidden;">' +
+        '<div style="width:' + ((r.count / max) * 100) + '%;height:100%;background:var(--series-1);' +
+        'border-radius:0 4px 4px 0;"></div></div>' +
+      '<div class="num" style="font-size:0.82rem;color:var(--text-secondary);">' +
+        r.count + ' <span class="muted">' + pct + "%</span></div></div>";
+  }).join("");
+}
+
+function renderRecent(rows) {
+  const el = document.getElementById("recent");
+  if (!rows.length) { el.innerHTML = '<div class="empty">No assignments recorded.</div>'; return; }
+  el.innerHTML = "<table><thead><tr><th>When</th><th>Ticket</th><th>Age</th><th>Why</th></tr></thead><tbody>" +
+    rows.map(r => "<tr>" +
+      '<td class="num">' + esc(r.ts.replace("T", " ").slice(0, 16)) + "</td>" +
+      '<td class="num">#' + esc(r.number) +
+        (r.kind === "swept" ? ' <span class="pill sweep">swept</span>' : "") + "</td>" +
+      '<td class="num">' + (r.age_hours != null ? Math.round(r.age_hours) + "h" : "--") + "</td>" +
+      "<td>" + esc(r.reason) + "</td></tr>").join("") + "</tbody></table>";
+}
+</script>
+</body>
+</html>

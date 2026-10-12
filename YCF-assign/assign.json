@@ -1,0 +1,1068 @@
+{
+  "generated_at": "2026-10-12T05:50:33",
+  "clocks": {
+    "uk": "2026-10-12 11:50",
+    "ph": "2026-10-12 18:50",
+    "local": "2026-10-12 05:50"
+  },
+  "status": {
+    "task_state": "Disabled",
+    "interval": "PT30M",
+    "execution_limit": "PT10M",
+    "last_run": "2026-09-28T08:15:23",
+    "next_run": "2026-10-12T06:15:22",
+    "live": true,
+    "max_assign_per_cycle": null,
+    "sweep_age_hours": 8,
+    "excluded": [
+      "apostille",
+      "internal_notification",
+      "org_change",
+      "shares",
+      "spam"
+    ],
+    "notify_muted": [
+      "internal_notification",
+      "spam"
+    ],
+    "window_uk": "09:00-15:30",
+    "window_ph": "16:00-22:30",
+    "window_override": {
+      "date": "2026-09-25",
+      "uk_time": "16:30"
+    },
+    "last_activity": "2026-09-28",
+    "stale_days": 14
+  },
+  "totals": {
+    "judged": 2279,
+    "assigned": 488,
+    "skipped": 1779,
+    "race_lost": 12
+  },
+  "daily": [
+    {
+      "date": "2026-09-02",
+      "assigned": 28,
+      "swept": 0,
+      "skipped": 90,
+      "cycles": 51
+    },
+    {
+      "date": "2026-09-03",
+      "assigned": 42,
+      "swept": 0,
+      "skipped": 151,
+      "cycles": 72
+    },
+    {
+      "date": "2026-09-04",
+      "assigned": 18,
+      "swept": 0,
+      "skipped": 33,
+      "cycles": 12
+    },
+    {
+      "date": "2026-09-07",
+      "assigned": 39,
+      "swept": 0,
+      "skipped": 110,
+      "cycles": 75
+    },
+    {
+      "date": "2026-09-08",
+      "assigned": 29,
+      "swept": 0,
+      "skipped": 104,
+      "cycles": 77
+    },
+    {
+      "date": "2026-09-10",
+      "assigned": 42,
+      "swept": 0,
+      "skipped": 113,
+      "cycles": 72
+    },
+    {
+      "date": "2026-09-11",
+      "assigned": 29,
+      "swept": 0,
+      "skipped": 140,
+      "cycles": 76
+    },
+    {
+      "date": "2026-09-14",
+      "assigned": 34,
+      "swept": 0,
+      "skipped": 120,
+      "cycles": 62
+    },
+    {
+      "date": "2026-09-15",
+      "assigned": 31,
+      "swept": 0,
+      "skipped": 113,
+      "cycles": 77
+    },
+    {
+      "date": "2026-09-16",
+      "assigned": 31,
+      "swept": 0,
+      "skipped": 127,
+      "cycles": 72
+    },
+    {
+      "date": "2026-09-17",
+      "assigned": 22,
+      "swept": 0,
+      "skipped": 105,
+      "cycles": 60
+    },
+    {
+      "date": "2026-09-21",
+      "assigned": 32,
+      "swept": 0,
+      "skipped": 145,
+      "cycles": 78
+    },
+    {
+      "date": "2026-09-22",
+      "assigned": 34,
+      "swept": 0,
+      "skipped": 157,
+      "cycles": 78
+    },
+    {
+      "date": "2026-09-23",
+      "assigned": 45,
+      "swept": 0,
+      "skipped": 153,
+      "cycles": 67
+    },
+    {
+      "date": "2026-09-24",
+      "assigned": 0,
+      "swept": 0,
+      "skipped": 0,
+      "cycles": 14
+    },
+    {
+      "date": "2026-09-25",
+      "assigned": 13,
+      "swept": 0,
+      "skipped": 101,
+      "cycles": 11
+    },
+    {
+      "date": "2026-09-28",
+      "assigned": 19,
+      "swept": 0,
+      "skipped": 58,
+      "cycles": 6
+    }
+  ],
+  "skip_reasons": [
+    {
+      "category": "other",
+      "count": 524
+    },
+    {
+      "category": "spam",
+      "count": 388
+    },
+    {
+      "category": "hard",
+      "count": 296
+    },
+    {
+      "category": "frustrated",
+      "count": 234
+    },
+    {
+      "category": "org_change",
+      "count": 93
+    },
+    {
+      "category": "internal_notification",
+      "count": 67
+    },
+    {
+      "category": "accountant",
+      "count": 58
+    },
+    {
+      "category": "apostille",
+      "count": 43
+    },
+    {
+      "category": "tax_or_paye",
+      "count": 42
+    },
+    {
+      "category": "shares",
+      "count": 32
+    },
+    {
+      "category": "dormant",
+      "count": 2
+    }
+  ],
+  "recent_assignments": [
+    {
+      "number": "3768536",
+      "ts": "2026-09-28T08:16:26",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Neutral customer supplying passport for officer ID verification, answerable with one reply."
+    },
+    {
+      "number": "3768527",
+      "ts": "2026-09-28T08:16:24",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Simple neutral confirmation that an invoice was paid, resolvable with a single acknowledgement reply."
+    },
+    {
+      "number": "3768504",
+      "ts": "2026-09-28T08:16:22",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Simple polite request for their Companies House personal code, answerable with a single reply."
+    },
+    {
+      "number": "3768502",
+      "ts": "2026-09-28T08:16:19",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Neutral inbound enquiry about setting up a UK company for an e-commerce brand, resolvable in one reply."
+    },
+    {
+      "number": "3768439",
+      "ts": "2026-09-28T08:16:17",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Straightforward single request for their Companies House personal code with a polite tone; the accountant is only the recipient, not the subject."
+    },
+    {
+      "number": "3768400",
+      "ts": "2026-09-28T08:16:15",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Simple new-enquiry about incorporating a UK company, neutral tone, answerable in one reply."
+    },
+    {
+      "number": "3768367",
+      "ts": "2026-09-28T08:16:12",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Simple payment confirmation that can be acknowledged in one reply."
+    },
+    {
+      "number": "3768354",
+      "ts": "2026-09-28T07:46:24",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Neutral, straightforward enquiry about forming a company with registered office service that can be answered in one reply."
+    },
+    {
+      "number": "3768322",
+      "ts": "2026-09-28T07:46:22",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Polite single question about obtaining the authentication code / verifying identity for online filing, answerable in one reply."
+    },
+    {
+      "number": "3768319",
+      "ts": "2026-09-28T07:46:20",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Neutral one-line question about how to get a Government Gateway ID, answerable with a single explanation."
+    },
+    {
+      "number": "3768317",
+      "ts": "2026-09-28T07:46:18",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Customer politely asks to renew their service, a single clear request answerable in one reply."
+    },
+    {
+      "number": "3768314",
+      "ts": "2026-09-28T07:46:16",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Simple notification that an invoice has been paid, resolvable with one confirmation reply."
+    },
+    {
+      "number": "3768289",
+      "ts": "2026-09-28T07:16:00",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Simple single question about where to find the 16-digit code for ID verification, neutral tone, answerable in one reply."
+    },
+    {
+      "number": "3768285",
+      "ts": "2026-09-28T07:15:58",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Simple, neutral single request to forward a received statutory letter to their private address."
+    },
+    {
+      "number": "3767727",
+      "ts": "2026-09-28T06:46:40",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Polite customer simply asking where to enter their personal authentication code, answerable in one reply."
+    },
+    {
+      "number": "3767707",
+      "ts": "2026-09-28T06:46:37",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Customer simply submitted their photo ID as requested for officer ID verification, a single easy action."
+    },
+    {
+      "number": "3767696",
+      "ts": "2026-09-28T06:46:35",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Straightforward request for a payment link to renew the address service, answerable in one reply."
+    },
+    {
+      "number": "3767679",
+      "ts": "2026-09-28T06:46:34",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Simple confirmation of a renewal in reply to an overdue notice, resolvable with one reply."
+    },
+    {
+      "number": "3766608",
+      "ts": "2026-09-28T06:46:31",
+      "kind": "assigned",
+      "age_hours": 39.0,
+      "reason": "Customer reports a billing/invoice discrepancy after a cancellation notice, which needs account investigation before it can be answered."
+    },
+    {
+      "number": "3765426",
+      "ts": "2026-09-25T10:16:53",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Single clear pre-sales question about ACSP identity verification for a non-UK resident that one reply can answer."
+    },
+    {
+      "number": "3765344",
+      "ts": "2026-09-25T10:16:50",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Simple request for dormant accounts filing and payment details that can be answered in one reply."
+    },
+    {
+      "number": "3765226",
+      "ts": "2026-09-25T10:16:47",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Simple single question about a newly purchased London Registered Office service, neutral tone, answerable in one reply."
+    },
+    {
+      "number": "3765153",
+      "ts": "2026-09-25T10:16:46",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Straightforward single request for help completing Companies House identity verification, neutral tone, answerable in one reply."
+    },
+    {
+      "number": "3765083",
+      "ts": "2026-09-25T09:46:05",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Simple, neutral question about what the Premium 12 Month Company Filing Service includes and how to use it, answerable in one reply."
+    },
+    {
+      "number": "3765021",
+      "ts": "2026-09-25T09:46:02",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Simple neutral question about whether the existing Credas ID verification link can be reused or a new one is needed."
+    },
+    {
+      "number": "3764916",
+      "ts": "2026-09-25T09:20:55",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Polite pre-sales question about eligibility for the non-resident formation package that can be resolved in one reply."
+    },
+    {
+      "number": "3764907",
+      "ts": "2026-09-25T09:20:52",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Neutral-toned, standard enquiry about non-UK resident formation requirements that can be answered with one informational reply."
+    },
+    {
+      "number": "3764902",
+      "ts": "2026-09-25T09:15:46",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Simple single request for proof of registered address, neutral tone, resolvable in one reply."
+    },
+    {
+      "number": "3764881",
+      "ts": "2026-09-25T09:10:46",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Simple single question about using the registered office address service for a new company, neutral tone, answerable in one reply."
+    },
+    {
+      "number": "3764510",
+      "ts": "2026-09-25T09:04:12",
+      "kind": "assigned",
+      "age_hours": 1.0,
+      "reason": "Simple single question about how to extend/renew a service that can be answered in one reply."
+    },
+    {
+      "number": "3764686",
+      "ts": "2026-09-25T09:00:35",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Neutral non-resident customer asking a single straightforward question about formation timescales, answerable in one reply."
+    },
+    {
+      "number": "3764677",
+      "ts": "2026-09-25T09:00:33",
+      "kind": "assigned",
+      "age_hours": 0.0,
+      "reason": "Simple neutral question about whether any mail has been received, answerable in one reply."
+    },
+    {
+      "number": "3757817",
+      "ts": "2026-09-23T09:20:59",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Neutral, straightforward quote request for basic formation plus virtual office that can be answered in one reply."
+    },
+    {
+      "number": "3757738",
+      "ts": "2026-09-23T09:16:29",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Neutral submission of requested proof of ID that can be acknowledged and processed with one reply."
+    },
+    {
+      "number": "3757741",
+      "ts": "2026-09-23T09:16:26",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Neutral, single clear question about whether a family member can pay for the formation, answerable in one reply."
+    },
+    {
+      "number": "3757776",
+      "ts": "2026-09-23T09:16:23",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Neutral, simple single question about how to renew a subscription, answerable in one reply."
+    },
+    {
+      "number": "3757654",
+      "ts": "2026-09-23T09:11:07",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Happy, straightforward request to renew the address service with the advertised loyalty discount, answerable in a single reply."
+    },
+    {
+      "number": "3757648",
+      "ts": "2026-09-23T09:06:07",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Customer simply submitted the requested proof of ID, which can be acknowledged and processed in one reply."
+    },
+    {
+      "number": "3757613",
+      "ts": "2026-09-23T08:45:49",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple single request to update a customer's address, neutral tone, resolvable in one reply."
+    },
+    {
+      "number": "3757508",
+      "ts": "2026-09-23T08:35:54",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple, politely worded single request to post the original HMRC letter, answerable in one reply."
+    },
+    {
+      "number": "3757476",
+      "ts": "2026-09-23T08:30:53",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple, neutral confirmation that an invoice was paid on 10 September, resolvable with a single reply."
+    },
+    {
+      "number": "3757398",
+      "ts": "2026-09-23T08:20:49",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple single question asking whether a company name change can be done, neutral tone, answerable in one reply."
+    },
+    {
+      "number": "3757307",
+      "ts": "2026-09-23T08:15:58",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Neutral, single question asking what services are included in the Premium 12 month Company Filing Service, answerable in one reply."
+    },
+    {
+      "number": "3757093",
+      "ts": "2026-09-23T07:45:52",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple single request to resend the ID verification upload link/password for a named company, with neutral tone and one-reply resolution."
+    },
+    {
+      "number": "3757100",
+      "ts": "2026-09-23T07:45:49",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Customer neutrally confirms they submitted their Companies House personal code and asks to proceed, which is a single simple request resolvable in one reply."
+    },
+    {
+      "number": "3757077",
+      "ts": "2026-09-23T07:40:49",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Neutral, single question about the timeframe for a company name change that can be answered in one reply."
+    },
+    {
+      "number": "3756966",
+      "ts": "2026-09-23T07:31:10",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple single question from a customer about the registered address service they paid for, neutral tone."
+    },
+    {
+      "number": "3756644",
+      "ts": "2026-09-23T07:00:51",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Customer has their authentication code and simply needs it added to the record — a single neutral-toned, clearly answerable request."
+    },
+    {
+      "number": "3756540",
+      "ts": "2026-09-23T06:55:46",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple confirmation that no subscriptions will renew, neutral tone, answerable in one reply."
+    },
+    {
+      "number": "3756608",
+      "ts": "2026-09-23T06:45:53",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Neutral one-line question asking where the payment details are on an invoice, resolvable with a single reply."
+    },
+    {
+      "number": "3756609",
+      "ts": "2026-09-23T06:45:51",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple, polite single eligibility question about forming a UK company as a Republic of the Congo resident, answerable in one reply."
+    },
+    {
+      "number": "3756588",
+      "ts": "2026-09-23T06:40:48",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Customer is simply returning the requested ID verification documents, which can be acknowledged and processed in one reply."
+    },
+    {
+      "number": "3756581",
+      "ts": "2026-09-23T06:35:47",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Neutral, friendly note confirming payment for a confirmation statement invoice that can be acknowledged in one reply."
+    },
+    {
+      "number": "3756570",
+      "ts": "2026-09-23T06:30:53",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Straightforward, politely-worded request to cancel an automatic renewal and confirm, resolvable with one reply."
+    },
+    {
+      "number": "3756573",
+      "ts": "2026-09-23T06:30:51",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple, neutral-toned availability question about a meeting room with a whiteboard, answerable in one reply."
+    },
+    {
+      "number": "3756568",
+      "ts": "2026-09-23T06:25:53",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple neutral request for the current status of their company, answerable in one reply."
+    },
+    {
+      "number": "3756438",
+      "ts": "2026-09-23T06:05:49",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple, neutral question about removing VAT from the non-resident package for an overseas customer, answerable in one reply."
+    },
+    {
+      "number": "3756417",
+      "ts": "2026-09-23T05:50:55",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple, friendly one-line cancellation request for an address service on a dissolved company that can be handled with a single reply."
+    },
+    {
+      "number": "3756409",
+      "ts": "2026-09-23T05:45:52",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Customer simply confirms they already filed the confirmation statement via the app, which needs at most one neutral acknowledgement reply."
+    },
+    {
+      "number": "3756378",
+      "ts": "2026-09-23T05:41:03",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple neutral question about when the newly formed company will appear on Companies House."
+    },
+    {
+      "number": "3756387",
+      "ts": "2026-09-23T05:41:01",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Straightforward request for how to pay the confirmation statement fee, resolvable with one reply."
+    },
+    {
+      "number": "3756388",
+      "ts": "2026-09-23T05:40:59",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple single question about how to proceed with the bank account included in their package, answerable in one reply."
+    },
+    {
+      "number": "3756362",
+      "ts": "2026-09-23T05:25:53",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Neutral customer simply confirming they have completed Companies House ID verification and hold a personal code, resolvable with a single reply."
+    },
+    {
+      "number": "3756367",
+      "ts": "2026-09-23T05:25:50",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple, politely-worded request to renew the registered office service that can be answered in one reply."
+    },
+    {
+      "number": "3756203",
+      "ts": "2026-09-23T05:11:04",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple single pricing breakdown question for listed renewal services, neutral tone, answerable in one reply."
+    },
+    {
+      "number": "3756197",
+      "ts": "2026-09-23T05:00:53",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple neutral enquiry about options to start a UK company, answerable in one reply."
+    },
+    {
+      "number": "3756149",
+      "ts": "2026-09-23T04:40:52",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Polite, single, clearly-answerable question asking where to upload ID verification documents."
+    },
+    {
+      "number": "3756152",
+      "ts": "2026-09-23T04:40:49",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple single question about whether anything is outstanding for incorporation and when confirmation will arrive, with a polite neutral tone."
+    },
+    {
+      "number": "3756132",
+      "ts": "2026-09-23T04:35:54",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple neutral request to file a confirmation statement and send an invoice, resolvable in one reply."
+    },
+    {
+      "number": "3756101",
+      "ts": "2026-09-23T04:20:50",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Neutral, straightforward request to issue a renewal invoice for standard services, resolvable in one reply."
+    },
+    {
+      "number": "3756104",
+      "ts": "2026-09-23T04:20:48",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple single question about a not-yet-received Companies House PVC that can be answered in one reply."
+    },
+    {
+      "number": "3756087",
+      "ts": "2026-09-23T04:15:47",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple single question about a not-yet-received Companies House PVC after identity verification, answerable in one reply."
+    },
+    {
+      "number": "3756049",
+      "ts": "2026-09-23T04:00:45",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Customer neutrally confirms the company is dormant with no transactions and asks to proceed with filing dormant accounts, which is a simple single-reply confirmation."
+    },
+    {
+      "number": "3756013",
+      "ts": "2026-09-23T03:40:44",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple neutral status check on a company formation application and KYC that can be answered in one reply."
+    },
+    {
+      "number": "3755968",
+      "ts": "2026-09-23T03:25:45",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple neutral request about officer ID verification that can be answered with one reply."
+    },
+    {
+      "number": "3755960",
+      "ts": "2026-09-23T03:20:47",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Neutral-toned, single straightforward question about updating a company name on the platform's records, answerable in one reply."
+    },
+    {
+      "number": "3755908",
+      "ts": "2026-09-23T03:00:57",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple single question asking whether the confirmation statement is the annual return, answerable in one reply."
+    },
+    {
+      "number": "3755065",
+      "ts": "2026-09-22T09:10:46",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple neutral one-line question asking how to pay an overdue renewal, answerable with a single reply."
+    },
+    {
+      "number": "3754849",
+      "ts": "2026-09-22T08:00:45",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Neutral-toned, single clear request to cancel/not renew services, answerable in one reply."
+    },
+    {
+      "number": "3754831",
+      "ts": "2026-09-22T07:50:52",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple neutral one-line question asking whether the renewal price includes VAT, answerable in a single reply."
+    },
+    {
+      "number": "3754663",
+      "ts": "2026-09-22T07:40:53",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Customer is politely uploading a passport for officer ID verification, a simple single-reply confirmation."
+    },
+    {
+      "number": "3754689",
+      "ts": "2026-09-22T07:40:50",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple neutral status check on a company incorporation that can be answered in one reply."
+    },
+    {
+      "number": "3754519",
+      "ts": "2026-09-22T07:25:49",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Polite, single, clear request to send the statutory letter to a different business address, resolvable with one reply."
+    },
+    {
+      "number": "3754520",
+      "ts": "2026-09-22T07:25:47",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple, neutral one-line question about how to receive a scanned letter that can be answered in one reply."
+    },
+    {
+      "number": "3754487",
+      "ts": "2026-09-22T07:20:48",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Customer politely submitted bank statements as KYC proof of address, which needs only a single acknowledgement reply."
+    },
+    {
+      "number": "3754510",
+      "ts": "2026-09-22T07:20:46",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple single question asking for the ICO registration number or where to find it, neutral tone, answerable in one reply."
+    },
+    {
+      "number": "3754478",
+      "ts": "2026-09-22T07:15:53",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Straightforward single request for a continuation-of-services invoice, neutral tone."
+    },
+    {
+      "number": "3754481",
+      "ts": "2026-09-22T07:15:51",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple single question about obtaining the Companies House personal code, answerable in one reply."
+    },
+    {
+      "number": "3754305",
+      "ts": "2026-09-22T06:40:48",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple neutral question about checking for further mail at the registered office, answerable in one reply."
+    },
+    {
+      "number": "3754091",
+      "ts": "2026-09-22T06:15:42",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Neutral-toned, single simple question about how to close a company, answerable in one reply with standard closure guidance."
+    },
+    {
+      "number": "3754060",
+      "ts": "2026-09-22T06:00:47",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Neutral, single question asking for a progress update on a new company formation, answerable in one reply."
+    },
+    {
+      "number": "3754061",
+      "ts": "2026-09-22T06:00:45",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Customer simply confirms in a neutral/positive tone that the personal code is sorted and everything is up to date, needing at most one acknowledging reply."
+    },
+    {
+      "number": "3754054",
+      "ts": "2026-09-22T05:55:44",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple neutral notification that an invoice was paid, resolvable with one confirmation reply."
+    },
+    {
+      "number": "3754010",
+      "ts": "2026-09-22T05:35:49",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Neutral, single question simply asking us to confirm the registered office address, answerable in one reply."
+    },
+    {
+      "number": "3753943",
+      "ts": "2026-09-22T05:25:42",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple service availability, timeline and pricing enquiry in a neutral tone that can be answered in one reply."
+    },
+    {
+      "number": "3753877",
+      "ts": "2026-09-22T05:10:45",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Neutral, straightforward request to purchase ID verification for two named directors, answerable in a single reply."
+    },
+    {
+      "number": "3753869",
+      "ts": "2026-09-22T05:05:48",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Polite, single information request about Companies House identity verification for a non-UK resident."
+    },
+    {
+      "number": "3753873",
+      "ts": "2026-09-22T05:05:46",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple neutral query about a director's service address renewal email, answerable in one reply."
+    },
+    {
+      "number": "3753853",
+      "ts": "2026-09-22T05:00:51",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple single question asking what the 12-month company filing service covers, answerable in one neutral reply."
+    },
+    {
+      "number": "3753831",
+      "ts": "2026-09-22T04:50:54",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Duplicate of the same neutral pre-sale eligibility enquiry, answerable in a single reply."
+    },
+    {
+      "number": "3753833",
+      "ts": "2026-09-22T04:50:51",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple pre-sale eligibility question from a neutral-toned prospect that can be answered in one reply."
+    },
+    {
+      "number": "3753819",
+      "ts": "2026-09-22T04:45:48",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple neutral question asking whether the 30% renewal discount still applies, answerable in one reply."
+    },
+    {
+      "number": "3753732",
+      "ts": "2026-09-22T04:35:44",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Neutral-toned, single simple question about not finding the verification payment invoice on the dashboard, answerable in one reply."
+    },
+    {
+      "number": "3753667",
+      "ts": "2026-09-22T04:25:43",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Neutral-toned customer simply asking for the ID verification link and instructions, which one reply can fully resolve."
+    },
+    {
+      "number": "3753553",
+      "ts": "2026-09-22T03:45:44",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple neutral confirmation request about whether a paid SIC code change was processed, answerable in a single reply."
+    },
+    {
+      "number": "3753502",
+      "ts": "2026-09-22T03:30:48",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple single question about whether a director address service is offered, answerable in one reply."
+    },
+    {
+      "number": "3753489",
+      "ts": "2026-09-22T03:25:44",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Customer simply confirms in a neutral, polite tone that they want the confirmation statement service, which can be handled with one reply."
+    },
+    {
+      "number": "3753479",
+      "ts": "2026-09-22T03:15:46",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple neutral question asking what further proof of address documents are needed, answerable in one reply."
+    },
+    {
+      "number": "3753458",
+      "ts": "2026-09-22T03:05:42",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Customer neutrally confirms they need the confirmation statement filing and asks for next steps, which one reply can answer."
+    },
+    {
+      "number": "3753433",
+      "ts": "2026-09-22T03:00:58",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Polite request to be sent the invoice/payment link and service details, resolvable with one reply."
+    },
+    {
+      "number": "3753447",
+      "ts": "2026-09-22T03:00:56",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple neutral question about how to add another company to a registered office address service, answerable in one reply."
+    },
+    {
+      "number": "3752767",
+      "ts": "2026-09-21T09:25:43",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple neutral request to cancel an upcoming renewal because the company has closed, resolvable in one reply."
+    },
+    {
+      "number": "3752721",
+      "ts": "2026-09-21T09:10:49",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Neutral, simple single status check on a company statement he paid for, answerable in one reply."
+    },
+    {
+      "number": "3752695",
+      "ts": "2026-09-21T08:50:42",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple pre-sales question about the Non-Resident UK package from a neutral-toned prospective customer, answerable in one reply."
+    },
+    {
+      "number": "3752688",
+      "ts": "2026-09-21T08:45:44",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Customer is simply confirming payment and providing the authentication code and UTR in a neutral, cooperative tone, which needs only a brief acknowledgement reply."
+    },
+    {
+      "number": "3752674",
+      "ts": "2026-09-21T08:40:41",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple single question about whether service addresses can all be set to one address, asked in a neutral tone."
+    },
+    {
+      "number": "3752583",
+      "ts": "2026-09-21T08:30:44",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple invoice address change with a neutral tone that can be handled in one reply."
+    },
+    {
+      "number": "3752554",
+      "ts": "2026-09-21T08:20:46",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple single question about a domain included in the customer's package, answerable in one neutral reply."
+    },
+    {
+      "number": "3752537",
+      "ts": "2026-09-21T08:05:40",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple single question about how to submit ID for verification, neutral tone, answerable in one reply."
+    },
+    {
+      "number": "3752364",
+      "ts": "2026-09-21T07:30:46",
+      "kind": "assigned",
+      "age_hours": null,
+      "reason": "Simple single question about where to upload ID verification documents, neutral tone, answerable in one reply."
+    }
+  ],
+  "unpicked": [
+    {
+      "number": "3755717",
+      "category": "org_change",
+      "age_hours": 62.8,
+      "subject": "Your Company Formations - Compliance check - CITADEL ENGINEERING UK LTD.",
+      "reason": "Long-running director appointment/resignation and PSC/name-change matter with a frustrated customer now demanding a refund.",
+      "flagged_at": "2026-09-25T09:25:34"
+    }
+  ],
+  "last_scan": {
+    "ts": "2026-09-28T08:15:32",
+    "unassigned": 24,
+    "unjudged": 18,
+    "sweep": 0
+  }
+}
