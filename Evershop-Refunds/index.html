@@ -1,0 +1,986 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<title>Refund Analysis</title>
+<style>
+  .viz-root {
+    color-scheme: light;
+    --surface-1:#fcfcfb; --surface-2:#f3f2ee; --page:#f9f9f7;
+    --text-primary:#0b0b0b; --text-secondary:#52514e; --text-muted:#898781;
+    --grid:#e1e0d9; --baseline:#c3c2b7; --border:rgba(11,11,11,0.10);
+    --good:#0ca30c; --warning:#fab219; --serious:#ec835a; --critical:#d03b3b; --accent:#2a78d6;
+    --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s0:#b5b3aa;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) .viz-root {
+      color-scheme: dark;
+      --surface-1:#1a1a19; --surface-2:#232322; --page:#0d0d0d;
+      --text-primary:#ffffff; --text-secondary:#c3c2b7; --text-muted:#898781;
+      --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
+      --critical:#e66767; --accent:#3987e5;
+      --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s0:#5c5b56;
+    }
+  }
+  :root[data-theme="dark"] .viz-root {
+    color-scheme: dark;
+    --surface-1:#1a1a19; --surface-2:#232322; --page:#0d0d0d;
+    --text-primary:#ffffff; --text-secondary:#c3c2b7; --text-muted:#898781;
+    --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
+    --critical:#e66767; --accent:#3987e5;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s0:#5c5b56;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #0d0d0d; }
+  .viz-root { background: var(--page); color: var(--text-primary); font: 14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif; padding: 24px 24px 60px; min-height: 100vh; }
+  @media (max-width: 600px) { .viz-root { padding: 16px 16px 48px; } }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+  header.top { margin-bottom: 14px; }
+  header.top h1 { font-size: 22px; font-weight: 800; margin: 0 0 4px; letter-spacing: -0.01em; }
+  header.top p { margin: 0; color: var(--text-secondary); font-size: 13px; }
+  .top-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .refresh-block { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+  .refresh-btn { display: inline-flex; align-items: center; gap: 7px; font: inherit; font-size: 12.5px; font-weight: 700; background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; }
+  .refresh-btn:disabled { opacity: .6; cursor: default; }
+  .refresh-status { font-size: 11px; color: var(--text-muted); text-align: right; }
+  .build-tag { font-size: 10.5px; color: var(--text-muted); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
+
+  .agebar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; border-radius: 10px; padding: 9px 13px; margin-bottom: 14px; font-size: 12.5px; border: 1px solid var(--border); background: var(--surface-1); }
+  .agebar .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; background: var(--good); }
+  .agebar.amber { border-color: var(--warning); background: color-mix(in srgb, var(--warning) 12%, var(--surface-1)); }
+  .agebar.amber .dot { background: var(--warning); }
+  .agebar.red { border-color: var(--critical); background: color-mix(in srgb, var(--critical) 12%, var(--surface-1)); font-weight: 600; }
+  .agebar.red .dot { background: var(--critical); }
+  .agebar .m { color: var(--text-secondary); font-weight: 400; }
+
+  .filterbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; position: sticky; top: 8px; z-index: 10; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+  .filtergroup { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .flabel { font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); font-weight: 700; }
+  .pillrow { display: flex; gap: 3px; background: var(--surface-2); border-radius: 99px; padding: 3px; flex-wrap: wrap; }
+  .pill { border: none; background: transparent; color: var(--text-secondary); font: inherit; font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 99px; cursor: pointer; white-space: nowrap; }
+  .pill:hover { color: var(--text-primary); }
+  .pill.active { background: var(--accent); color: #fff; }
+  .periodsel { background: var(--surface-1); border: 1px solid var(--border); border-radius: 7px; padding: 5px 9px; font: inherit; font-size: 12.5px; color: var(--text-primary); max-width: 220px; }
+  .combo { position: relative; }
+  .combo input { font: inherit; font-size: 12.5px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text-primary); width: 220px; outline: none; }
+  .combo input:focus { border-color: var(--accent); }
+  .combo-list { position: absolute; top: calc(100% + 4px); left: 0; width: 340px; max-width: 86vw; max-height: 320px; overflow-y: auto; background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.18); z-index: 30; display: none; }
+  .combo-list.open { display: block; }
+  .combo-item { padding: 7px 11px; cursor: pointer; font-size: 12.5px; display: flex; justify-content: space-between; gap: 8px; }
+  .combo-item:hover { background: var(--surface-2); }
+  .combo-item .cnt { color: var(--text-muted); font-size: 11px; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+  .combo-item .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); cursor: pointer; user-select: none; }
+  .toggle input { accent-color: var(--accent); }
+  .chip { display: inline-flex; align-items: center; gap: 6px; background: var(--accent); color: #fff; font-size: 12px; font-weight: 600; padding: 4px 6px 4px 11px; border-radius: 99px; }
+  .chip button { background: rgba(255,255,255,.25); border: none; color: #fff; width: 16px; height: 16px; border-radius: 50%; cursor: pointer; font-size: 11px; line-height: 1; }
+  .clearall { font-size: 12px; color: var(--text-muted); background: none; border: none; cursor: pointer; text-decoration: underline; margin-left: auto; }
+
+  .kpis { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 16px; }
+  @media (max-width: 1080px) { .kpis { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 600px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
+  .kpi { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 12px 13px; cursor: pointer; text-align: left; font: inherit; color: inherit; }
+  .kpi:hover { border-color: var(--accent); }
+  .kpi.active { border-color: var(--accent); background: var(--surface-2); }
+  .kpi .label { font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); margin-bottom: 6px; }
+  .kpi .value { font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .kpi .sub { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+  .delta { font-weight: 700; }
+  .delta.bad { color: var(--critical); }
+  .delta.good { color: var(--good); }
+
+  .panel { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 18px 18px 14px; margin-bottom: 16px; min-width: 0; }
+  .panel h2 { font-size: 14px; font-weight: 700; margin: 0 0 2px; }
+  .panel .desc { font-size: 12px; color: var(--text-secondary); margin: 0 0 12px; }
+  .grid2 { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; }
+  .grid2 > .panel { margin-bottom: 16px; }
+  @media (max-width: 900px) { .grid2 { grid-template-columns: 1fr; } }
+  .scrollx { overflow-x: auto; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .legend button { display: inline-flex; align-items: center; gap: 5px; font: inherit; font-size: 11.5px; color: var(--text-secondary); background: var(--surface-2); border: 1px solid transparent; border-radius: 99px; padding: 4px 10px 4px 8px; cursor: pointer; }
+  .legend button.active { border-color: var(--text-primary); color: var(--text-primary); font-weight: 700; }
+  .legend i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+  svg { display: block; overflow: visible; font-family: inherit; }
+  .axis-label { fill: var(--text-muted); font-size: 10px; }
+  .gridline { stroke: var(--grid); stroke-width: 1; }
+  .baseline { stroke: var(--baseline); stroke-width: 1; }
+  .hit { fill: transparent; cursor: pointer; }
+  .hit:hover { fill: var(--text-primary); fill-opacity: .04; }
+
+  .tooltip { position: fixed; pointer-events: none; z-index: 50; background: var(--text-primary); color: var(--surface-1); font-size: 11.5px; line-height: 1.5; padding: 8px 10px; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.25); opacity: 0; transform: translate(-50%, calc(-100% - 10px)); max-width: 280px; }
+  .tooltip.show { opacity: 1; }
+  .tooltip .t-title { font-weight: 700; margin-bottom: 4px; }
+  .tooltip .t-row { display: flex; justify-content: space-between; gap: 12px; white-space: nowrap; }
+  .tooltip .sw { width: 7px; height: 7px; border-radius: 2px; display: inline-block; margin-right: 5px; }
+
+  .bars { display: flex; flex-direction: column; gap: 4px; }
+  .barrow { display: grid; grid-template-columns: minmax(90px, 38%) 1fr auto; align-items: center; gap: 10px; padding: 4px 6px; border-radius: 7px; cursor: pointer; border: 1px solid transparent; background: none; font: inherit; color: inherit; text-align: left; width: 100%; }
+  .barrow:hover { background: var(--surface-2); }
+  .barrow.on { border-color: var(--accent); background: var(--surface-2); }
+  .barrow.dim { opacity: .55; }
+  .barrow .bl { font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .barrow .bt { display: block; height: 10px; background: var(--surface-2); border-radius: 4px; overflow: hidden; }
+  .barrow .bf { display: block; height: 100%; border-radius: 4px; background: var(--accent); }
+  .barrow .bv { font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .barrow .bv small { color: var(--text-muted); margin-left: 6px; }
+
+  table.data { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  table.data th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: .03em; color: var(--text-muted); font-weight: 600; padding: 0 8px 8px; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  table.data th.num, table.data td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.data td { padding: 7px 8px; border-bottom: 1px solid var(--grid); vertical-align: middle; }
+  table.data tr:last-child td { border-bottom: none; }
+  table.data tr.clickable { cursor: pointer; }
+  table.data tr.clickable:hover { background: var(--surface-2); }
+  table.data tr.on { background: var(--surface-2); box-shadow: inset 3px 0 0 var(--accent); }
+  .rank { color: var(--text-muted); width: 18px; display: inline-block; font-variant-numeric: tabular-nums; }
+  .pname { font-weight: 600; }
+  .muted { color: var(--text-muted); }
+  .tag { display: inline-block; padding: 1px 7px; border-radius: 99px; font-size: 10.5px; font-weight: 600; background: var(--surface-2); color: var(--text-secondary); border: 1px solid var(--border); white-space: nowrap; }
+  .tag.warn { border-color: var(--warning); }
+  .tag.crit { border-color: var(--critical); color: var(--critical); }
+  .empty-note { color: var(--text-muted); font-size: 12.5px; padding: 20px 4px; text-align: center; }
+  .footnote { font-size: 11.5px; color: var(--text-muted); line-height: 1.6; }
+  .footnote b { color: var(--text-secondary); }
+
+  .funnels { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 12px; }
+  .funnel { border: 1px solid var(--border); border-radius: 10px; padding: 12px; background: var(--surface-2); }
+  .funnel.on { border-color: var(--accent); }
+  .funnel .fh { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; cursor: pointer; }
+  .funnel .fh { flex-wrap: wrap; }
+  .funnel .fh b { font-size: 13px; white-space: nowrap; }
+  .funnel .barrow { grid-template-columns: 84px 1fr auto; padding: 3px 4px; }
+  .funnel .fh span { font-size: 11px; color: var(--text-muted); }
+  .funnel .barrow:hover, .funnel .barrow.on { background: var(--surface-1); }
+
+  .statstrip { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .statstrip .st { flex: 1; min-width: 140px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 9px; padding: 10px 12px; }
+  .statstrip .l { font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; }
+  .statstrip .v { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .statstrip .s { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+  .rca { display: grid; gap: 10px; }
+  .rca-row { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; background: var(--surface-2); cursor: pointer; }
+  .rca-row:hover, .rca-row.on { border-color: var(--accent); }
+  .rca-head { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; margin-bottom: 7px; }
+  .rca-head .sym { font-weight: 800; font-size: 13px; }
+  .rca-head .share { font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 99px; border: 1px solid var(--border); background: var(--surface-1); }
+  .rca-head .meta { font-size: 11px; color: var(--text-muted); }
+  .rca-row dl { margin: 0; display: grid; grid-template-columns: 96px 1fr; gap: 3px 12px; font-size: 12.5px; line-height: 1.55; }
+  .rca-row dt { color: var(--text-muted); font-size: 10px; text-transform: uppercase; letter-spacing: .04em; font-weight: 700; padding-top: 3px; }
+  .rca-row dd { margin: 0; color: var(--text-secondary); }
+  .rca-row dd b { color: var(--text-primary); }
+  @media (max-width: 600px) { .rca-row dl { grid-template-columns: 1fr; } }
+  .prio { display: inline-block; min-width: 20px; text-align: center; font-weight: 800; font-size: 11px; border-radius: 5px; padding: 1px 6px; border: 1px solid var(--border); background: var(--surface-2); }
+  .prio.p1 { border-color: var(--critical); color: var(--critical); }
+  .prio.p2 { border-color: var(--warning); }
+
+  .insight-groups { display: grid; gap: 14px; }
+  .ghead { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .03em; margin-bottom: 8px; }
+  .ghead .gdot { width: 9px; height: 9px; border-radius: 50%; }
+  ul.insight-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  ul.insight-list li { position: relative; padding-left: 18px; font-size: 13px; line-height: 1.5; }
+  ul.insight-list li::before { content: ""; position: absolute; left: 0; top: 7px; width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); }
+  ul.insight-list li .m { color: var(--text-secondary); }
+  .linkish { color: var(--accent); cursor: pointer; text-decoration: underline; text-decoration-style: dotted; }
+
+  #eg-gate { position: fixed; inset: 0; background: #0d0d0d; color: #fff; display: flex; align-items: center; justify-content: center; z-index: 1000; font-family: system-ui,-apple-system,"Segoe UI",sans-serif; padding: 16px; }
+  #eg-gate form { display: flex; flex-direction: column; gap: 12px; width: 280px; max-width: 100%; }
+  #eg-gate .eg-title { font-size: 15px; font-weight: 700; text-align: center; }
+  #eg-gate .eg-sub { font-size: 12px; color: #9a9a97; text-align: center; }
+  #eg-gate input { padding: 10px 12px; border-radius: 8px; border: 1px solid #444; background: #1a1a19; color: #fff; font-size: 14px; font-family: inherit; }
+  #eg-gate button { padding: 10px 12px; border-radius: 8px; border: none; background: #2a78d6; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  #eg-gate .eg-error { color: #e66767; font-size: 12.5px; min-height: 16px; text-align: center; }
+</style>
+</head>
+<body>
+<div id="eg-gate">
+  <form id="eg-gate-form">
+    <div class="eg-title">Evershop — Refund Analysis</div>
+    <div class="eg-sub">Enter the password to view</div>
+    <input type="password" id="eg-gate-input" placeholder="Password" autocomplete="off" autofocus>
+    <button type="submit">View dashboard</button>
+    <div class="eg-error" id="eg-gate-error"></div>
+  </form>
+</div>
+
+<div id="eg-content" style="display:none">
+<div class="viz-root">
+<div class="wrap">
+  <header class="top">
+    <div class="top-row">
+      <div>
+        <h1>Refund Analysis — Evershop</h1>
+        <p>Every refund in the Solution tracker's 💸 Refunds log · cost in € · all stores</p>
+      </div>
+      <div class="refresh-block">
+        <button class="refresh-btn" id="refreshBtn">⟳ Refresh data</button>
+        <div class="refresh-status" id="refreshStatus">Loading…</div>
+        <span class="build-tag" title="Which version of this page your browser loaded. If it is older than you expect, hard-refresh (Cmd+Shift+R).">build 2026-10-16a</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="agebar" id="ageBar"><span class="dot"></span><span id="ageText">Loading data…</span></div>
+
+  <div class="filterbar">
+    <div class="filtergroup">
+      <span class="flabel">Period</span>
+      <div class="pillrow" id="granPills"></div>
+      <select id="periodSelect" class="periodsel" aria-label="Period"></select>
+    </div>
+    <div class="filtergroup">
+      <span class="flabel">Store</span>
+      <div class="pillrow" id="storePills"></div>
+    </div>
+    <div class="filtergroup">
+      <span class="flabel">Funnel</span>
+      <div class="pillrow" id="funnelPills"></div>
+    </div>
+    <div class="filtergroup">
+      <span class="flabel">Measure</span>
+      <div class="pillrow" id="metricPills"></div>
+    </div>
+    <div class="filtergroup">
+      <span class="flabel">Product</span>
+      <div class="combo">
+        <input type="text" id="productInput" placeholder="Search products…" autocomplete="off">
+        <div class="combo-list" id="productList"></div>
+      </div>
+    </div>
+    <label class="toggle"><input type="checkbox" id="noCb"> Leave out chargebacks</label>
+    <div id="activeChips" style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;"></div>
+    <button class="clearall" id="clearAll">Clear all filters</button>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="panel">
+    <h2 id="trendTitle">Refunds over time</h2>
+    <p class="desc">Stacked by reason. Click a bar to select that period, or a legend chip to isolate a reason. Hover for the breakdown.</p>
+    <div class="legend" id="trendLegend"></div>
+    <div id="trendChart" class="scrollx"></div>
+    <p class="footnote" id="trendFoot" style="margin-top:8px"></p>
+  </div>
+
+  <div class="panel">
+    <h2>Key insights</h2>
+    <p class="desc">Recalculated for the filters above.</p>
+    <div class="insight-groups" id="insights"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h2>Most refunded products</h2>
+      <p class="desc">Ranked by the measure above. Click a row to filter everything to that product.</p>
+      <div id="topProducts" class="scrollx"></div>
+    </div>
+    <div class="panel">
+      <h2>Refunds by reason</h2>
+      <p class="desc">Refunds tagged with several reasons are split evenly across them. Click to filter.</p>
+      <div id="reasonBars"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Funnel compliance — which offer was given</h2>
+    <p class="desc" id="funnelDesc">Each funnel's allowed steps, then anything off the ladder. Click a step to filter to it; click a funnel name to filter to that funnel.</p>
+    <div class="funnels" id="funnels"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h2>By agent</h2>
+      <p class="desc">Who issued the refund. Click a row to filter.</p>
+      <div id="agents" class="scrollx"></div>
+    </div>
+    <div class="panel">
+      <h2>By store</h2>
+      <p class="desc">Click to filter.</p>
+      <div id="stores"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Pareto — how concentrated is it?</h2>
+    <p class="desc">Products ranked by € refunded, with the running share.</p>
+    <div class="statstrip" id="paretoStats"></div>
+    <div id="paretoChart" class="scrollx"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Root-cause analysis</h2>
+    <p class="desc">Each reason traced back to the step that produces it. Shares follow the filters. Click a card to filter to it.</p>
+    <div class="rca" id="rca"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Action plan</h2>
+    <p class="desc">Ordered by € at stake in the current view. Savings are per month, based on the months in view.</p>
+    <div id="plan" class="scrollx"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Data quality</h2>
+    <p class="desc">Gaps in the log that weaken everything above. Click to filter to them.</p>
+    <div id="dq"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Notes on this data</h2>
+    <p class="footnote" id="notes">
+      <b>Source:</b> the Notion "💸 Refunds" database that the Solution tracker writes every refund into. The back end's own Refunds tab reads the same log.<br>
+      <b>Cost</b> is the € refunded, as logged. <b>Solution %</b> is the share of the order refunded. A refund counts as <b>off-ladder</b> when its solution tag is not one of its funnel's steps (Funnel 1: 40/60/100 · Funnel 2: 20/30/40/50/100 · Funnel 3: 20/30/60/100 · Funnel 4: 20/30/50/100).<br>
+      <b>Dates:</b> the Notion export prints dates without a year, so the year is inferred from each store's order-number sequence (the log runs from Jul 2025). A live feed from the Notion API carries full dates.<br>
+      <b>Products:</b> add-ons (inspiration guides, tips, priority packing and insurance) are stripped. A multi-item refund is credited to its first product.<br>
+      <b>Reasons:</b> older rows only have free text, mostly "Not satisfied", so they land in <i>Not satisfied (no detail)</i>. Newer rows use the reason tags.<br>
+      <b>Privacy:</b> no customer names, emails, addresses or ticket links are published — only order numbers.
+    </p>
+  </div>
+</div>
+</div>
+</div>
+<div class="tooltip" id="tip"></div>
+
+<script>
+// ---------- gate (same password as the other Evershop dashboards) ----------
+const GATE_HASH = "b7aebf85a01d1dff295df2595fc4e138e467cbcd83a4ab5e6119691ad1fb8564";
+async function sha256(t) {
+  const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t));
+  return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join("");
+}
+function ss(k, v) { try { if (v === undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); } catch (e) { return null; } }
+function unlock() { document.getElementById("eg-gate").style.display = "none"; document.getElementById("eg-content").style.display = ""; boot(); }
+document.getElementById("eg-gate-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const pw = document.getElementById("eg-gate-input").value;
+  if (await sha256(pw) === GATE_HASH) { ss("eg-unlocked", "1"); ss("eg-pw", pw); unlock(); }
+  else document.getElementById("eg-gate-error").textContent = "Wrong password";
+});
+if (ss("eg-unlocked") === "1") unlock();
+
+// ---------- constants ----------
+const LADDERS = {
+  "Funnel 1": ["40%", "60%", "100%"],
+  "Funnel 2": ["20%", "30%", "40%", "50%", "100%"],
+  "Funnel 3": ["20%", "30%", "60%", "100%"],
+  "Funnel 4": ["20%", "30%", "50%", "100%"],
+};
+const FUNNEL_WHEN = { "Funnel 1": "until 23 Jul", "Funnel 2": "23 Jul – 14 Sep", "Funnel 3": "15 Sep – 18 Oct", "Funnel 4": "from 19 Oct" };
+const MAIN_STORES = ["Clarendale USA", "Lark & Clover", "Evesbury", "Clarendale CA"];
+const SUPPLIER_FAULT = ["Damaged", "Wrong / missing item", "Quality"];
+const TAG_MAP = {
+  "doesn't fit": "Doesn't fit", "not as advertized": "Not as pictured", "color not as expected": "Not as pictured",
+  "fabric quality": "Quality", "product quality": "Quality", "damaged item": "Damaged",
+  "incorect item": "Wrong / missing item", "incorrect item": "Wrong / missing item", "wrong size item": "Wrong / missing item", "missing items": "Wrong / missing item",
+  "not received": "Not received", "delayed": "Delayed", "wrong address": "Not received",
+  "out of stock": "Out of stock", "cancelled": "Cancelled",
+  "chargeback / chargeback risk": "Chargeback", "chargeback": "Chargeback",
+  "not satisfied": "Not satisfied", "other": "Other",
+};
+function freeTextReason(t) {
+  t = (t || "").toLowerCase().trim();
+  if (!t) return "No reason given";
+  if (/chargeback|dispute|ethoca|cdrn|fraud/.test(t)) return "Chargeback";
+  if (/out of stock|unfulfilled/.test(t)) return "Out of stock";
+  if (/cancel|cacelled|duplicate|twice|impulsive/.test(t)) return "Cancelled";
+  if (/fit|size|sizing/.test(t)) return "Doesn't fit";
+  if (/damage|broken|defect/.test(t)) return "Damaged";
+  if (/quality|fabric|material/.test(t)) return "Quality";
+  if (/expected|colou?r|picture|advertis|style/.test(t)) return "Not as pictured";
+  if (/delay|late/.test(t)) return "Delayed";
+  if (/not received|lost|never arrived|delivery exception/.test(t)) return "Not received";
+  if (/wrong item|incorrect|missing/.test(t)) return "Wrong / missing item";
+  if (/discount|code|promo|insurance|protection|tip|warranty|goodwill|compensation|inconvenience|replacement|pricing|shipping/.test(t)) return "Goodwill / fees";
+  if (/sat|happy|like/.test(t)) return "Not satisfied (no detail)";
+  return "Other";
+}
+const ROOT = {
+  "Doesn't fit": { where: "Listing size chart vs the supplier's real measurements.", fix: "Re-measure top offenders from 5+ sales QC samples; add a fit note (\"runs small\") on the listing; free size swap before any % offer.", owner: "Listings + QC" },
+  "Not as pictured": { where: "Listing photos and copy promise more than the product delivers.", fix: "Swap edited images for real QC photos on the top products; pull listings that keep failing.", owner: "Listings" },
+  "Quality": { where: "Factory and material — the supplier's product itself.", fix: "Block at 5+ sales QC; switch supplier or pull the product; file the supplier claim.", owner: "QC + sourcing" },
+  "Damaged": { where: "Supplier packing and transit.", fix: "Defect route: replacement first, supplier claim the same day; agree a packing spec.", owner: "Supplier ops" },
+  "Wrong / missing item": { where: "Supplier picking.", fix: "Defect route: replacement first; claim the cost back from WIIO/CJ every time.", owner: "Supplier ops" },
+  "Out of stock": { where: "Store keeps selling after the supplier runs out.", fix: "Daily stock sync; unpublish at zero supplier stock; offer an alternative or 130% credit (2.9) before refunding.", owner: "Store ops" },
+  "Cancelled": { where: "Order cancelled before it shipped.", fix: "Usually no product cost — speed fulfilment and cancel before buying from the supplier.", owner: "Store ops" },
+  "Not received": { where: "Last-mile delivery or a wrong address.", fix: "ParcelPanel alerts and the daily shipping check; contact the customer before they ask.", owner: "CS" },
+  "Delayed": { where: "Slow shipping line.", fix: "Proactive delay emails with tracking; move slow lanes to a faster line.", owner: "Supplier ops" },
+  "Chargeback": { where: "Customer went to the bank instead of support.", fix: "Answer Ethoca/CDRN alerts fast; make the refund offer before the dispute opens.", owner: "CS lead" },
+  "Not satisfied": { where: "Tagged, but with no root cause.", fix: "Ask what is wrong plus photos (step 2.1) and tag the real reason.", owner: "CS" },
+  "Not satisfied (no detail)": { where: "Old free-text rows — no reason was recorded.", fix: "Nothing to fix in the product; keep using reason tags so this bucket stops growing.", owner: "CS" },
+  "Goodwill / fees": { where: "Compensation, discount codes, insurance or tip refunds.", fix: "Check these are approved goodwill, not missed upsell or discount bugs.", owner: "CS lead" },
+  "Other": { where: "Tagged Other.", fix: "Review and re-tag.", owner: "CS" },
+  "No reason given": { where: "No reason recorded at all.", fix: "Make the reason tag required in the Solution tracker.", owner: "CS lead" },
+};
+const ADDON = /inspiration guide|\bpages\b|^tip$|priority|insurance|shipping protection|warranty|gift card|^https?:/i;
+
+// ---------- state ----------
+const state = { gran: "month", period: null, store: "all", funnel: "all", metric: "eur", product: null, reason: null, agent: null, sol: null, offladder: false, dq: null, noCb: false };
+let RAW = null, ALL = [], COLOR = {}, PRODNAME = {}, SOURCE = "", POLL = null;
+
+// ---------- load ----------
+async function load(fresh) {
+  const st = document.getElementById("refreshStatus");
+  st.textContent = "Loading…";
+  let data = null;
+  try {
+    const r = await fetch("api/data" + (fresh ? "?fresh=1" : ""), { headers: { "x-dash-key": ss("eg-pw") || "" }, cache: "no-store" });
+    if (r.ok && (r.headers.get("content-type") || "").includes("json")) { data = await r.json(); SOURCE = "live"; }
+  } catch (e) {}
+  if (!data) {
+    try {
+      const r = await fetch("data.json?cb=" + Date.now(), { cache: "no-store" });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      data = await r.json(); SOURCE = "snapshot";
+    } catch (e) { st.textContent = "Could not load data (" + e.message + ")"; return; }
+  }
+  RAW = data;
+  ALL = normalise(data);
+  if (!ALL.length) { st.textContent = "No refunds in the data"; return; }
+  assignColors();
+  st.textContent = (SOURCE === "live" ? "Live from Notion · " : "Notion export · ") + ALL.length.toLocaleString() + " refunds";
+  clearInterval(POLL);
+  POLL = setInterval(() => load(false), SOURCE === "live" ? 60000 : 300000);
+  render();
+}
+function get(row, cols, name) {
+  if (Array.isArray(row)) return row[cols.indexOf(name)];
+  for (const k in row) if (k.trim() === name) return row[k];
+  return undefined;
+}
+function asList(v) { return Array.isArray(v) ? v : (v ? String(v).split(",").map(s => s.trim()).filter(Boolean) : []); }
+function asNum(v) { if (v == null || v === "") return null; const n = typeof v === "number" ? v : parseFloat(String(v).replace(/[€,\s%]/g, "")); return isNaN(n) ? null : n; }
+function cleanName(s) { return s.replace(/™/g, "").replace(/\s+[–—-]\s+/g, " – ").replace(/\s+/g, " ").trim(); }
+function splitProducts(s) {
+  if (!s) return [];
+  const parts = String(s).split(", ");
+  const items = [];
+  for (const p of parts) {
+    const isNew = !items.length || / – | - |™/.test(p) || ADDON.test(p);
+    if (isNew) items.push(p); else items[items.length - 1] += ", " + p;
+  }
+  return items.map(cleanName).filter(p => p && !ADDON.test(p));
+}
+function prodKey(n) { return n.toLowerCase().replace(/[^a-z0-9]+/g, ""); }
+function normalise(data) {
+  const cols = data.cols || [];
+  const out = [];
+  for (const row of data.rows || []) {
+    const d = get(row, cols, "Date");
+    const day = d ? String(d).slice(0, 10) : null;
+    const tags = asList(get(row, cols, "Reason tag"));
+    let reasons = [...new Set(tags.map(t => TAG_MAP[t.toLowerCase()] || "Other"))];
+    if (!reasons.length) reasons = [freeTextReason(get(row, cols, "Reason"))];
+    const prods = splitProducts(get(row, cols, "Product"));
+    const first = prods[0] || null;
+    let key = null;
+    if (first) { key = prodKey(first); if (!PRODNAME[key]) PRODNAME[key] = first; }
+    let tag = get(row, cols, "Solution tag"); tag = tag ? String(tag).trim() : null;
+    const sp = asNum(get(row, cols, "Solution percent"));
+    if (!tag && sp != null) tag = Math.round(sp) + "%";
+    const funnel = get(row, cols, "Funnel") || null;
+    const ladder = LADDERS[funnel];
+    const agents = asList(get(row, cols, "Agent"));
+    out.push({
+      day, store: get(row, cols, "Store") || null, order: get(row, cols, "Order") || null,
+      product: key, nprod: prods.length, reasons, sp, tag, cost: asNum(get(row, cols, "Cost")) || 0,
+      agent: agents.length ? agents.join(", ") : null, funnel,
+      off: !!(ladder && tag && !ladder.includes(tag)), untagged: !tag,
+      status: get(row, cols, "Status") || null, sup: get(row, cols, "WIIO/CJ refunded?") || null,
+      cb: reasons.includes("Chargeback"),
+    });
+  }
+  return out;
+}
+function assignColors() {
+  // Colour follows the reason, fixed from all-time € so a filter never repaints.
+  const tot = {};
+  for (const r of ALL) for (const x of r.reasons) tot[x] = (tot[x] || 0) + r.cost / r.reasons.length;
+  const top = Object.entries(tot).sort((a, b) => b[1] - a[1]).map(e => e[0]).filter(x => !/no detail|No reason/.test(x)).slice(0, 5);
+  COLOR = {};
+  top.forEach((x, i) => COLOR[x] = `var(--s${i + 1})`);
+}
+const colorOf = x => COLOR[x] || "var(--s0)";
+const stackKey = x => COLOR[x] ? x : "Other reasons";
+
+// ---------- periods ----------
+function isoWeekStart(day) { const d = new Date(day + "T00:00:00Z"); const w = (d.getUTCDay() + 6) % 7; d.setUTCDate(d.getUTCDate() - w); return d.toISOString().slice(0, 10); }
+function bucket(day, gran) {
+  if (!day) return null;
+  if (gran === "week") return isoWeekStart(day);
+  if (gran === "month") return day.slice(0, 7);
+  if (gran === "quarter") return day.slice(0, 4) + "-Q" + (Math.floor((+day.slice(5, 7) - 1) / 3) + 1);
+  if (gran === "year") return day.slice(0, 4);
+  return "all";
+}
+const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+function label(key, gran, short) {
+  if (gran === "week") { const d = new Date(key + "T00:00:00Z"); return (short ? "" : "Week of ") + d.getUTCDate() + " " + MON[d.getUTCMonth()] + (short ? "" : " " + d.getUTCFullYear()); }
+  if (gran === "month") return MON[+key.slice(5, 7) - 1] + (short ? " '" + key.slice(2, 4) : " " + key.slice(0, 4));
+  if (gran === "quarter") return key.slice(5) + (short ? " '" + key.slice(2, 4) : " " + key.slice(0, 4));
+  return key;
+}
+function allKeys(gran) {
+  const days = ALL.map(r => r.day).filter(Boolean).filter(d => d >= "2025-07-01").sort();
+  if (!days.length) return [];
+  const keys = []; let d = new Date(days[0] + "T00:00:00Z"); const end = days[days.length - 1];
+  while (d.toISOString().slice(0, 10) <= end) { const k = bucket(d.toISOString().slice(0, 10), gran); if (keys[keys.length - 1] !== k) keys.push(k); d.setUTCDate(d.getUTCDate() + 1); }
+  return keys;
+}
+function periodStart(key, gran) {
+  if (gran === "week") return key;
+  if (gran === "month") return key + "-01";
+  if (gran === "quarter") return key.slice(0, 4) + "-" + String((+key.slice(6) - 1) * 3 + 1).padStart(2, "0") + "-01";
+  return key + "-01-01";
+}
+let CMP = "";
+function prevKey(key, gran) { const ks = allKeys(gran); const i = ks.indexOf(key); return i > 0 ? ks[i - 1] : null; }
+function partial(key, gran) { const today = new Date().toISOString().slice(0, 10); return bucket(today, gran) === key; }
+
+// ---------- filtering ----------
+function base(except) {
+  // Everything except the period (and optionally one other dimension) applied.
+  return ALL.filter(r =>
+    (except === "store" || state.store === "all" || (state.store === "Other" ? !MAIN_STORES.includes(r.store) : r.store === state.store)) &&
+    (except === "funnel" || state.funnel === "all" || r.funnel === state.funnel) &&
+    (except === "product" || !state.product || r.product === state.product) &&
+    (except === "reason" || !state.reason || r.reasons.includes(state.reason)) &&
+    (except === "agent" || !state.agent || (r.agent || "(no agent)") === state.agent) &&
+    (except === "sol" || ((!state.sol || r.tag === state.sol) && (!state.offladder || r.off))) &&
+    (except === "dq" || !state.dq || DQ[state.dq].test(r)) &&
+    (!state.noCb || !r.cb)
+  );
+}
+function inPeriod(rows, key) { if (!key || state.gran === "all") return rows; return rows.filter(r => r.day && bucket(r.day, state.gran) === key); }
+const val = (rows) => state.metric === "eur" ? rows.reduce((a, r) => a + r.cost, 0) : rows.length;
+const fmtE = v => "€" + Math.round(v).toLocaleString("en-US");
+const fmtV = v => state.metric === "eur" ? fmtE(v) : Math.round(v).toLocaleString("en-US");
+const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+const avgSp = rows => { const s = rows.filter(r => r.sp != null); return s.length ? s.reduce((a, r) => a + r.sp, 0) / s.length : null; };
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function delta(now, prev, goodDown = true, unit = "%") {
+  if (prev == null || now == null || (unit === "%" && !prev)) return "";
+  const d = unit === "%" ? (now - prev) / prev * 100 : now - prev;
+  if (Math.abs(d) < 0.5) return `<span class="delta">±0${unit === "%" ? "%" : "pp"}</span>`;
+  const bad = goodDown ? d > 0 : d < 0;
+  return `<span class="delta ${bad ? "bad" : "good"}">${d > 0 ? "▲" : "▼"} ${Math.abs(d).toFixed(unit === "%" ? 0 : 1)}${unit === "%" ? "%" : "pp"}</span>`;
+}
+const DQ = {
+  "No reason given": { test: r => r.reasons.includes("No reason given") || r.reasons.includes("Not satisfied (no detail)") },
+  "No agent": { test: r => !r.agent },
+  "No store": { test: r => !r.store },
+  "No solution tag": { test: r => r.untagged },
+  "No product": { test: r => !r.product },
+};
+for (const k in DQ) DQ[k].test = DQ[k].test.bind(DQ[k]);
+
+// ---------- render ----------
+function render() {
+  renderControls();
+  const b = base();
+  const key = state.gran === "all" ? null : state.period;
+  const cur = inPeriod(b, key);
+  const pk = key ? prevKey(key, state.gran) : null;
+  let prev = pk ? inPeriod(b, pk) : null;
+  CMP = pk ? label(pk, state.gran) : "";
+  if (pk && partial(key, state.gran)) {
+    // An unfinished period is compared with the same number of days of the one before.
+    const days = Math.floor((Date.now() - new Date(periodStart(key, state.gran) + "T00:00:00Z")) / 864e5);
+    const cut = new Date(new Date(periodStart(pk, state.gran) + "T00:00:00Z").getTime() + days * 864e5).toISOString().slice(0, 10);
+    prev = prev.filter(r => r.day <= cut);
+    CMP = "first " + (days + 1) + " days of " + label(pk, state.gran);
+  }
+  renderAge();
+  renderKpis(cur, prev, pk);
+  renderTrend();
+  renderInsights(cur, prev, pk);
+  renderProducts(inPeriod(base("product"), key));
+  renderReasons(inPeriod(base("reason"), key));
+  renderFunnels(inPeriod(base("sol"), key));
+  renderAgents(inPeriod(base("agent"), key));
+  renderStores(inPeriod(base("store"), key));
+  renderPareto(cur);
+  renderRca(inPeriod(base("reason"), key));
+  renderPlan(cur);
+  renderDq(inPeriod(base("dq"), key));
+}
+function periodText() { return state.gran === "all" || !state.period ? "all time" : label(state.period, state.gran) + (partial(state.period, state.gran) ? " (so far)" : ""); }
+
+function renderControls() {
+  const gp = document.getElementById("granPills");
+  gp.innerHTML = [["week", "Week"], ["month", "Month"], ["quarter", "Quarter"], ["year", "Year"], ["all", "All"]].map(([k, l]) => `<button class="pill ${state.gran === k ? "active" : ""}" data-g="${k}">${l}</button>`).join("");
+  gp.querySelectorAll("button").forEach(b => b.onclick = () => { state.gran = b.dataset.g; state.period = null; ensurePeriod(); render(); });
+  ensurePeriod();
+  const sel = document.getElementById("periodSelect");
+  sel.style.display = state.gran === "all" ? "none" : "";
+  if (state.gran !== "all") {
+    const ks = allKeys(state.gran).slice().reverse();
+    sel.innerHTML = ks.map(k => `<option value="${k}" ${k === state.period ? "selected" : ""}>${label(k, state.gran)}${partial(k, state.gran) ? " (so far)" : ""}</option>`).join("");
+    sel.onchange = () => { state.period = sel.value; render(); };
+  }
+  const sp = document.getElementById("storePills");
+  sp.innerHTML = ["all", ...MAIN_STORES, "Other"].map(s => `<button class="pill ${state.store === s ? "active" : ""}" data-s="${esc(s)}">${s === "all" ? "All" : esc(s)}</button>`).join("");
+  sp.querySelectorAll("button").forEach(b => b.onclick = () => { state.store = b.dataset.s; render(); });
+  const fp = document.getElementById("funnelPills");
+  fp.innerHTML = ["all", ...Object.keys(LADDERS)].map(f => `<button class="pill ${state.funnel === f ? "active" : ""}" data-f="${f}">${f === "all" ? "All" : f.replace("Funnel ", "F")}</button>`).join("");
+  fp.querySelectorAll("button").forEach(b => b.onclick = () => { state.funnel = b.dataset.f; render(); });
+  const mp = document.getElementById("metricPills");
+  mp.innerHTML = [["eur", "€ refunded"], ["n", "Refunds"]].map(([k, l]) => `<button class="pill ${state.metric === k ? "active" : ""}" data-m="${k}">${l}</button>`).join("");
+  mp.querySelectorAll("button").forEach(b => b.onclick = () => { state.metric = b.dataset.m; render(); });
+  document.getElementById("noCb").checked = state.noCb;
+  const chips = [];
+  if (state.product) chips.push(["product", "Product: " + PRODNAME[state.product]]);
+  if (state.reason) chips.push(["reason", "Reason: " + state.reason]);
+  if (state.agent) chips.push(["agent", "Agent: " + state.agent]);
+  if (state.sol) chips.push(["sol", "Solution: " + state.sol]);
+  if (state.offladder) chips.push(["offladder", "Off-ladder only"]);
+  if (state.dq) chips.push(["dq", "Gap: " + state.dq]);
+  const ac = document.getElementById("activeChips");
+  ac.innerHTML = chips.map(([k, l]) => `<span class="chip">${esc(l.length > 48 ? l.slice(0, 46) + "…" : l)}<button data-k="${k}" aria-label="Remove">✕</button></span>`).join("");
+  ac.querySelectorAll("button").forEach(b => b.onclick = () => { state[b.dataset.k] = b.dataset.k === "offladder" ? false : null; render(); });
+}
+function ensurePeriod() {
+  if (state.gran === "all") return;
+  const ks = allKeys(state.gran);
+  if (!state.period || !ks.includes(state.period)) state.period = ks[ks.length - 1];
+}
+
+function renderAge() {
+  const el = document.getElementById("ageBar"), tx = document.getElementById("ageText");
+  const synced = RAW && RAW.synced ? new Date(RAW.synced) : null;
+  const latest = ALL.map(r => r.day).filter(Boolean).sort().pop();
+  if (!synced) { el.className = "agebar red"; tx.innerHTML = "Data age unknown — no sync time in the data."; return; }
+  const h = (Date.now() - synced) / 36e5;
+  const ago = h < 1 ? Math.max(1, Math.round(h * 60)) + " min" : h < 48 ? Math.round(h) + " h" : Math.round(h / 24) + " days";
+  const when = synced.toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  const limit = SOURCE === "live" ? [0.25, 1] : [30, 72];
+  el.className = "agebar" + (h > limit[1] ? " red" : h > limit[0] ? " amber" : "");
+  const src = SOURCE === "live" ? "Live from Notion" : "Notion export snapshot";
+  tx.innerHTML = `<b>${src}, ${ago} old</b> <span class="m">· synced ${when} · newest refund ${latest || "—"}${SOURCE === "live" ? " · re-checks every minute" : h > 30 ? " · refunds logged since then are missing; re-export the 💸 Refunds database from Notion" : ""}</span>`;
+}
+
+function renderKpis(cur, prev, pk) {
+  const vs = pk ? "vs " + CMP : "";
+  const eur = cur.reduce((a, r) => a + r.cost, 0), peur = prev ? prev.reduce((a, r) => a + r.cost, 0) : null;
+  const a = avgSp(cur), pa = prev ? avgSp(prev) : null;
+  const full = cur.filter(r => r.tag === "100%"), pfull = prev ? prev.filter(r => r.tag === "100%") : null;
+  const tagged = cur.filter(r => r.tag), off = cur.filter(r => r.off);
+  const sf = cur.filter(r => r.reasons.some(x => SUPPLIER_FAULT.includes(x)));
+  const claimed = sf.filter(r => r.sup).length;
+  const cb = cur.filter(r => r.cb);
+  const tiles = [
+    { k: "eur", l: "€ refunded", v: fmtE(eur), s: `${delta(eur, peur)} ${vs}`, act: state.metric === "eur", click: () => { state.metric = "eur"; } },
+    { k: "n", l: "Refunds", v: cur.length.toLocaleString(), s: `${delta(cur.length, prev ? prev.length : null)} ${vs}`, act: state.metric === "n", click: () => { state.metric = "n"; } },
+    { k: "avg", l: "Avg solution", v: a == null ? "—" : a.toFixed(1) + "%", s: `of the order · ${delta(a, pa, true, "pp")}`, click: () => { state.sol = null; state.offladder = false; } },
+    { k: "full", l: "Full refunds", v: pct(full.length, tagged.length) + "%", s: `${full.length.toLocaleString()} at 100% · ${fmtE(full.reduce((s, r) => s + r.cost, 0))}`, act: state.sol === "100%", click: () => { state.sol = state.sol === "100%" ? null : "100%"; state.offladder = false; } },
+    { k: "off", l: "Off-ladder", v: pct(off.length, tagged.length) + "%", s: `${off.length.toLocaleString()} refunds · ${fmtE(off.reduce((s, r) => s + r.cost, 0))}`, act: state.offladder, click: () => { state.offladder = !state.offladder; state.sol = null; } },
+    { k: "cb", l: "Chargebacks", v: fmtE(cb.reduce((s, r) => s + r.cost, 0)), s: `${cb.length.toLocaleString()} refunds · ${pct(cb.length, cur.length)}%`, act: state.reason === "Chargeback", click: () => { state.reason = state.reason === "Chargeback" ? null : "Chargeback"; state.noCb = false; } },
+  ];
+  const el = document.getElementById("kpis");
+  el.innerHTML = tiles.map((t, i) => `<button class="kpi ${t.act ? "active" : ""}" data-i="${i}"><div class="label">${t.l}</div><div class="value">${t.v}</div><div class="sub">${t.s}</div></button>`).join("");
+  el.querySelectorAll(".kpi").forEach(b => b.onclick = () => { tiles[+b.dataset.i].click(); render(); });
+  void sf; void claimed;
+}
+
+// ---------- tooltip ----------
+const tip = document.getElementById("tip");
+function showTip(e, html) { tip.innerHTML = html; tip.classList.add("show"); const x = Math.min(Math.max(e.clientX, 150), innerWidth - 150); tip.style.left = x + "px"; tip.style.top = e.clientY + "px"; }
+function hideTip() { tip.classList.remove("show"); }
+
+function renderTrend() {
+  const gran = state.gran === "all" ? "month" : state.gran;
+  const rows = base();
+  let keys = allKeys(gran);
+  if (gran === "week") keys = keys.slice(-26);
+  const series = [...Object.keys(COLOR), "Other reasons"];
+  const data = keys.map(k => {
+    const rs = rows.filter(r => r.day && bucket(r.day, gran) === k);
+    const by = {};
+    for (const r of rs) for (const x of r.reasons) { const s = stackKey(x); by[s] = (by[s] || 0) + (state.metric === "eur" ? r.cost : 1) / r.reasons.length; }
+    return { k, by, total: series.reduce((a, s) => a + (by[s] || 0), 0), n: rs.length };
+  });
+  document.getElementById("trendTitle").textContent = (state.metric === "eur" ? "€ refunded" : "Refunds") + " per " + gran;
+  const lg = document.getElementById("trendLegend");
+  lg.innerHTML = series.map(s => `<button class="${state.reason === s ? "active" : ""}" data-r="${esc(s)}" ${s === "Other reasons" ? "disabled title='Smaller reasons, grouped'" : ""}><i style="background:${s === "Other reasons" ? "var(--s0)" : colorOf(s)}"></i>${esc(s)}</button>`).join("");
+  lg.querySelectorAll("button:not([disabled])").forEach(b => b.onclick = () => { state.reason = state.reason === b.dataset.r ? null : b.dataset.r; render(); });
+
+  const el = document.getElementById("trendChart");
+  const W = Math.max(el.clientWidth || 900, keys.length * 26), H = 240, m = { l: 52, r: 8, t: 10, b: 28 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const max = Math.max(1, ...data.map(d => d.total));
+  const step = niceStep(max / 4), top = Math.ceil(max / step) * step;
+  const y = v => m.t + ih - v / top * ih;
+  const bw = iw / keys.length, gap = Math.min(6, bw * 0.25);
+  let svg = `<svg width="${W}" height="${H}" role="img" aria-label="Refunds per ${gran}">`;
+  for (let v = 0; v <= top; v += step) svg += `<line class="gridline" x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/><text class="axis-label" x="${m.l - 6}" y="${y(v) + 3}" text-anchor="end">${state.metric === "eur" ? "€" + shortNum(v) : shortNum(v)}</text>`;
+  const every = Math.ceil(keys.length / Math.floor(iw / 48));
+  data.forEach((d, i) => {
+    const x = m.l + i * bw + gap / 2, w = bw - gap;
+    const sel = state.gran !== "all" && d.k === state.period;
+    let acc = 0;
+    const segs = series.filter(s => d.by[s] > 0);
+    segs.forEach((s, j) => {
+      const h0 = y(acc), h1 = y(acc + d.by[s]); acc += d.by[s];
+      const hgt = Math.max(0, h0 - h1 - (j < segs.length - 1 ? 2 : 0));
+      const isTop = j === segs.length - 1;
+      const dim = (state.gran !== "all" && !sel) ? 0.45 : 1;
+      svg += isTop ? `<path d="${roundTop(x, h1, w, hgt, Math.min(4, w / 2))}" fill="${s === "Other reasons" ? "var(--s0)" : colorOf(s)}" opacity="${dim}"/>`
+                   : `<rect x="${x}" y="${h1 + (j < segs.length - 1 ? 2 : 0)}" width="${w}" height="${hgt}" fill="${s === "Other reasons" ? "var(--s0)" : colorOf(s)}" opacity="${dim}"/>`;
+    });
+    if (i % every === 0 || sel) svg += `<text class="axis-label" x="${x + w / 2}" y="${H - 10}" text-anchor="middle" ${sel ? 'style="font-weight:700;fill:var(--text-primary)"' : ""}>${label(d.k, gran, true)}</text>`;
+    svg += `<rect class="hit" data-i="${i}" x="${m.l + i * bw}" y="${m.t}" width="${bw}" height="${ih}"/>`;
+  });
+  svg += `<line class="baseline" x1="${m.l}" x2="${W - m.r}" y1="${y(0)}" y2="${y(0)}"/></svg>`;
+  el.innerHTML = svg;
+  el.querySelectorAll(".hit").forEach(h => {
+    const d = data[+h.dataset.i];
+    h.onmousemove = e => showTip(e, `<div class="t-title">${label(d.k, gran)}${partial(d.k, gran) ? " (so far)" : ""}</div>` +
+      series.filter(s => d.by[s] > 0).sort((a, b) => d.by[b] - d.by[a]).map(s => `<div class="t-row"><span><span class="sw" style="background:${s === "Other reasons" ? "var(--s0)" : colorOf(s)}"></span>${esc(s)}</span><b>${fmtV(d.by[s])}</b></div>`).join("") +
+      `<div class="t-row" style="margin-top:4px"><span>Total · ${d.n.toLocaleString()} refunds</span><b>${fmtV(d.total)}</b></div>`);
+    h.onmouseleave = hideTip;
+    h.onclick = () => { if (state.gran === "all") state.gran = gran; state.period = d.k; hideTip(); render(); };
+  });
+  document.getElementById("trendFoot").textContent = (gran === "week" ? "Last 26 weeks. " : "") + (partial(keys[keys.length - 1], gran) ? "The last bar is the current " + gran + " so far. " : "") + (state.gran === "all" ? "Showing months; pick a period size to compare periods." : "Selected: " + periodText() + ".");
+}
+function niceStep(x) { const p = Math.pow(10, Math.floor(Math.log10(x || 1))); const f = x / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p; }
+function shortNum(v) { return v >= 1e6 ? (v / 1e6).toFixed(1) + "M" : v >= 1e3 ? (v / 1e3).toFixed(v >= 1e4 ? 0 : 1) + "k" : Math.round(v); }
+function roundTop(x, y, w, h, r) { if (h <= 0) return ""; r = Math.min(r, h); return `M${x},${y + h}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h}Z`; }
+
+function reasonTotals(rows) {
+  const t = {};
+  for (const r of rows) for (const x of r.reasons) t[x] = (t[x] || 0) + (state.metric === "eur" ? r.cost : 1) / r.reasons.length;
+  return Object.entries(t).sort((a, b) => b[1] - a[1]);
+}
+function productTotals(rows) {
+  const m = new Map();
+  for (const r of rows) {
+    const k = r.product || "(no product)";
+    const o = m.get(k) || { k, n: 0, eur: 0, sp: [], reasons: {}, full: 0 };
+    o.n++; o.eur += r.cost; if (r.sp != null) o.sp.push(r.sp); if (r.tag === "100%") o.full++;
+    for (const x of r.reasons) o.reasons[x] = (o.reasons[x] || 0) + 1;
+    m.set(k, o);
+  }
+  return [...m.values()].map(o => ({ ...o, v: state.metric === "eur" ? o.eur : o.n, top: Object.entries(o.reasons).sort((a, b) => b[1] - a[1])[0] }))
+    .sort((a, b) => b.v - a.v);
+}
+const pn = k => k === "(no product)" ? "(no product)" : PRODNAME[k] || k;
+
+function renderInsights(cur, prev, pk) {
+  const groups = { critical: [], warning: [], good: [] };
+  const P = periodText();
+  if (!cur.length) { document.getElementById("insights").innerHTML = `<div class="empty-note">No refunds match these filters.</div>`; return; }
+  const v = val(cur), pv = prev ? val(prev) : null;
+  if (pv) {
+    const d = (v - pv) / pv * 100;
+    (d > 10 ? groups.critical : d < -10 ? groups.good : groups.warning).push(`<b>${state.metric === "eur" ? "€ refunded" : "Refunds"} ${d >= 0 ? "up" : "down"} ${Math.abs(d).toFixed(0)}%</b> <span class="m">— ${fmtV(v)} in ${P} vs ${fmtV(pv)} in the ${CMP.startsWith("first") ? CMP : label(pk, state.gran)}.</span>`);
+  }
+  const rt = reasonTotals(cur);
+  const tv = rt.reduce((a, e) => a + e[1], 0);
+  if (rt.length) {
+    const [r0, v0] = rt[0];
+    groups.critical.push(`<b><span class="linkish" data-reason="${esc(r0)}">${esc(r0)}</span> is ${pct(v0, tv)}% of ${state.metric === "eur" ? "€" : "refunds"}</b> <span class="m">— the biggest reason in ${P}.</span>`);
+    if (pk) {
+      const pr = Object.fromEntries(reasonTotals(prev));
+      const ptv = Object.values(pr).reduce((a, b) => a + b, 0);
+      const moves = rt.filter(e => tv && ptv && e[1] / tv > 0.03).map(([r, x]) => [r, x / tv * 100 - (pr[r] || 0) / ptv * 100]).sort((a, b) => b[1] - a[1]);
+      if (moves.length && moves[0][1] > 3) groups.warning.push(`<b><span class="linkish" data-reason="${esc(moves[0][0])}">${esc(moves[0][0])}</span> rising</b> <span class="m">— +${moves[0][1].toFixed(1)}pp of the mix vs ${CMP}.</span>`);
+      const fall = moves[moves.length - 1];
+      if (fall && fall[1] < -3) groups.good.push(`<b>${esc(fall[0])} falling</b> <span class="m">— ${fall[1].toFixed(1)}pp of the mix vs ${CMP}.</span>`);
+    }
+  }
+  const pt = productTotals(cur).filter(p => p.k !== "(no product)");
+  if (pt.length && !state.product) {
+    const t10 = pt.slice(0, 10).reduce((a, p) => a + p.v, 0);
+    groups.critical.push(`<b><span class="linkish" data-product="${esc(pt[0].k)}">${esc(pn(pt[0].k))}</span></b> <span class="m">— ${fmtV(pt[0].v)} (${pct(pt[0].v, v)}%), mostly ${esc(pt[0].top ? pt[0].top[0] : "—")}. Top 10 products = ${pct(t10, v)}%.</span>`);
+  }
+  const tagged = cur.filter(r => r.tag), full = tagged.filter(r => r.tag === "100%");
+  const pfShare = prev ? pct(prev.filter(r => r.tag === "100%").length, prev.filter(r => r.tag).length) : null;
+  const fShare = pct(full.length, tagged.length);
+  const LEGIT_FULL = ["Cancelled", "Out of stock", "Not received", "Chargeback", "Wrong / missing item", "Damaged"];
+  const com = full.filter(r => !r.reasons.some(x => LEGIT_FULL.includes(x)));
+  const comShare = pct(com.length, tagged.filter(r => !r.reasons.some(x => LEGIT_FULL.includes(x))).length);
+  (comShare >= 25 ? groups.critical : groups.warning).push(`<b>${fShare}% were full refunds</b> <span class="m">— ${fmtE(full.reduce((a, r) => a + r.cost, 0))}${pfShare != null ? ` (${pfShare}% before)` : ""}; leaving out cancellations, stock-outs and our own errors, ${comShare}% of change-of-mind refunds still went to 100%.</span>`);
+  const off = tagged.filter(r => r.off);
+  if (off.length) {
+    const ot = {}; for (const r of off) ot[r.tag] = (ot[r.tag] || 0) + 1;
+    const topOff = Object.entries(ot).sort((a, b) => b[1] - a[1]).slice(0, 2).map(e => e[0]).join(", ");
+    (pct(off.length, tagged.length) > 10 ? groups.critical : groups.warning).push(`<b>${pct(off.length, tagged.length)}% off-ladder</b> <span class="m">— ${off.length.toLocaleString()} offers not on their funnel's steps (mostly ${topOff}); <span class="linkish" data-off="1">show them</span>.</span>`);
+  } else if (tagged.length) groups.good.push(`<b>Every offer is on its funnel's ladder</b> <span class="m">in this view.</span>`);
+  const sf = cur.filter(r => r.reasons.some(x => SUPPLIER_FAULT.includes(x)));
+  if (sf.length) {
+    const claimed = sf.filter(r => r.sup).length;
+    groups.critical.push(`<b>${fmtE(sf.reduce((a, r) => a + r.cost, 0))} on supplier-fault refunds</b> <span class="m">(damaged, wrong item, quality) — a supplier refund was requested on only ${claimed} of ${sf.length.toLocaleString()}.</span>`);
+  }
+  const ag = {};
+  for (const r of cur) if (r.agent && r.sp != null) { const o = ag[r.agent] = ag[r.agent] || { n: 0, s: 0 }; o.n++; o.s += r.sp; }
+  const agl = Object.entries(ag).filter(([, o]) => o.n >= 20).map(([a, o]) => [a, o.s / o.n]).sort((a, b) => b[1] - a[1]);
+  if (agl.length > 1 && !state.agent) {
+    const avgAll = avgSp(cur);
+    groups.warning.push(`<b><span class="linkish" data-agent="${esc(agl[0][0])}">${esc(agl[0][0])}</span> gives the most back</b> <span class="m">— ${agl[0][1].toFixed(0)}% average vs ${avgAll.toFixed(0)}% overall; ${esc(agl[agl.length - 1][0])} the least at ${agl[agl.length - 1][1].toFixed(0)}%.</span>`);
+  }
+  const nr = cur.filter(r => DQ["No reason given"].test(r));
+  if (pct(nr.length, cur.length) >= 10) groups.warning.push(`<b>${pct(nr.length, cur.length)}% have no usable reason</b> <span class="m">— <span class="linkish" data-dq="No reason given">show them</span>; they can't be traced to a fix.</span>`);
+  const na = cur.filter(r => !r.agent);
+  if (pct(na.length, cur.length) >= 20) groups.warning.push(`<b>${pct(na.length, cur.length)}% have no agent</b> <span class="m">— <span class="linkish" data-dq="No agent">show them</span>; agent coaching can't use these rows. Newest row with an agent: ${cur.filter(r => r.agent).map(r => r.day).sort().pop() || "none in view"}.</span>`);
+  const cb = cur.filter(r => r.cb);
+  if (cb.length) groups.warning.push(`<b>Chargebacks: ${fmtE(cb.reduce((a, r) => a + r.cost, 0))}</b> <span class="m">— ${cb.length} refunds tied to a dispute or alert.</span>`);
+
+  const head = { critical: ["Watch", "var(--critical)"], warning: ["Notable", "var(--warning)"], good: ["Improving", "var(--good)"] };
+  const el = document.getElementById("insights");
+  el.innerHTML = Object.entries(groups).filter(([, l]) => l.length).map(([g, l]) => `<div><div class="ghead"><span class="gdot" style="background:${head[g][1]}"></span>${head[g][0]}</div><ul class="insight-list">${l.map(x => `<li>${x}</li>`).join("")}</ul></div>`).join("");
+  el.querySelectorAll("[data-reason]").forEach(a => a.onclick = () => { state.reason = a.dataset.reason; render(); });
+  el.querySelectorAll("[data-product]").forEach(a => a.onclick = () => { state.product = a.dataset.product; render(); });
+  el.querySelectorAll("[data-agent]").forEach(a => a.onclick = () => { state.agent = a.dataset.agent; render(); });
+  el.querySelectorAll("[data-off]").forEach(a => a.onclick = () => { state.offladder = true; render(); });
+  el.querySelectorAll("[data-dq]").forEach(a => a.onclick = () => { state.dq = a.dataset.dq; render(); });
+}
+
+function renderProducts(rows) {
+  const pt = productTotals(rows).slice(0, 15);
+  const el = document.getElementById("topProducts");
+  if (!pt.length) { el.innerHTML = `<div class="empty-note">Nothing in this view.</div>`; return; }
+  el.innerHTML = `<table class="data"><thead><tr><th>Product</th><th class="num">Refunds</th><th class="num">€</th><th class="num">Avg %</th><th>Top reason</th></tr></thead><tbody>` +
+    pt.map((p, i) => `<tr class="clickable ${state.product === p.k ? "on" : ""}" data-k="${esc(p.k)}"><td><span class="rank">${i + 1}</span> <span class="pname">${esc(pn(p.k).length > 58 ? pn(p.k).slice(0, 56) + "…" : pn(p.k))}</span></td><td class="num">${p.n}</td><td class="num">${fmtE(p.eur)}</td><td class="num">${p.sp.length ? (p.sp.reduce((a, b) => a + b, 0) / p.sp.length).toFixed(0) + "%" : "—"}</td><td>${p.top ? `<span class="tag">${esc(p.top[0])}</span>` : ""}</td></tr>`).join("") + `</tbody></table>`;
+  el.querySelectorAll("tr[data-k]").forEach(t => t.onclick = () => { const k = t.dataset.k; if (k === "(no product)") { state.dq = state.dq === "No product" ? null : "No product"; } else state.product = state.product === k ? null : k; render(); });
+}
+function barList(el, items, picked, onPick, fmt) {
+  const max = Math.max(1, ...items.map(i => i.v));
+  el.innerHTML = items.length ? `<div class="bars">` + items.map((i, n) => `<button class="barrow ${picked === i.k ? "on" : ""} ${i.dim ? "dim" : ""}" data-n="${n}" title="${esc(i.title || i.k)}"><span class="bl">${i.sw ? `<i style="display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;background:${i.sw}"></i>` : ""}${esc(i.label || i.k)}</span><span class="bt"><span class="bf" style="width:${i.v / max * 100}%;${i.color ? "background:" + i.color : ""}"></span></span><span class="bv">${(fmt || fmtV)(i.v)}${i.extra ? `<small>${i.extra}</small>` : ""}</span></button>`).join("") + `</div>` : `<div class="empty-note">Nothing in this view.</div>`;
+  el.querySelectorAll(".barrow").forEach(b => b.onclick = () => onPick(items[+b.dataset.n]));
+}
+function renderReasons(rows) {
+  const rt = reasonTotals(rows), tot = rt.reduce((a, e) => a + e[1], 0);
+  barList(document.getElementById("reasonBars"), rt.map(([k, v]) => ({ k, v, extra: pct(v, tot) + "%", sw: colorOf(k), color: colorOf(k) })), state.reason, i => { state.reason = state.reason === i.k ? null : i.k; render(); });
+}
+function renderFunnels(rows) {
+  const el = document.getElementById("funnels");
+  el.innerHTML = Object.keys(LADDERS).map(f => {
+    const fr = rows.filter(r => r.funnel === f);
+    return `<div class="funnel ${state.funnel === f ? "on" : ""}"><div class="fh" data-f="${f}"><b>${f}</b><span>${FUNNEL_WHEN[f]} · ${fr.length.toLocaleString()} refunds · avg ${avgSp(fr) != null ? avgSp(fr).toFixed(0) + "%" : "—"}</span></div><div data-bars="${f}"></div></div>`;
+  }).join("");
+  for (const f of Object.keys(LADDERS)) {
+    const fr = rows.filter(r => r.funnel === f), n = fr.length || 1;
+    const items = LADDERS[f].map(t => { const x = fr.filter(r => r.tag === t); return { k: t, label: t + (t === "100%" ? " (full)" : ""), v: x.length, extra: pct(x.length, n) + "% · " + fmtE(x.reduce((a, r) => a + r.cost, 0)) }; });
+    const off = fr.filter(r => r.off);
+    if (off.length) { const c = {}; off.forEach(r => c[r.tag] = (c[r.tag] || 0) + 1); items.push({ k: "__off", label: "Off-ladder", v: off.length, dim: true, color: "var(--critical)", extra: pct(off.length, n) + "% · " + fmtE(off.reduce((a, r) => a + r.cost, 0)), title: Object.entries(c).sort((a, b) => b[1] - a[1]).map(([t, k]) => t + ": " + k).join(" · ") }); }
+    const un = fr.filter(r => r.untagged).length;
+    if (un) items.push({ k: "__un", label: "No tag", v: un, dim: true, color: "var(--s0)", extra: pct(un, n) + "%" });
+    barList(el.querySelector(`[data-bars="${f}"]`), items, state.offladder && state.funnel === f ? "__off" : (state.funnel === f || state.funnel === "all") ? state.sol : null, i => {
+      if (i.k === "__off") { state.offladder = !(state.offladder && state.funnel === f); state.sol = null; state.funnel = state.offladder ? f : state.funnel; }
+      else if (i.k === "__un") { state.dq = state.dq === "No solution tag" ? null : "No solution tag"; state.funnel = f; }
+      else { const on = state.sol === i.k && state.funnel === f; state.sol = on ? null : i.k; state.offladder = false; state.funnel = on ? state.funnel : f; }
+      render();
+    }, v => v.toLocaleString());
+  }
+  el.querySelectorAll(".fh").forEach(h => h.onclick = () => { state.funnel = state.funnel === h.dataset.f ? "all" : h.dataset.f; render(); });
+}
+function renderAgents(rows) {
+  const m = {};
+  for (const r of rows) { const a = r.agent || "(no agent)"; const o = m[a] = m[a] || { n: 0, eur: 0, sp: [], full: 0, off: 0, tagged: 0 }; o.n++; o.eur += r.cost; if (r.sp != null) o.sp.push(r.sp); if (r.tag) { o.tagged++; if (r.tag === "100%") o.full++; if (r.off) o.off++; } }
+  const l = Object.entries(m).sort((a, b) => (state.metric === "eur" ? b[1].eur - a[1].eur : b[1].n - a[1].n));
+  const el = document.getElementById("agents");
+  el.innerHTML = l.length ? `<table class="data"><thead><tr><th>Agent</th><th class="num">Refunds</th><th class="num">€</th><th class="num">Avg %</th><th class="num">Full</th><th class="num">Off-ladder</th></tr></thead><tbody>` + l.map(([a, o]) => `<tr class="clickable ${state.agent === a ? "on" : ""}" data-a="${esc(a)}"><td class="pname">${esc(a)}</td><td class="num">${o.n.toLocaleString()}</td><td class="num">${fmtE(o.eur)}</td><td class="num">${o.sp.length ? (o.sp.reduce((x, y) => x + y, 0) / o.sp.length).toFixed(0) + "%" : "—"}</td><td class="num">${pct(o.full, o.tagged)}%</td><td class="num">${o.off ? `<span class="tag ${pct(o.off, o.tagged) > 10 ? "crit" : "warn"}">${pct(o.off, o.tagged)}%</span>` : "0%"}</td></tr>`).join("") + `</tbody></table>` : `<div class="empty-note">Nothing in this view.</div>`;
+  el.querySelectorAll("tr[data-a]").forEach(t => t.onclick = () => { state.agent = state.agent === t.dataset.a ? null : t.dataset.a; render(); });
+}
+function renderStores(rows) {
+  const m = {};
+  for (const r of rows) { const s = MAIN_STORES.includes(r.store) ? r.store : "Other"; const o = m[s] = m[s] || { n: 0, eur: 0, sp: [] }; o.n++; o.eur += r.cost; if (r.sp != null) o.sp.push(r.sp); }
+  const tot = Object.values(m).reduce((a, o) => a + (state.metric === "eur" ? o.eur : o.n), 0);
+  const items = Object.entries(m).map(([k, o]) => ({ k, v: state.metric === "eur" ? o.eur : o.n, extra: pct(state.metric === "eur" ? o.eur : o.n, tot) + "% · avg " + (o.sp.length ? (o.sp.reduce((a, b) => a + b, 0) / o.sp.length).toFixed(0) : "—") + "%", title: k === "Other" ? "Lume Haven, Miyora, Elm & Harbor, Auremi and rows with no store" : k })).sort((a, b) => b.v - a.v);
+  barList(document.getElementById("stores"), items, state.store, i => { state.store = state.store === i.k ? "all" : i.k; render(); });
+}
+function renderPareto(rows) {
+  const pt = productTotals(rows.filter(r => r.product)).map(p => ({ ...p, v: p.eur }));
+  const tot = pt.reduce((a, p) => a + p.v, 0);
+  const st = document.getElementById("paretoStats"), el = document.getElementById("paretoChart");
+  if (!pt.length) { st.innerHTML = ""; el.innerHTML = `<div class="empty-note">Nothing in this view.</div>`; return; }
+  let acc = 0, n50 = 0, n80 = 0;
+  pt.forEach((p, i) => { acc += p.v; p.cum = acc / tot; if (!n50 && p.cum >= 0.5) n50 = i + 1; if (!n80 && p.cum >= 0.8) n80 = i + 1; });
+  st.innerHTML = [["Products refunded", pt.length.toLocaleString(), "in this view"], ["50% of €", n50 + " products", pct(n50, pt.length) + "% of products"], ["80% of €", n80 + " products", pct(n80, pt.length) + "% of products"], ["Top product", fmtE(pt[0].v), pct(pt[0].v, tot) + "% of €"]].map(([l, v, s]) => `<div class="st"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("");
+  const show = pt.slice(0, 40);
+  const W = Math.max(el.clientWidth || 900, show.length * 20), H = 220, m = { l: 52, r: 36, t: 10, b: 12 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b, bw = iw / show.length;
+  const max = show[0].v, step = niceStep(max / 4), top = Math.ceil(max / step) * step;
+  let svg = `<svg width="${W}" height="${H}" role="img" aria-label="Pareto of refunded products">`;
+  for (let v = 0; v <= top; v += step) { const yy = m.t + ih - v / top * ih; svg += `<line class="gridline" x1="${m.l}" x2="${W - m.r}" y1="${yy}" y2="${yy}"/><text class="axis-label" x="${m.l - 6}" y="${yy + 3}" text-anchor="end">€${shortNum(v)}</text>`; }
+  show.forEach((p, i) => { const h = p.v / top * ih, x = m.l + i * bw + 1; svg += `<path d="${roundTop(x, m.t + ih - h, bw - 2, h, 3)}" fill="var(--s1)" opacity="${state.product && state.product !== p.k ? 0.35 : 1}"/>`; });
+  const pts = show.map((p, i) => `${m.l + i * bw + bw / 2},${m.t + ih - p.cum * ih}`).join(" ");
+  svg += `<polyline points="${pts}" fill="none" stroke="var(--s2)" stroke-width="2"/>`;
+  [0.5, 0.8].forEach(c => { const yy = m.t + ih - c * ih; svg += `<line x1="${m.l}" x2="${W - m.r}" y1="${yy}" y2="${yy}" stroke="var(--s2)" stroke-dasharray="3 4" opacity=".6"/><text class="axis-label" x="${W - m.r + 4}" y="${yy + 3}">${c * 100}%</text>`; });
+  show.forEach((p, i) => svg += `<rect class="hit" data-i="${i}" x="${m.l + i * bw}" y="${m.t}" width="${bw}" height="${ih}"/>`);
+  svg += `<line class="baseline" x1="${m.l}" x2="${W - m.r}" y1="${m.t + ih}" y2="${m.t + ih}"/></svg>`;
+  el.innerHTML = svg + `<p class="footnote" style="margin-top:6px">Bars: € per product (top 40) · line: running share of all € in view (right scale). Click a bar to filter to that product.</p>`;
+  el.querySelectorAll(".hit").forEach(h => { const p = show[+h.dataset.i]; h.onmousemove = e => showTip(e, `<div class="t-title">#${+h.dataset.i + 1} ${esc(pn(p.k))}</div><div class="t-row"><span>€ refunded</span><b>${fmtE(p.v)}</b></div><div class="t-row"><span>Refunds</span><b>${p.n}</b></div><div class="t-row"><span>Running share</span><b>${(p.cum * 100).toFixed(0)}%</b></div>`); h.onmouseleave = hideTip; h.onclick = () => { state.product = state.product === p.k ? null : p.k; hideTip(); render(); }; });
+}
+function renderRca(rows) {
+  const rt = reasonTotals(rows), tot = rt.reduce((a, e) => a + e[1], 0);
+  const el = document.getElementById("rca");
+  el.innerHTML = rt.slice(0, 9).map(([k, v]) => {
+    const rr = rows.filter(r => r.reasons.includes(k));
+    const prods = productTotals(rr).filter(p => p.k !== "(no product)").slice(0, 3);
+    const R = ROOT[k] || ROOT.Other;
+    return `<div class="rca-row ${state.reason === k ? "on" : ""}" data-r="${esc(k)}"><div class="rca-head"><span class="sym"><i style="display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;background:${colorOf(k)}"></i>${esc(k)}</span><span class="share">${pct(v, tot)}%</span><span class="meta">${fmtV(v)} · ${rr.length.toLocaleString()} refunds · avg ${avgSp(rr) != null ? avgSp(rr).toFixed(0) : "—"}% · owner: ${R.owner}</span></div><dl><dt>Where</dt><dd>${R.where}</dd><dt>Evidence</dt><dd>${prods.length ? "Top: " + prods.map(p => `<b>${esc(pn(p.k).split(" – ")[0])}</b> ${fmtV(p.v)}`).join(" · ") : "No product named."}</dd><dt>Fix</dt><dd>${R.fix}</dd></dl></div>`;
+  }).join("") || `<div class="empty-note">Nothing in this view.</div>`;
+  el.querySelectorAll(".rca-row").forEach(c => c.onclick = () => { state.reason = state.reason === c.dataset.r ? null : c.dataset.r; render(); });
+}
+function monthsIn(rows) { const d = rows.map(r => r.day).filter(Boolean).sort(); if (!d.length) return 1; return Math.max(1, (new Date(d[d.length - 1]) - new Date(d[0])) / (30.4 * 864e5)); }
+function renderPlan(rows) {
+  const months = monthsIn(rows);
+  const acts = [];
+  const eurOf = rs => rs.reduce((a, r) => a + r.cost, 0);
+  const byReason = {};
+  for (const r of rows) for (const x of r.reasons) (byReason[x] = byReason[x] || []).push(r);
+  const cut = { "Doesn't fit": .3, "Not as pictured": .3, "Quality": .4, "Damaged": .5, "Wrong / missing item": .6, "Out of stock": .5, "Not received": .3, "Delayed": .3, "Chargeback": .3 };
+  for (const [k, rs] of Object.entries(byReason)) {
+    if (!cut[k]) continue;
+    const e = rs.reduce((a, r) => a + r.cost / r.reasons.length, 0);
+    const prods = productTotals(rs).filter(p => p.k !== "(no product)").slice(0, 3).map(p => pn(p.k).split(" – ")[0]);
+    acts.push({ e, act: `<b>${esc(k)}</b> — ${ROOT[k].fix}${prods.length ? ` <span class="muted">Start with ${prods.map(esc).join(", ")}.</span>` : ""}`, owner: ROOT[k].owner, target: `cut ${cut[k] * 100}%`, save: e * cut[k] / months, reason: k });
+  }
+  const sf = rows.filter(r => r.reasons.some(x => SUPPLIER_FAULT.includes(x)));
+  const unclaimed = sf.filter(r => !r.sup);
+  if (unclaimed.length) acts.push({ e: eurOf(unclaimed), act: `<b>Claim supplier-fault refunds back</b> — ${unclaimed.length.toLocaleString()} damaged / wrong / quality refunds have no supplier refund request. Mark "WIIO/CJ refunded?" when claimed.`, owner: "Supplier ops", target: "claim 80%", save: eurOf(unclaimed) * 0.28 * 0.8 / months, note: "product cost ≈ 28% of price" });
+  const off = rows.filter(r => r.off);
+  if (off.length) acts.push({ e: eurOf(off), act: `<b>Put offers back on the ladder</b> — ${off.length.toLocaleString()} refunds used a % that is not a funnel step. Coach the agents with the highest off-ladder rate.`, owner: "CS lead", target: "< 5% off-ladder", save: eurOf(off) * 0.15 / months, off: true });
+  const early = rows.filter(r => r.tag === "100%" && !r.reasons.some(x => ["Cancelled", "Out of stock", "Not received", "Chargeback", "Wrong / missing item", "Damaged"].includes(x)));
+  if (early.length) acts.push({ e: eurOf(early), act: `<b>Fewer full refunds on change-of-mind</b> — ${early.length.toLocaleString()} refunds at 100% for fit, look or "not satisfied". Run the full ladder (swap → % / credit → return) first.`, owner: "CS", target: "halve", save: eurOf(early) * 0.5 * 0.4 / months, sol: "100%" });
+  acts.sort((a, b) => b.save - a.save);
+  const el = document.getElementById("plan");
+  el.innerHTML = acts.length ? `<table class="data"><thead><tr><th>#</th><th>Action</th><th>Owner</th><th class="num">€ in view</th><th>Target</th><th class="num">≈ saving / month</th></tr></thead><tbody>` + acts.map((a, i) => `<tr class="clickable" data-i="${i}"><td><span class="prio ${i < 2 ? "p1" : i < 4 ? "p2" : ""}">${i + 1}</span></td><td style="min-width:320px">${a.act}</td><td class="muted" style="white-space:nowrap">${a.owner}</td><td class="num">${fmtE(a.e)}</td><td style="white-space:nowrap">${a.target}</td><td class="num"><b>${fmtE(a.save)}</b>${a.note ? `<div class="muted" style="font-size:10.5px">${a.note}</div>` : ""}</td></tr>`).join("") + `</tbody></table>` : `<div class="empty-note">Nothing actionable in this view.</div>`;
+  el.querySelectorAll("tr[data-i]").forEach(t => t.onclick = () => { const a = acts[+t.dataset.i]; if (a.reason) state.reason = a.reason; if (a.off) state.offladder = true; if (a.sol) state.sol = a.sol; render(); });
+  void months;
+}
+function renderDq(rows) {
+  const items = Object.keys(DQ).map(k => { const x = rows.filter(DQ[k].test); return { k, v: x.length, extra: pct(x.length, rows.length) + "% · " + fmtE(x.reduce((a, r) => a + r.cost, 0)) }; }).filter(i => i.v);
+  barList(document.getElementById("dq"), items, state.dq, i => { state.dq = state.dq === i.k ? null : i.k; render(); }, v => v.toLocaleString());
+}
+
+// ---------- product search ----------
+function wireSearch() {
+  const inp = document.getElementById("productInput"), list = document.getElementById("productList");
+  const draw = () => {
+    const q = inp.value.toLowerCase().trim();
+    const pt = productTotals(inPeriod(base("product"), state.gran === "all" ? null : state.period)).filter(p => p.k !== "(no product)" && (!q || pn(p.k).toLowerCase().includes(q))).slice(0, 60);
+    list.innerHTML = pt.map(p => `<div class="combo-item" data-k="${esc(p.k)}"><span class="nm">${esc(pn(p.k))}</span><span class="cnt">${fmtV(p.v)}</span></div>`).join("") || `<div class="combo-item"><span class="nm muted">No match in this view</span></div>`;
+    list.classList.add("open");
+    list.querySelectorAll("[data-k]").forEach(i => i.onmousedown = () => { state.product = i.dataset.k; inp.value = ""; list.classList.remove("open"); render(); });
+  };
+  inp.oninput = draw; inp.onfocus = draw; inp.onblur = () => setTimeout(() => list.classList.remove("open"), 150);
+}
+
+let booted = false;
+function boot() {
+  if (booted) return; booted = true;
+  wireSearch();
+  document.getElementById("noCb").onchange = e => { state.noCb = e.target.checked; render(); };
+  document.getElementById("clearAll").onclick = () => { Object.assign(state, { store: "all", funnel: "all", product: null, reason: null, agent: null, sol: null, offladder: false, dq: null, noCb: false }); render(); };
+  document.getElementById("refreshBtn").onclick = async e => { e.target.disabled = true; await load(true); e.target.disabled = false; };
+  let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => ALL.length && render(), 200); });
+  setInterval(() => ALL.length && renderAge(), 60000);
+  load(false);
+}
+</script>
+</body>
+</html>
