@@ -511,6 +511,8 @@
     box-shadow:0 20px 44px -28px var(--shadow); transition:transform .25s ease;
   }
   .demo-shot:hover{ transform:translateY(-3px); }
+  .demo-card-flip{ grid-template-columns:1.15fr 1fr; }
+  @media (max-width:900px){ .demo-card-flip{ grid-template-columns:1fr; } .demo-card-flip .demo-shot{ order:2; } }
   .demo-shot img{ display:block; width:100%; height:auto; }
   .case-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:24px; }
   @media (max-width:900px){ .case-grid{ grid-template-columns:1fr; } }
@@ -1289,7 +1291,7 @@
       <div class="section-head">
         <p class="eyebrow">Selected Work</p>
         <h2>What the AI actually does.</h2>
-        <p>Four builds across e-commerce logistics, insurance, compliance and retail. Client names are withheld under NDA, so here is the shape of each system &mdash; and one you can open and click.</p>
+        <p>Four builds across e-commerce logistics, insurance, compliance and retail. Client names are withheld under NDA, so here is the shape of each system &mdash; and two you can open and click.</p>
       </div>
 
       <div class="demo-card">
@@ -1306,6 +1308,22 @@
           <img src="/Demo-ShipmentTracker/preview.png" loading="lazy"
                alt="Shipment performance dashboard showing cycle-time KPIs, an order status table and per-market gear progress bars">
         </a>
+      </div>
+
+      <div class="demo-card demo-card-flip">
+        <a class="demo-shot" href="/Demo-QC/" aria-label="Open the QC board demo">
+          <img src="/Demo-QC/preview.png" loading="lazy"
+               alt="Quality-control board with a product open: listing photos beside each supplier's QC photos, an AI findings note, a supplier comparison table and a pass or fail decision bar">
+        </a>
+        <div>
+          <p class="eyebrow">Live demo</p>
+          <h3>A quality-control board for product sourcing.</h3>
+          <p>My redesign of the supplier QC workflow an e-commerce team runs once a product reaches five sales: listing photos beside each supplier's QC photos, size charts turned into a single call, cost of goods against target, AI-suggested questions for the supplier, and a pass or fail decision that moves the product along. Open a product, send the questions, pick a supplier and mark it done.</p>
+          <p class="demo-note">Generated sample data under a fictional brand. No product, supplier or person in it is real.</p>
+          <div class="cta-row" style="margin-top:22px">
+            <a class="btn btn-primary" href="/Demo-QC/">Open the demo &rarr;</a>
+          </div>
+        </div>
       </div>
 
       <div class="case-grid">
