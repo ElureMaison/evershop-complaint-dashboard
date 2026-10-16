@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<title>5+ Sales QC</title>
+<style>
+  .viz-root {
+    color-scheme: light;
+    --surface-1:#fcfcfb; --surface-2:#f3f2ee; --page:#f9f9f7;
+    --text-primary:#0b0b0b; --text-secondary:#52514e; --text-muted:#898781;
+    --grid:#e1e0d9; --baseline:#c3c2b7; --border:rgba(11,11,11,0.10);
+    --good:#0ca30c; --warning:#fab219; --serious:#ec835a; --critical:#d03b3b; --accent:#2a78d6;
+    --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s0:#b5b3aa;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) .viz-root {
+      color-scheme: dark;
+      --surface-1:#1a1a19; --surface-2:#232322; --page:#0d0d0d;
+      --text-primary:#ffffff; --text-secondary:#c3c2b7; --text-muted:#898781;
+      --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
+      --critical:#e66767; --accent:#3987e5;
+      --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s0:#5c5b56;
+    }
+  }
+  :root[data-theme="dark"] .viz-root {
+    color-scheme: dark;
+    --surface-1:#1a1a19; --surface-2:#232322; --page:#0d0d0d;
+    --text-primary:#ffffff; --text-secondary:#c3c2b7; --text-muted:#898781;
+    --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
+    --critical:#e66767; --accent:#3987e5;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s0:#5c5b56;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #0d0d0d; }
+  .viz-root { background: var(--page); color: var(--text-primary); font: 14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif; padding: 24px 24px 60px; min-height: 100vh; }
+  @media (max-width: 600px) { .viz-root { padding: 16px 16px 48px; } }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+  header.top { margin-bottom: 14px; }
+  header.top h1 { font-size: 22px; font-weight: 800; margin: 0 0 4px; letter-spacing: -0.01em; }
+  header.top p { margin: 0; color: var(--text-secondary); font-size: 13px; }
+  .top-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .refresh-block { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+  .refresh-btn { display: inline-flex; align-items: center; gap: 7px; font: inherit; font-size: 12.5px; font-weight: 700; background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; }
+  .refresh-btn:disabled { opacity: .6; cursor: default; }
+  .refresh-status { font-size: 11px; color: var(--text-muted); text-align: right; }
+  .build-tag { font-size: 10.5px; color: var(--text-muted); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
+
+  .agebar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; border-radius: 10px; padding: 9px 13px; margin-bottom: 14px; font-size: 12.5px; border: 1px solid var(--border); background: var(--surface-1); }
+  .agebar .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; background: var(--good); }
+  .agebar.amber { border-color: var(--warning); background: color-mix(in srgb, var(--warning) 12%, var(--surface-1)); }
+  .agebar.amber .dot { background: var(--warning); }
+  .agebar.red { border-color: var(--critical); background: color-mix(in srgb, var(--critical) 12%, var(--surface-1)); font-weight: 600; }
+  .agebar.red .dot { background: var(--critical); }
+  .agebar .m { color: var(--text-secondary); font-weight: 400; }
+
+  .filterbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; position: sticky; top: 8px; z-index: 10; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+  .filtergroup { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .flabel { font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); font-weight: 700; }
+  .pillrow { display: flex; gap: 3px; background: var(--surface-2); border-radius: 99px; padding: 3px; flex-wrap: wrap; }
+  .pill { border: none; background: transparent; color: var(--text-secondary); font: inherit; font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 99px; cursor: pointer; white-space: nowrap; }
+  .pill:hover { color: var(--text-primary); }
+  .pill.active { background: var(--accent); color: #fff; }
+  .periodsel { background: var(--surface-1); border: 1px solid var(--border); border-radius: 7px; padding: 5px 9px; font: inherit; font-size: 12.5px; color: var(--text-primary); max-width: 220px; }
+  .combo { position: relative; }
+  .combo input { font: inherit; font-size: 12.5px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text-primary); width: 220px; outline: none; }
+  .combo input:focus { border-color: var(--accent); }
+  .combo-list { position: absolute; top: calc(100% + 4px); left: 0; width: 340px; max-width: 86vw; max-height: 320px; overflow-y: auto; background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.18); z-index: 30; display: none; }
+  .combo-list.open { display: block; }
+  .combo-item { padding: 7px 11px; cursor: pointer; font-size: 12.5px; display: flex; justify-content: space-between; gap: 8px; }
+  .combo-item:hover { background: var(--surface-2); }
+  .combo-item .cnt { color: var(--text-muted); font-size: 11px; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+  .combo-item .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); cursor: pointer; user-select: none; }
+  .toggle input { accent-color: var(--accent); }
+  .chip { display: inline-flex; align-items: center; gap: 6px; background: var(--accent); color: #fff; font-size: 12px; font-weight: 600; padding: 4px 6px 4px 11px; border-radius: 99px; }
+  .chip button { background: rgba(255,255,255,.25); border: none; color: #fff; width: 16px; height: 16px; border-radius: 50%; cursor: pointer; font-size: 11px; line-height: 1; }
+  .clearall { font-size: 12px; color: var(--text-muted); background: none; border: none; cursor: pointer; text-decoration: underline; margin-left: auto; }
+
+  .kpis { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 16px; }
+  @media (max-width: 1080px) { .kpis { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 600px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
+  .kpi { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 12px 13px; cursor: pointer; text-align: left; font: inherit; color: inherit; }
+  .kpi:hover { border-color: var(--accent); }
+  .kpi.active { border-color: var(--accent); background: var(--surface-2); }
+  .kpi .label { font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); margin-bottom: 6px; }
+  .kpi .value { font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .kpi .sub { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+  .delta { font-weight: 700; }
+  .delta.bad { color: var(--critical); }
+  .delta.good { color: var(--good); }
+
+  .panel { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 18px 18px 14px; margin-bottom: 16px; min-width: 0; }
+  .panel h2 { font-size: 14px; font-weight: 700; margin: 0 0 2px; }
+  .panel .desc { font-size: 12px; color: var(--text-secondary); margin: 0 0 12px; }
+  .grid2 { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; }
+  .grid2 > .panel { margin-bottom: 16px; }
+  @media (max-width: 900px) { .grid2 { grid-template-columns: 1fr; } }
+  .scrollx { overflow-x: auto; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .legend button { display: inline-flex; align-items: center; gap: 5px; font: inherit; font-size: 11.5px; color: var(--text-secondary); background: var(--surface-2); border: 1px solid transparent; border-radius: 99px; padding: 4px 10px 4px 8px; cursor: pointer; }
+  .legend button.active { border-color: var(--text-primary); color: var(--text-primary); font-weight: 700; }
+  .legend i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+  svg { display: block; overflow: visible; font-family: inherit; }
+  .axis-label { fill: var(--text-muted); font-size: 10px; }
+  .gridline { stroke: var(--grid); stroke-width: 1; }
+  .baseline { stroke: var(--baseline); stroke-width: 1; }
+  .hit { fill: transparent; cursor: pointer; }
+  .hit:hover { fill: var(--text-primary); fill-opacity: .04; }
+
+  .tooltip { position: fixed; pointer-events: none; z-index: 50; background: var(--text-primary); color: var(--surface-1); font-size: 11.5px; line-height: 1.5; padding: 8px 10px; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.25); opacity: 0; transform: translate(-50%, calc(-100% - 10px)); max-width: 280px; }
+  .tooltip.show { opacity: 1; }
+  .tooltip .t-title { font-weight: 700; margin-bottom: 4px; }
+  .tooltip .t-row { display: flex; justify-content: space-between; gap: 12px; white-space: nowrap; }
+  .tooltip .sw { width: 7px; height: 7px; border-radius: 2px; display: inline-block; margin-right: 5px; }
+
+  .bars { display: flex; flex-direction: column; gap: 4px; }
+  .barrow { display: grid; grid-template-columns: minmax(90px, 38%) 1fr auto; align-items: center; gap: 10px; padding: 4px 6px; border-radius: 7px; cursor: pointer; border: 1px solid transparent; background: none; font: inherit; color: inherit; text-align: left; width: 100%; }
+  .barrow:hover { background: var(--surface-2); }
+  .barrow.on { border-color: var(--accent); background: var(--surface-2); }
+  .barrow.dim { opacity: .55; }
+  .barrow .bl { font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .barrow .bt { display: block; height: 10px; background: var(--surface-2); border-radius: 4px; overflow: hidden; }
+  .barrow .bf { display: block; height: 100%; border-radius: 4px; background: var(--accent); }
+  .barrow .bv { font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .barrow .bv small { color: var(--text-muted); margin-left: 6px; }
+
+  table.data { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  table.data th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: .03em; color: var(--text-muted); font-weight: 600; padding: 0 8px 8px; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  table.data th.num, table.data td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.data td { padding: 7px 8px; border-bottom: 1px solid var(--grid); vertical-align: middle; }
+  table.data tr:last-child td { border-bottom: none; }
+  table.data tr.clickable { cursor: pointer; }
+  table.data tr.clickable:hover { background: var(--surface-2); }
+  table.data tr.on { background: var(--surface-2); box-shadow: inset 3px 0 0 var(--accent); }
+  .rank { color: var(--text-muted); width: 18px; display: inline-block; font-variant-numeric: tabular-nums; }
+  .pname { font-weight: 600; }
+  .muted { color: var(--text-muted); }
+  .tag { display: inline-block; padding: 1px 7px; border-radius: 99px; font-size: 10.5px; font-weight: 600; background: var(--surface-2); color: var(--text-secondary); border: 1px solid var(--border); white-space: nowrap; }
+  .tag.warn { border-color: var(--warning); }
+  .tag.crit { border-color: var(--critical); color: var(--critical); }
+  .empty-note { color: var(--text-muted); font-size: 12.5px; padding: 20px 4px; text-align: center; }
+  .footnote { font-size: 11.5px; color: var(--text-muted); line-height: 1.6; }
+  .footnote b { color: var(--text-secondary); }
+
+  .funnels { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 12px; }
+  .funnel { border: 1px solid var(--border); border-radius: 10px; padding: 12px; background: var(--surface-2); }
+  .funnel.on { border-color: var(--accent); }
+  .funnel .fh { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; cursor: pointer; }
+  .funnel .fh { flex-wrap: wrap; }
+  .funnel .fh b { font-size: 13px; white-space: nowrap; }
+  .funnel .barrow { grid-template-columns: 84px 1fr auto; padding: 3px 4px; }
+  .funnel .fh span { font-size: 11px; color: var(--text-muted); }
+  .funnel .barrow:hover, .funnel .barrow.on { background: var(--surface-1); }
+
+  .statstrip { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .statstrip .st { flex: 1; min-width: 140px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 9px; padding: 10px 12px; }
+  .statstrip .l { font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; }
+  .statstrip .v { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .statstrip .s { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+  .rca { display: grid; gap: 10px; }
+  .rca-row { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; background: var(--surface-2); cursor: pointer; }
+  .rca-row:hover, .rca-row.on { border-color: var(--accent); }
+  .rca-head { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; margin-bottom: 7px; }
+  .rca-head .sym { font-weight: 800; font-size: 13px; }
+  .rca-head .share { font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 99px; border: 1px solid var(--border); background: var(--surface-1); }
+  .rca-head .meta { font-size: 11px; color: var(--text-muted); }
+  .rca-row dl { margin: 0; display: grid; grid-template-columns: 96px 1fr; gap: 3px 12px; font-size: 12.5px; line-height: 1.55; }
+  .rca-row dt { color: var(--text-muted); font-size: 10px; text-transform: uppercase; letter-spacing: .04em; font-weight: 700; padding-top: 3px; }
+  .rca-row dd { margin: 0; color: var(--text-secondary); }
+  .rca-row dd b { color: var(--text-primary); }
+  @media (max-width: 600px) { .rca-row dl { grid-template-columns: 1fr; } }
+  .prio { display: inline-block; min-width: 20px; text-align: center; font-weight: 800; font-size: 11px; border-radius: 5px; padding: 1px 6px; border: 1px solid var(--border); background: var(--surface-2); }
+  .prio.p1 { border-color: var(--critical); color: var(--critical); }
+  .prio.p2 { border-color: var(--warning); }
+
+  .insight-groups { display: grid; gap: 14px; }
+  .ghead { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .03em; margin-bottom: 8px; }
+  .ghead .gdot { width: 9px; height: 9px; border-radius: 50%; }
+  ul.insight-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  ul.insight-list li { position: relative; padding-left: 18px; font-size: 13px; line-height: 1.5; }
+  ul.insight-list li::before { content: ""; position: absolute; left: 0; top: 7px; width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); }
+  ul.insight-list li .m { color: var(--text-secondary); }
+  .linkish { color: var(--accent); cursor: pointer; text-decoration: underline; text-decoration-style: dotted; }
+
+  #eg-gate { position: fixed; inset: 0; background: #0d0d0d; color: #fff; display: flex; align-items: center; justify-content: center; z-index: 1000; font-family: system-ui,-apple-system,"Segoe UI",sans-serif; padding: 16px; }
+  #eg-gate form { display: flex; flex-direction: column; gap: 12px; width: 280px; max-width: 100%; }
+  #eg-gate .eg-title { font-size: 15px; font-weight: 700; text-align: center; }
+  #eg-gate .eg-sub { font-size: 12px; color: #9a9a97; text-align: center; }
+  #eg-gate input { padding: 10px 12px; border-radius: 8px; border: 1px solid #444; background: #1a1a19; color: #fff; font-size: 14px; font-family: inherit; }
+  #eg-gate button { padding: 10px 12px; border-radius: 8px; border: none; background: #2a78d6; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  #eg-gate .eg-error { color: #e66767; font-size: 12.5px; min-height: 16px; text-align: center; }
+</style>
+<style>
+  .stage-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 14px; }
+  @media (max-width: 800px) { .stage-row { grid-template-columns: repeat(2, 1fr); } }
+  .stage { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; background: var(--surface-2); cursor: pointer; text-align: left; font: inherit; color: inherit; position: relative; }
+  .stage:hover, .stage.on { border-color: var(--accent); }
+  .stage .n { font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .stage .l { font-size: 11.5px; font-weight: 700; }
+  .stage .s { font-size: 11px; color: var(--text-muted); }
+  .matrix td.cell { text-align: right; font-variant-numeric: tabular-nums; }
+  .heat { display: inline-block; min-width: 46px; padding: 2px 6px; border-radius: 5px; text-align: right; }
+  .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 600px) { .vs { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div id="eg-gate">
+  <form id="eg-gate-form">
+    <div class="eg-title">Evershop — 5+ Sales QC</div>
+    <div class="eg-sub">Enter the password to view</div>
+    <input type="password" id="eg-gate-input" placeholder="Password" autocomplete="off" autofocus>
+    <button type="submit">View dashboard</button>
+    <div class="eg-error" id="eg-gate-error"></div>
+  </form>
+</div>
+
+<div id="eg-content" style="display:none">
+<div class="viz-root">
+<div class="wrap">
+  <header class="top">
+    <div class="top-row">
+      <div>
+        <h1>5+ Sales QC — Evershop</h1>
+        <p>Every product that reached 5 sales and went through supplier QC (WIIO, CJ) · joined to its refunds</p>
+      </div>
+      <div class="refresh-block">
+        <button class="refresh-btn" id="refreshBtn">⟳ Refresh data</button>
+        <div class="refresh-status" id="refreshStatus">Loading…</div>
+        <span class="build-tag" title="Which version of this page your browser loaded. If it is older than you expect, hard-refresh (Cmd+Shift+R).">build 2026-10-16a</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="agebar" id="ageBar"><span class="dot"></span><span id="ageText">Loading data…</span></div>
+
+  <div class="filterbar">
+    <div class="filtergroup">
+      <span class="flabel">Entered QC</span>
+      <div class="pillrow" id="granPills"></div>
+      <select id="periodSelect" class="periodsel" aria-label="Period"></select>
+    </div>
+    <div class="filtergroup">
+      <span class="flabel">Store</span>
+      <div class="pillrow" id="storePills"></div>
+    </div>
+    <div class="filtergroup">
+      <span class="flabel">Supplier</span>
+      <div class="pillrow" id="supPills"></div>
+    </div>
+    <div class="filtergroup">
+      <span class="flabel">Product</span>
+      <div class="combo">
+        <input type="text" id="productInput" placeholder="Search products…" autocomplete="off">
+        <div class="combo-list" id="productList"></div>
+      </div>
+    </div>
+    <div id="activeChips" style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;"></div>
+    <button class="clearall" id="clearAll">Clear all filters</button>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="panel">
+    <h2>Pipeline now</h2>
+    <p class="desc">Where every product sits today. Click a stage to filter to it; the table lists the open ones waiting longest.</p>
+    <div class="stage-row" id="stages"></div>
+    <div id="stuck" class="scrollx"></div>
+  </div>
+
+  <div class="panel">
+    <h2 id="trendTitle">Products entering QC</h2>
+    <p class="desc">By the date a product hit 5 sales, stacked by what QC concluded. Click a bar to select that period, or a legend chip to isolate an outcome.</p>
+    <div class="legend" id="trendLegend"></div>
+    <div id="trendChart" class="scrollx"></div>
+    <p class="footnote" id="trendFoot" style="margin-top:8px"></p>
+  </div>
+
+  <div class="panel">
+    <h2>Key insights</h2>
+    <p class="desc">Recalculated for the filters above.</p>
+    <div class="insight-groups" id="insights"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h2>What QC changed</h2>
+      <p class="desc">Edits made to the listing after QC, share of finished products. Click to filter.</p>
+      <div id="acts"></div>
+    </div>
+    <div class="panel">
+      <h2>Defects found</h2>
+      <p class="desc">From the AI QC reports on supplier photos and charts. Click to filter.</p>
+      <div id="defects"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>WIIO vs CJ</h2>
+    <p class="desc">Each supplier's QC report on the same products: how often each check failed, how fast they answer, what they charge. Click a supplier to filter.</p>
+    <div id="suppliers" class="scrollx"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Did QC cut refunds?</h2>
+    <p class="desc" id="impactDesc">Each product against itself: refunds in its first 30 days after entering QC vs per 30 days in months 2–3, once QC edits have landed. Products 90+ days past QC, matched to the 💸 Refunds log.</p>
+    <div class="statstrip" id="impactStats"></div>
+    <div class="grid2" style="margin-top:4px">
+      <div><p class="desc" style="margin-bottom:6px">Months 2–3 refunds per 30 days, by what QC changed (month 1 alongside)</p><div id="impactByAct"></div></div>
+      <div><p class="desc" style="margin-bottom:6px">Months 2–3 refunds per 30 days, by supplier</p><div id="impactBySup"></div></div>
+    </div>
+    <h2 style="margin-top:16px">Still refunding after QC</h2>
+    <p class="desc">Ranked by € refunded since the QC date. Click a row to filter to that product.</p>
+    <div id="stillRefunding" class="scrollx"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h2>By category</h2>
+      <p class="desc">Share of finished products that needed edits. Click to filter.</p>
+      <div id="cats"></div>
+    </div>
+    <div class="panel">
+      <h2>Data quality</h2>
+      <p class="desc">Gaps that weaken the numbers. Click to filter.</p>
+      <div id="dq"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Root-cause analysis</h2>
+    <p class="desc">Each kind of QC finding traced to where it comes from. Shares follow the filters. Click a card to filter.</p>
+    <div class="rca" id="rca"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Action plan</h2>
+    <p class="desc">Ordered by impact in the current view.</p>
+    <div id="plan" class="scrollx"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Notes on this data</h2>
+    <p class="footnote">
+      <b>Source:</b> the 5+ Sales QC board (qualitycontrol-xi), read through its own API from a signed-in browser — the list plus each product's detail page. The board itself is the Notion "5+ sales quality control" database.<br>
+      <b>Entered QC</b> is the board's date: the day a product reached 5 sales with live ad traffic. <b>Outcomes</b> for finished products: <i>Passed clean</i> (no edits), <i>Fixed</i> (listing edited after QC), <i>Pulled / failed</i> (discontinued, QC decision Failed, or the supplier could not source it).<br>
+      <b>Checks</b> come from the AI QC reports run on each supplier's photos and size charts: material, images, functionality and size chart are each <i>ok</i>, <i>mismatch</i> or <i>unknown</i>; the ✗ rates count ok vs mismatch only. A report's verdict is pass, warn or fail.<br>
+      <b>Supplier</b> is the board's supplier field, else the supplier QC was run against, else the Notion product board (29 Sep copy).<br>
+      <b>Refund impact</b> matches products to the 💸 Refunds log by name (exact, then same brand with most words shared). The QC date is the 5th sale, so there are almost no refunds before it; each product is compared with itself instead — first 30 days after QC vs months 2–3. Sales volume also changes over that time and is not available here, so read these as counts, not refund rates.<br>
+      <b>Privacy:</b> no customer data — product, supplier and QC results only.
+    </p>
+  </div>
+</div>
+</div>
+</div>
+<div class="tooltip" id="tip"></div>
+
+<script>
+const GATE_HASH = "b7aebf85a01d1dff295df2595fc4e138e467cbcd83a4ab5e6119691ad1fb8564";
+async function sha256(t) { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); }
+function ss(k, v) { try { if (v === undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); } catch (e) { return null; } }
+function unlock() { document.getElementById("eg-gate").style.display = "none"; document.getElementById("eg-content").style.display = ""; boot(); }
+document.getElementById("eg-gate-form").addEventListener("submit", async e => {
+  e.preventDefault(); const pw = document.getElementById("eg-gate-input").value;
+  if (await sha256(pw) === GATE_HASH) { ss("eg-unlocked", "1"); ss("eg-pw", pw); unlock(); } else document.getElementById("eg-gate-error").textContent = "Wrong password";
+});
+if (ss("eg-unlocked") === "1") unlock();
+
+const STAGES = [["Not started", "Supplier does QC"], ["In progress", "We review QC"], ["Check updates", "Supplier replies and edits"], ["Final updates", "Final updates"], ["Done", "Done"]];
+const STAGE_LABEL = Object.fromEntries(STAGES);
+const OUTCOMES = ["Passed clean", "Fixed", "Pulled / failed", "Open"];
+const OCOLOR = { "Passed clean": "var(--s3)", "Fixed": "var(--s1)", "Pulled / failed": "var(--s2)", "Open": "var(--s0)" };
+const CHECKS = ["Material", "Images", "Functionality", "Size chart"];
+const ROOT = {
+  "Size chart": { where: "Our listing's chart vs the supplier's measured chart (often a CN size system).", fix: "Convert from the supplier's measured chart at listing time, not after 5 sales; flag CN sizing on the listing.", owner: "Listings" },
+  "Images": { where: "Listing photos show a different or idealised product.", fix: "Use supplier QC photos as the reference before launch; replace images that don't match.", owner: "Listings" },
+  "Functionality": { where: "Features promised (pockets, hood, closures) the factory version doesn't have.", fix: "Ask the supplier about every promised feature before launch; remove claims that fail.", owner: "Listings + sourcing" },
+  "Material": { where: "Fabric claim on the listing doesn't match the supplier's composition.", fix: "Copy composition from the supplier spec (e.g. 100% polyester), never from the competitor listing.", owner: "Listings" },
+  "Pulled / failed": { where: "Supplier sends a different product, can't source it, or quality is too low.", fix: "Re-QC with a 1688 reference, switch supplier, or pull the product before more orders ship.", owner: "Sourcing" },
+  "Open": { where: "Waiting on the supplier or on us.", fix: "Chase anything older than 7 days; the stuck table lists them.", owner: "QC team" },
+};
+
+const state = { gran: "all", period: null, store: "all", sup: "all", stage: null, outcome: null, act: null, defect: null, cat: null, product: null, dq: null, check: null };
+let RAW = null, ALL = [];
+
+async function load() {
+  const st = document.getElementById("refreshStatus"); st.textContent = "Loading…";
+  try { const r = await fetch("data.json?cb=" + Date.now(), { cache: "no-store" }); if (!r.ok) throw new Error("HTTP " + r.status); RAW = await r.json(); }
+  catch (e) { st.textContent = "Could not load data (" + e.message + ")"; return; }
+  ALL = RAW.products.map(p => {
+    const acts = (p.acts || []).filter(Boolean);
+    const failed = acts.includes("Discontinued") || p.dec === "Failed" || p.reqc === "Cannot source";
+    const outcome = p.st !== "Done" ? "Open" : failed ? "Pulled / failed" : acts.length ? "Fixed" : "Passed clean";
+    const defects = [...new Set((p.reports || []).flatMap(r => r.defects || []).map(d => d.toLowerCase().trim()).filter(Boolean))];
+    const age = p.date ? Math.floor((Date.now() - new Date(p.date + "T00:00:00Z")) / 864e5) : null;
+    return { ...p, acts, outcome, defects, age, sup: p.sup || "Unknown", store: (p.stores || []).join(" + ") || "Unknown" };
+  });
+  st.textContent = "QC board snapshot · " + ALL.length.toLocaleString() + " products";
+  render();
+}
+
+// ---- periods ----
+function isoWeekStart(day) { const d = new Date(day + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() - (d.getUTCDay() + 6) % 7); return d.toISOString().slice(0, 10); }
+function bucket(day, g) { if (!day) return null; if (g === "week") return isoWeekStart(day); if (g === "month") return day.slice(0, 7); if (g === "quarter") return day.slice(0, 4) + "-Q" + (Math.floor((+day.slice(5, 7) - 1) / 3) + 1); if (g === "year") return day.slice(0, 4); return "all"; }
+const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+function label(k, g, short) { if (g === "week") { const d = new Date(k + "T00:00:00Z"); return (short ? "" : "Week of ") + d.getUTCDate() + " " + MON[d.getUTCMonth()]; } if (g === "month") return MON[+k.slice(5, 7) - 1] + (short ? " '" + k.slice(2, 4) : " " + k.slice(0, 4)); if (g === "quarter") return k.slice(5) + " " + (short ? "'" + k.slice(2, 4) : k.slice(0, 4)); return k; }
+function allKeys(g) { const days = ALL.map(p => p.date).filter(Boolean).sort(); if (!days.length) return []; const ks = []; const d = new Date(days[0] + "T00:00:00Z"); const end = days[days.length - 1]; while (d.toISOString().slice(0, 10) <= end) { const k = bucket(d.toISOString().slice(0, 10), g); if (ks[ks.length - 1] !== k) ks.push(k); d.setUTCDate(d.getUTCDate() + 1); } return ks; }
+function partial(k, g) { return bucket(new Date().toISOString().slice(0, 10), g) === k; }
+
+// ---- filtering ----
+const DQ = {
+  "No QC date": p => !p.date,
+  "Supplier unknown": p => p.sup === "Unknown",
+  "No AI QC report": p => !(p.reports || []).length,
+  "No refunds matched": p => !p.rf,
+  "Flagged": p => p.flag,
+  "Not ready": p => p.ready === false,
+};
+function base(except) {
+  return ALL.filter(p =>
+    (except === "store" || state.store === "all" || (p.stores || []).includes(state.store)) &&
+    (except === "sup" || state.sup === "all" || p.sup === state.sup) &&
+    (except === "stage" || !state.stage || p.st === state.stage) &&
+    (except === "outcome" || !state.outcome || p.outcome === state.outcome) &&
+    (except === "act" || !state.act || p.acts.includes(state.act)) &&
+    (except === "defect" || !state.defect || p.defects.includes(state.defect)) &&
+    (except === "cat" || !state.cat || p.cat === state.cat) &&
+    (except === "product" || !state.product || p.id === state.product) &&
+    (except === "check" || !state.check || (p.reports || []).some(r => r[state.check] === "mismatch")) &&
+    (except === "dq" || !state.dq || DQ[state.dq](p)));
+}
+function inPeriod(rows, k) { if (state.gran === "all" || !k) return rows; return rows.filter(p => p.date && bucket(p.date, state.gran) === k); }
+const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+const fmtE = v => "€" + Math.round(v).toLocaleString("en-US");
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const med = a => { const s = a.filter(x => x != null).sort((x, y) => x - y); return s.length ? s[Math.floor(s.length / 2)] : null; };
+const short = (s, n) => s && s.length > n ? s.slice(0, n - 1) + "…" : s;
+
+function render() {
+  renderControls();
+  const k = state.gran === "all" ? null : state.period;
+  const cur = inPeriod(base(), k);
+  renderAge(); renderKpis(cur); renderStages(inPeriod(base("stage"), k)); renderTrend(); renderInsights(cur);
+  renderActs(inPeriod(base("act"), k)); renderDefects(inPeriod(base("defect"), k)); renderSuppliers(inPeriod(base("sup"), k));
+  renderImpact(cur); renderCats(inPeriod(base("cat"), k)); renderDq(inPeriod(base("dq"), k)); renderRca(cur); renderPlan(cur);
+}
+
+function renderControls() {
+  const gp = document.getElementById("granPills");
+  gp.innerHTML = [["all", "All"], ["week", "Week"], ["month", "Month"], ["quarter", "Quarter"]].map(([k, l]) => `<button class="pill ${state.gran === k ? "active" : ""}" data-g="${k}">${l}</button>`).join("");
+  gp.querySelectorAll("button").forEach(b => b.onclick = () => { state.gran = b.dataset.g; state.period = null; render(); });
+  const sel = document.getElementById("periodSelect");
+  sel.style.display = state.gran === "all" ? "none" : "";
+  if (state.gran !== "all") {
+    const ks = allKeys(state.gran); if (!state.period || !ks.includes(state.period)) state.period = ks[ks.length - 1];
+    sel.innerHTML = ks.slice().reverse().map(k => `<option value="${k}" ${k === state.period ? "selected" : ""}>${label(k, state.gran)}${partial(k, state.gran) ? " (so far)" : ""}</option>`).join("");
+    sel.onchange = () => { state.period = sel.value; render(); };
+  }
+  const pills = (id, key, vals, lab) => { const el = document.getElementById(id); el.innerHTML = vals.map(v => `<button class="pill ${state[key] === v ? "active" : ""}" data-v="${esc(v)}">${esc(lab ? lab(v) : v)}</button>`).join(""); el.querySelectorAll("button").forEach(b => b.onclick = () => { state[key] = b.dataset.v; render(); }); };
+  pills("storePills", "store", ["all", "Clarendale", "Lark & Clover"], v => v === "all" ? "All" : v);
+  pills("supPills", "sup", ["all", "WIIO", "CJ", "Unknown"], v => v === "all" ? "All" : v);
+  const chips = [];
+  if (state.stage) chips.push(["stage", "Stage: " + STAGE_LABEL[state.stage]]);
+  if (state.outcome) chips.push(["outcome", "Outcome: " + state.outcome]);
+  if (state.act) chips.push(["act", "Edited: " + state.act]);
+  if (state.defect) chips.push(["defect", "Defect: " + state.defect]);
+  if (state.check) chips.push(["check", "Failed check: " + state.check]);
+  if (state.cat) chips.push(["cat", "Category: " + state.cat]);
+  if (state.product) chips.push(["product", "Product: " + (ALL.find(p => p.id === state.product) || {}).name]);
+  if (state.dq) chips.push(["dq", "Gap: " + state.dq]);
+  const ac = document.getElementById("activeChips");
+  ac.innerHTML = chips.map(([k, l]) => `<span class="chip">${esc(short(l, 48))}<button data-k="${k}" aria-label="Remove">✕</button></span>`).join("");
+  ac.querySelectorAll("button").forEach(b => b.onclick = () => { state[b.dataset.k] = null; render(); });
+}
+
+function renderAge() {
+  const el = document.getElementById("ageBar"), tx = document.getElementById("ageText");
+  const s = RAW.synced ? new Date(RAW.synced) : null;
+  if (!s) { el.className = "agebar red"; tx.textContent = "Data age unknown."; return; }
+  const h = (Date.now() - s) / 36e5, ago = h < 1 ? Math.max(1, Math.round(h * 60)) + " min" : h < 48 ? Math.round(h) + " h" : Math.round(h / 24) + " days";
+  el.className = "agebar" + (h > 72 ? " red" : h > 30 ? " amber" : "");
+  const rs = RAW.refundsSynced ? new Date(RAW.refundsSynced).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "—";
+  tx.innerHTML = `<b>QC board snapshot, ${ago} old</b> <span class="m">· pulled ${s.toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })} · refunds as of ${rs}${h > 30 ? " · products moved on the board since then are not shown" : ""}</span>`;
+}
+
+// Refunds per 30 days: "b" = first month after entering QC, "a" = months 2-3.
+function rate(rf, side) { if (!rf || !rf.full) return null; return side === "b" ? rf.m1N : rf.m23N / 2; }
+function rateE(rf, side) { if (!rf || !rf.full) return null; return side === "b" ? rf.m1E : rf.m23E / 2; }
+const comparable = xs => xs.filter(p => p.rf && p.rf.full);
+
+function renderKpis(cur) {
+  const done = cur.filter(p => p.st === "Done"), open = cur.filter(p => p.st !== "Done");
+  const fixed = done.filter(p => p.outcome === "Fixed"), pulled = done.filter(p => p.outcome === "Pulled / failed");
+  const sc = done.filter(p => p.acts.includes("Size chart"));
+  const ai = cur.filter(p => p.ai), aiF = ai.filter(p => p.ai === "Fail");
+  const oldest = open.reduce((m, p) => Math.max(m, p.age || 0), 0);
+  const qh = med(cur.map(p => p.qHrs));
+  const m = comparable(cur);
+  const bR = m.reduce((a, p) => a + rate(p.rf, "b"), 0), aR = m.reduce((a, p) => a + rate(p.rf, "a"), 0);
+  const tiles = [
+    { l: "Products", v: cur.length.toLocaleString(), s: `${done.length.toLocaleString()} done · ${open.length} open`, act: false, click: () => { state.outcome = null; state.stage = null; } },
+    { l: "Needed edits", v: pct(fixed.length + pulled.length, done.length) + "%", s: `${fixed.length} fixed · ${pulled.length} pulled`, act: state.outcome === "Fixed", click: () => { state.outcome = state.outcome === "Fixed" ? null : "Fixed"; } },
+    { l: "Size chart edits", v: pct(sc.length, done.length) + "%", s: `${sc.length} of ${done.length} finished`, act: state.act === "Size chart", click: () => { state.act = state.act === "Size chart" ? null : "Size chart"; } },
+    { l: "AI QC fail", v: ai.length ? pct(aiF.length, ai.length) + "%" : "—", s: `${aiF.length} of ${ai.length} with a verdict`, act: false, click: () => {} },
+    { l: "Open now", v: open.length.toLocaleString(), s: open.length ? `oldest ${oldest} days` : "nothing waiting", act: state.outcome === "Open", click: () => { state.outcome = state.outcome === "Open" ? null : "Open"; } },
+    { l: "Still refunding", v: cur.filter(p => p.st === "Done" && p.rf && p.rf.sN >= 5).length.toLocaleString(), s: `finished products with 5+ refunds since QC`, act: false, click: () => {} },
+  ];
+  const el = document.getElementById("kpis");
+  el.innerHTML = tiles.map((t, i) => `<button class="kpi ${t.act ? "active" : ""}" data-i="${i}"><div class="label">${t.l}</div><div class="value">${t.v}</div><div class="sub">${t.s}</div></button>`).join("");
+  el.querySelectorAll(".kpi").forEach(b => b.onclick = () => { tiles[+b.dataset.i].click(); render(); });
+  void qh;
+}
+
+function renderStages(rows) {
+  const el = document.getElementById("stages");
+  el.innerHTML = STAGES.map(([k, l]) => { const x = rows.filter(p => p.st === k); const oldest = x.filter(p => p.st !== "Done").reduce((m, p) => Math.max(m, p.age || 0), 0); return `<button class="stage ${state.stage === k ? "on" : ""}" data-k="${k}"><div class="l">${l}</div><div class="n">${x.length.toLocaleString()}</div><div class="s">${k === "Done" ? pct(x.filter(p => p.outcome !== "Passed clean").length, x.length) + "% needed edits" : x.length ? "oldest " + oldest + " d" : "—"}</div></button>`; }).join("");
+  el.querySelectorAll(".stage").forEach(b => b.onclick = () => { state.stage = state.stage === b.dataset.k ? null : b.dataset.k; render(); });
+  const open = rows.filter(p => p.st !== "Done").sort((a, b) => (b.age || 0) - (a.age || 0)).slice(0, 12);
+  const t = document.getElementById("stuck");
+  t.innerHTML = open.length ? `<table class="data"><thead><tr><th>Waiting longest</th><th>Stage</th><th>Supplier</th><th class="num">Days</th><th>Latest</th></tr></thead><tbody>` + open.map(p => `<tr class="clickable ${state.product === p.id ? "on" : ""}" data-id="${p.id}"><td class="pname">${esc(short(p.name, 60))}</td><td><span class="tag">${esc(STAGE_LABEL[p.st] || p.st)}</span></td><td>${esc(p.sup)}</td><td class="num"><span class="tag ${p.age > 14 ? "crit" : p.age > 7 ? "warn" : ""}">${p.age ?? "—"}</span></td><td class="muted" style="font-size:12px">${esc(short(p.upd || (p.reqc ? "Re-QC: " + p.reqc : p.flag ? "Flagged" : ""), 60))}</td></tr>`).join("") + `</tbody></table>` : `<div class="empty-note">Nothing open in this view.</div>`;
+  t.querySelectorAll("tr[data-id]").forEach(r => r.onclick = () => { state.product = state.product === r.dataset.id ? null : r.dataset.id; render(); });
+}
+
+const tip = document.getElementById("tip");
+function showTip(e, h) { tip.innerHTML = h; tip.classList.add("show"); tip.style.left = Math.min(Math.max(e.clientX, 150), innerWidth - 150) + "px"; tip.style.top = e.clientY + "px"; }
+function hideTip() { tip.classList.remove("show"); }
+function niceStep(x) { const p = Math.pow(10, Math.floor(Math.log10(x || 1))); const f = x / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p; }
+function roundTop(x, y, w, h, r) { if (h <= 0) return ""; r = Math.min(r, h); return `M${x},${y + h}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h}Z`; }
+
+function renderTrend() {
+  const g = state.gran === "all" ? "month" : state.gran;
+  const rows = base("outcome");
+  let keys = allKeys(g); if (g === "week") keys = keys.slice(-26);
+  const data = keys.map(k => { const rs = rows.filter(p => p.date && bucket(p.date, g) === k); const by = {}; for (const p of rs) by[p.outcome] = (by[p.outcome] || 0) + 1; return { k, by, n: rs.length }; });
+  document.getElementById("trendTitle").textContent = "Products entering QC per " + g;
+  const lg = document.getElementById("trendLegend");
+  lg.innerHTML = OUTCOMES.map(o => `<button class="${state.outcome === o ? "active" : ""}" data-o="${o}"><i style="background:${OCOLOR[o]}"></i>${o}</button>`).join("");
+  lg.querySelectorAll("button").forEach(b => b.onclick = () => { state.outcome = state.outcome === b.dataset.o ? null : b.dataset.o; render(); });
+  const el = document.getElementById("trendChart");
+  const W = Math.max(el.clientWidth || 900, keys.length * 26), H = 220, m = { l: 40, r: 8, t: 10, b: 28 }, iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const show = state.outcome ? [state.outcome] : OUTCOMES;
+  const max = Math.max(1, ...data.map(d => show.reduce((a, o) => a + (d.by[o] || 0), 0)));
+  const step = niceStep(max / 4), top = Math.ceil(max / step) * step, y = v => m.t + ih - v / top * ih, bw = iw / keys.length, gap = Math.min(6, bw * .25);
+  let svg = `<svg width="${W}" height="${H}" role="img" aria-label="Products entering QC">`;
+  for (let v = 0; v <= top; v += step) svg += `<line class="gridline" x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/><text class="axis-label" x="${m.l - 6}" y="${y(v) + 3}" text-anchor="end">${v}</text>`;
+  const every = Math.ceil(keys.length / Math.max(1, Math.floor(iw / 48)));
+  data.forEach((d, i) => {
+    const x = m.l + i * bw + gap / 2, w = bw - gap, sel = state.gran !== "all" && d.k === state.period;
+    const segs = show.filter(o => d.by[o]); let acc = 0;
+    segs.forEach((o, j) => { const y1 = y(acc + d.by[o]), h = y(acc) - y1 - (j < segs.length - 1 ? 2 : 0); acc += d.by[o]; const op = state.gran !== "all" && !sel ? .45 : 1; svg += j === segs.length - 1 ? `<path d="${roundTop(x, y1, w, Math.max(0, h), Math.min(4, w / 2))}" fill="${OCOLOR[o]}" opacity="${op}"/>` : `<rect x="${x}" y="${y1 + 2}" width="${w}" height="${Math.max(0, h)}" fill="${OCOLOR[o]}" opacity="${op}"/>`; });
+    if (i % every === 0 || sel) svg += `<text class="axis-label" x="${x + w / 2}" y="${H - 10}" text-anchor="middle" ${sel ? 'style="font-weight:700;fill:var(--text-primary)"' : ""}>${label(d.k, g, true)}</text>`;
+    svg += `<rect class="hit" data-i="${i}" x="${m.l + i * bw}" y="${m.t}" width="${bw}" height="${ih}"/>`;
+  });
+  svg += `<line class="baseline" x1="${m.l}" x2="${W - m.r}" y1="${y(0)}" y2="${y(0)}"/></svg>`;
+  el.innerHTML = svg;
+  el.querySelectorAll(".hit").forEach(h => { const d = data[+h.dataset.i]; h.onmousemove = e => showTip(e, `<div class="t-title">${label(d.k, g)}${partial(d.k, g) ? " (so far)" : ""}</div>` + OUTCOMES.filter(o => d.by[o]).map(o => `<div class="t-row"><span><span class="sw" style="background:${OCOLOR[o]}"></span>${o}</span><b>${d.by[o]}</b></div>`).join("") + `<div class="t-row" style="margin-top:4px"><span>Total</span><b>${d.n}</b></div>`); h.onmouseleave = hideTip; h.onclick = () => { if (state.gran === "all") state.gran = g; state.period = d.k; hideTip(); render(); }; });
+  const undated = rows.filter(p => !p.date).length;
+  document.getElementById("trendFoot").textContent = (undated ? undated + " products have no QC date and are left out of this chart. " : "") + (state.gran === "all" ? "Pick Week/Month/Quarter to compare periods." : "Selected: " + label(state.period, state.gran) + ".");
+}
+
+function supStats(rows, s) {
+  const x = rows.filter(p => p.sup === s), done = x.filter(p => p.st === "Done");
+  const reps = rows.flatMap(p => (p.reports || []).filter(r => r.sup === s));
+  const chk = Object.fromEntries(CHECKS.map(c => { const r = reps.filter(r => r[c] === "ok" || r[c] === "mismatch"); return [c, r.length ? pct(r.filter(r => r[c] === "mismatch").length, r.length) : null]; }));
+  const fail = reps.filter(r => ["pass", "warn", "fail"].includes(r.v)), costs = rows.map(p => p.cost && p.cost[s]).filter(v => v);
+  return { n: x.length, done: done.length, edits: pct(done.filter(p => p.outcome !== "Passed clean").length, done.length), reps: reps.length, fail: fail.length ? pct(fail.filter(r => r.v === "fail").length, fail.length) : null, chk, cost: costs.length ? costs.reduce((a, b) => a + b, 0) / costs.length : null, nCost: costs.length, qHrs: med(x.map(p => p.qHrs)), betterQ: rows.filter(p => p.reqcSup === s && p.reqc === "Better quality needed").length, cant: rows.filter(p => p.reqcSup === s && p.reqc === "Cannot source").length, reqc: rows.filter(p => p.reqcSup === s && p.reqc).length };
+}
+
+function renderInsights(cur) {
+  const G = { critical: [], warning: [], good: [] };
+  const done = cur.filter(p => p.st === "Done");
+  if (!cur.length) { document.getElementById("insights").innerHTML = `<div class="empty-note">No products match these filters.</div>`; return; }
+  const needed = done.filter(p => p.outcome !== "Passed clean");
+  (pct(needed.length, done.length) > 30 ? G.critical : G.warning).push(`<b>${pct(needed.length, done.length)}% of finished products needed changes</b> <span class="m">— ${needed.length} of ${done.length}; QC is catching listings that were wrong at launch.</span>`);
+  const ac = {}; for (const p of done) for (const a of p.acts) ac[a] = (ac[a] || 0) + 1;
+  const topA = Object.entries(ac).sort((a, b) => b[1] - a[1])[0];
+  if (topA) G.critical.push(`<b><span class="linkish" data-act="${esc(topA[0])}">${esc(topA[0])}</span> is the most common fix</b> <span class="m">— ${topA[1]} products (${pct(topA[1], done.length)}% of finished).</span>`);
+  const w = supStats(cur, "WIIO"), c = supStats(cur, "CJ");
+  if (w.reps && c.reps && w.fail != null && c.fail != null) { const worse = w.fail >= c.fail ? ["WIIO", w, c] : ["CJ", c, w]; G.warning.push(`<b>${worse[0]}'s QC fails more</b> <span class="m">— ${worse[1].fail}% of its reports fail vs ${worse[2].fail}% for ${worse[0] === "WIIO" ? "CJ" : "WIIO"}.</span>`); }
+  const worstChk = CHECKS.map(k => [k, Math.max(w.chk[k] || 0, c.chk[k] || 0)]).sort((a, b) => b[1] - a[1])[0];
+  if (worstChk && worstChk[1]) G.warning.push(`<b><span class="linkish" data-check="${esc(worstChk[0])}">${esc(worstChk[0])}</span> mismatches most</b> <span class="m">— up to ${worstChk[1]}% of supplier reports flag it.</span>`);
+  const open = cur.filter(p => p.st !== "Done"), old = open.filter(p => p.age > 14);
+  if (old.length) G.critical.push(`<b>${old.length} products open more than 14 days</b> <span class="m">— oldest ${Math.max(...old.map(p => p.age))} days; <span class="linkish" data-outcome="Open">show open</span>.</span>`);
+  else if (open.length) G.good.push(`<b>Nothing open longer than 14 days</b> <span class="m">— ${open.length} in progress.</span>`);
+  const m = comparable(cur);
+  if (m.length >= 5) {
+    const fx = m.filter(p => p.outcome === "Fixed"), pc = m.filter(p => p.outcome === "Passed clean");
+    const r = (xs, s) => xs.length ? xs.reduce((a, p) => a + rate(p.rf, s), 0) / xs.length : null;
+    // Sales keep ramping after the 5th sale, so every group's refunds rise; compare the growth.
+    const fb = r(fx, "b"), fa = r(fx, "a"), pb = r(pc, "b"), pa = r(pc, "a");
+    const gF = fb ? fa / fb : null, gP = pb ? pa / pb : null;
+    if (gF != null && gP != null && fx.length >= 5 && pc.length >= 5)
+      (gF < gP ? G.good : G.critical).push(`<b>Refunds grow ×${gF.toFixed(1)} on products QC fixed vs ×${gP.toFixed(1)} on ones it passed</b> <span class="m">— month 1 → months 2–3; sales ramp too, so the gap is the signal${gF < gP ? "; the fixes are slowing refunds" : "; the fixes are not slowing refunds"} (${fx.length} vs ${pc.length} products${fx.length < 30 ? " — an early sign, most fixes are too recent to judge" : ""}).</span>`);
+    else if (gP != null && pc.length >= 5) G.warning.push(`<b>Refunds grow ×${gP.toFixed(1)} from month 1 to months 2–3</b> <span class="m">— ${pc.length} passed products; too few fixed products are 90+ days old to compare yet.</span>`);
+  }
+  const still = cur.filter(p => p.rf && p.rf.sN >= 5 && p.st === "Done").sort((a, b) => b.rf.sE - a.rf.sE);
+  if (still.length) G.critical.push(`<b><span class="linkish" data-product="${still[0].id}">${esc(short(still[0].name, 50))}</span> keeps refunding</b> <span class="m">— ${fmtE(still[0].rf.sE)} since QC (${still[0].outcome.toLowerCase()}); ${still.length} finished products have 5+ refunds since QC.</span>`);
+  const unk = cur.filter(p => p.sup === "Unknown");
+  if (pct(unk.length, cur.length) > 20) G.warning.push(`<b>${pct(unk.length, cur.length)}% have no supplier</b> <span class="m">— <span class="linkish" data-dq="Supplier unknown">show them</span>; mostly older products from before the QC reports.</span>`);
+  const head = { critical: ["Watch", "var(--critical)"], warning: ["Notable", "var(--warning)"], good: ["Working", "var(--good)"] };
+  const el = document.getElementById("insights");
+  el.innerHTML = Object.entries(G).filter(([, l]) => l.length).map(([g, l]) => `<div><div class="ghead"><span class="gdot" style="background:${head[g][1]}"></span>${head[g][0]}</div><ul class="insight-list">${l.map(x => `<li>${x}</li>`).join("")}</ul></div>`).join("");
+  el.querySelectorAll("[data-act]").forEach(a => a.onclick = () => { state.act = a.dataset.act; render(); });
+  el.querySelectorAll("[data-check]").forEach(a => a.onclick = () => { state.check = a.dataset.check; render(); });
+  el.querySelectorAll("[data-outcome]").forEach(a => a.onclick = () => { state.outcome = a.dataset.outcome; render(); });
+  el.querySelectorAll("[data-product]").forEach(a => a.onclick = () => { state.product = a.dataset.product; render(); });
+  el.querySelectorAll("[data-dq]").forEach(a => a.onclick = () => { state.dq = a.dataset.dq; render(); });
+}
+
+function barList(el, items, picked, onPick, fmt) {
+  const max = Math.max(1, ...items.map(i => i.v));
+  el.innerHTML = items.length ? `<div class="bars">` + items.map((i, n) => `<button class="barrow ${picked === i.k ? "on" : ""} ${i.dim ? "dim" : ""}" data-n="${n}" title="${esc(i.title || i.k)}"><span class="bl">${esc(i.label || i.k)}</span><span class="bt"><span class="bf" style="width:${i.v / max * 100}%;${i.color ? "background:" + i.color : ""}"></span></span><span class="bv">${(fmt || (v => v.toLocaleString()))(i.v)}${i.extra ? `<small>${i.extra}</small>` : ""}</span></button>`).join("") + `</div>` : `<div class="empty-note">Nothing in this view.</div>`;
+  el.querySelectorAll(".barrow").forEach(b => b.onclick = () => onPick(items[+b.dataset.n]));
+}
+function renderActs(rows) {
+  const done = rows.filter(p => p.st === "Done"), c = {};
+  for (const p of done) for (const a of p.acts) c[a] = (c[a] || 0) + 1;
+  const items = Object.entries(c).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({ k, v, extra: pct(v, done.length) + "%" }));
+  items.push({ k: "__none", label: "No edits needed", v: done.filter(p => !p.acts.length).length, extra: pct(done.filter(p => !p.acts.length).length, done.length) + "%", color: "var(--s3)" });
+  barList(document.getElementById("acts"), items, state.act, i => { if (i.k === "__none") { state.outcome = state.outcome === "Passed clean" ? null : "Passed clean"; } else state.act = state.act === i.k ? null : i.k; render(); });
+}
+function renderDefects(rows) {
+  const c = {}; for (const p of rows) for (const d of p.defects) c[d] = (c[d] || 0) + 1;
+  const withRep = rows.filter(p => (p.reports || []).length).length;
+  barList(document.getElementById("defects"), Object.entries(c).sort((a, b) => b[1] - a[1]).slice(0, 14).map(([k, v]) => ({ k, label: k[0].toUpperCase() + k.slice(1), v, extra: pct(v, withRep) + "%" })), state.defect, i => { state.defect = state.defect === i.k ? null : i.k; render(); });
+}
+function renderSuppliers(rows) {
+  const sups = ["WIIO", "CJ"].concat(rows.some(p => (p.reports || []).some(r => r.sup === "Day1")) ? ["Day1"] : []);
+  const S = sups.map(s => [s, supStats(rows, s)]);
+  const heat = v => v == null ? `<span class="muted">—</span>` : `<span class="heat" style="background:color-mix(in srgb, var(--critical) ${Math.min(60, v * .8)}%, transparent)">${v}%</span>`;
+  const el = document.getElementById("suppliers");
+  el.innerHTML = `<table class="data matrix"><thead><tr><th>Supplier</th><th class="num">Products</th><th class="num">Needed edits</th><th class="num">QC reports</th><th class="num">Report fail</th>${CHECKS.map(c => `<th class="num">${c} ✗</th>`).join("")}<th class="num">Answer time</th><th class="num">Avg cost</th><th class="num">Re-QC</th></tr></thead><tbody>` +
+    S.map(([s, x]) => `<tr class="clickable ${state.sup === s ? "on" : ""}" data-s="${s}"><td class="pname">${s}</td><td class="num">${x.n}</td><td class="num">${x.done ? x.edits + "%" : "—"}</td><td class="num">${x.reps}</td><td class="cell">${heat(x.fail)}</td>${CHECKS.map(c => `<td class="cell">${heat(x.chk[c])}</td>`).join("")}<td class="num">${x.qHrs != null ? (x.qHrs < 48 ? x.qHrs.toFixed(0) + " h" : (x.qHrs / 24).toFixed(1) + " d") : "—"}</td><td class="num">${x.cost ? "$" + x.cost.toFixed(2) : "—"}<div class="muted" style="font-size:10.5px">${x.nCost ? x.nCost + " quotes" : ""}</div></td><td class="num">${x.reqc}<div class="muted" style="font-size:10.5px">${x.betterQ} low quality · ${x.cant} can't source</div></td></tr>`).join("") +
+    `</tbody></table><p class="footnote" style="margin-top:8px">✗ = share of that supplier's AI QC reports where the check came back <i>mismatch</i>. Products are often QC'd at both suppliers, so report counts exceed product counts. Click a check name in Key insights, or a supplier row, to filter.</p>`;
+  el.querySelectorAll("tr[data-s]").forEach(r => r.onclick = () => { state.sup = state.sup === r.dataset.s ? "all" : r.dataset.s; render(); });
+}
+function renderImpact(cur) {
+  const m = comparable(cur);
+  const sum = (xs, f) => xs.reduce((a, p) => a + f(p), 0);
+  const bR = sum(m, p => rate(p.rf, "b")), aR = sum(m, p => rate(p.rf, "a")), bE = sum(m, p => rateE(p.rf, "b")), aE = sum(m, p => rateE(p.rf, "a"));
+  const all = cur.filter(p => p.rf);
+  document.getElementById("impactStats").innerHTML = [["Comparable products", m.length.toLocaleString(), `90+ days since QC · ${all.length} have refunds`], ["Month 1", bR.toFixed(0) + " refunds", fmtE(bE) + " in the first 30 days"], ["Months 2–3", aR.toFixed(0) + " / 30d", fmtE(aE) + " per 30 days"], ["Growth", bR ? "×" + (aR / bR).toFixed(1) : "—", "includes sales ramping up — compare groups below"]].map(([l, v, s]) => `<div class="st"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("");
+  const grp = (keyf, keys) => keys.map(k => { const xs = m.filter(p => keyf(p, k)); return { k, v: xs.length ? sum(xs, p => rate(p.rf, "a")) / xs.length : 0, extra: xs.length ? `month 1: ${(sum(xs, p => rate(p.rf, "b")) / xs.length).toFixed(1)} · ${xs.length} products` : "no products" }; }).filter(i => !i.extra.startsWith("no"));
+  barList(document.getElementById("impactByAct"), grp((p, k) => k === "No edits" ? p.outcome === "Passed clean" : p.acts.includes(k), ["No edits", "Size chart", "Images", "Functionality", "Material"]), state.act, i => { if (i.k === "No edits") state.outcome = state.outcome === "Passed clean" ? null : "Passed clean"; else state.act = state.act === i.k ? null : i.k; render(); }, v => v.toFixed(1));
+  barList(document.getElementById("impactBySup"), grp((p, k) => p.sup === k, ["WIIO", "CJ", "Unknown"]), state.sup, i => { state.sup = state.sup === i.k ? "all" : i.k; render(); }, v => v.toFixed(1));
+  const still = cur.filter(p => p.rf && p.rf.sN).sort((a, b) => b.rf.sE - a.rf.sE).slice(0, 15);
+  const el = document.getElementById("stillRefunding");
+  el.innerHTML = still.length ? `<table class="data"><thead><tr><th>Product</th><th>QC outcome</th><th>Supplier</th><th class="num">Month 1</th><th class="num">Months 2–3 / 30d</th><th class="num">€ since QC</th><th>Top reason</th></tr></thead><tbody>` + still.map(p => { const b = rate(p.rf, "b"), a = rate(p.rf, "a"); return `<tr class="clickable ${state.product === p.id ? "on" : ""}" data-id="${p.id}"><td class="pname">${esc(short(p.name, 56))}</td><td><span class="tag" style="border-color:${OCOLOR[p.outcome]}">${p.outcome}</span>${p.acts.length ? `<div class="muted" style="font-size:10.5px">${p.acts.join(", ")}</div>` : ""}</td><td>${esc(p.sup)}</td><td class="num">${b != null ? b.toFixed(0) : `<span class="muted" title="Less than 90 days since QC">${p.rf.m1N}</span>`}</td><td class="num">${a != null ? `<span class="tag ${a >= b ? "crit" : ""}">${a.toFixed(1)}</span>` : `<span class="muted">too new</span>`}</td><td class="num">${fmtE(p.rf.sE)}</td><td>${(p.rf.top || []).map(t => `<span class="tag">${esc(t)}</span>`).join(" ")}</td></tr>`; }).join("") + `</tbody></table>` : `<div class="empty-note">No refunds after QC in this view.</div>`;
+  el.querySelectorAll("tr[data-id]").forEach(r => r.onclick = () => { state.product = state.product === r.dataset.id ? null : r.dataset.id; render(); });
+}
+function renderCats(rows) {
+  const c = {}; for (const p of rows.filter(p => p.st === "Done")) { const k = p.cat || "Unknown"; const o = c[k] = c[k] || { n: 0, e: 0 }; o.n++; if (p.outcome !== "Passed clean") o.e++; }
+  barList(document.getElementById("cats"), Object.entries(c).filter(([, o]) => o.n >= 3).sort((a, b) => b[1].n - a[1].n).slice(0, 12).map(([k, o]) => ({ k, label: k.replace("Clothing > ", ""), v: pct(o.e, o.n), extra: `${o.e} of ${o.n}` })), state.cat, i => { state.cat = state.cat === i.k ? null : i.k; render(); }, v => v + "%");
+}
+function renderDq(rows) {
+  barList(document.getElementById("dq"), Object.keys(DQ).map(k => { const n = rows.filter(DQ[k]).length; return { k, v: n, extra: pct(n, rows.length) + "%" }; }).filter(i => i.v), state.dq, i => { state.dq = state.dq === i.k ? null : i.k; render(); });
+}
+function renderRca(cur) {
+  const done = cur.filter(p => p.st === "Done"), n = done.length || 1;
+  const keys = ["Size chart", "Images", "Functionality", "Material"].map(k => [k, done.filter(p => p.acts.includes(k))]).concat([["Pulled / failed", done.filter(p => p.outcome === "Pulled / failed")], ["Open", cur.filter(p => p.st !== "Done")]]).filter(([, x]) => x.length).sort((a, b) => b[1].length - a[1].length);
+  const el = document.getElementById("rca");
+  el.innerHTML = keys.map(([k, x]) => { const R = ROOT[k]; const d = {}; x.forEach(p => p.defects.forEach(z => d[z] = (d[z] || 0) + 1)); const td = Object.entries(d).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([z, v]) => `<b>${esc(z)}</b> ${v}`).join(" · "); const rf = x.filter(p => p.rf && p.rf.sN).length; return `<div class="rca-row" data-k="${esc(k)}"><div class="rca-head"><span class="sym">${esc(k)}</span><span class="share">${k === "Open" ? x.length + " open" : pct(x.length, n) + "%"}</span><span class="meta">${x.length} products · ${rf} still refunding after QC · owner: ${R.owner}</span></div><dl><dt>Where</dt><dd>${R.where}</dd><dt>Evidence</dt><dd>${td || "No defect detail recorded."}</dd><dt>Fix</dt><dd>${R.fix}</dd></dl></div>`; }).join("") || `<div class="empty-note">Nothing in this view.</div>`;
+  el.querySelectorAll(".rca-row").forEach(c => c.onclick = () => { const k = c.dataset.k; if (k === "Pulled / failed" || k === "Open") state.outcome = state.outcome === k ? null : k; else state.act = state.act === k ? null : k; render(); });
+}
+function renderPlan(cur) {
+  const done = cur.filter(p => p.st === "Done"), A = [];
+  const sc = done.filter(p => p.acts.includes("Size chart"));
+  if (sc.length) A.push({ n: sc.length, act: `<b>Fix size charts at launch, not at 5 sales</b> — ${sc.length} products (${pct(sc.length, done.length)}%) had their chart corrected after QC. Build the chart from the supplier's measured chart when listing.`, owner: "Listings", f: () => state.act = "Size chart" });
+  const im = done.filter(p => p.acts.includes("Images") || p.acts.includes("Functionality"));
+  if (im.length) A.push({ n: im.length, act: `<b>Check photos and features against the supplier before launch</b> — ${im.length} listings showed images or features the factory version doesn't have.`, owner: "Listings + sourcing", f: () => state.act = "Images" });
+  const still = done.filter(p => p.rf && p.rf.full && p.rf.m23N >= 4 && rate(p.rf, "a") >= rate(p.rf, "b"));
+  if (still.length) A.push({ n: still.length * 3, act: `<b>Re-QC products that keep refunding</b> — ${still.length} finished products refund as much in months 2–3 as in their first month after QC. Re-quote with a better 1688 source or pull them.`, owner: "Sourcing", f: () => {} });
+  const open = cur.filter(p => p.st !== "Done" && p.age > 7);
+  if (open.length) A.push({ n: open.length * 2, act: `<b>Chase ${open.length} products open over 7 days</b> — mostly waiting on supplier replies; see the stuck table.`, owner: "QC team", f: () => state.outcome = "Open" });
+  const w = supStats(cur, "WIIO"), c = supStats(cur, "CJ");
+  if (w.fail != null && c.fail != null && Math.abs(w.fail - c.fail) >= 10) { const bad = w.fail > c.fail ? "WIIO" : "CJ"; A.push({ n: Math.abs(w.fail - c.fail), act: `<b>Default new products to ${bad === "WIIO" ? "CJ" : "WIIO"} where both quote</b> — ${bad}'s QC reports fail ${Math.max(w.fail, c.fail)}% vs ${Math.min(w.fail, c.fail)}%.`, owner: "Sourcing", f: () => state.sup = bad }); }
+  const unk = cur.filter(p => p.sup === "Unknown").length;
+  if (unk > 50) A.push({ n: unk / 10, act: `<b>Record the supplier on every QC row</b> — ${unk} products have none, which blocks the supplier comparison.`, owner: "QC team", f: () => state.dq = "Supplier unknown" });
+  A.sort((a, b) => b.n - a.n);
+  const el = document.getElementById("plan");
+  el.innerHTML = A.length ? `<table class="data"><thead><tr><th>#</th><th>Action</th><th>Owner</th></tr></thead><tbody>` + A.map((a, i) => `<tr class="clickable" data-i="${i}"><td><span class="prio ${i < 2 ? "p1" : i < 4 ? "p2" : ""}">${i + 1}</span></td><td style="min-width:320px">${a.act}</td><td class="muted" style="white-space:nowrap">${a.owner}</td></tr>`).join("") + `</tbody></table>` : `<div class="empty-note">Nothing actionable in this view.</div>`;
+  el.querySelectorAll("tr[data-i]").forEach(t => t.onclick = () => { A[+t.dataset.i].f(); render(); });
+}
+
+function wireSearch() {
+  const inp = document.getElementById("productInput"), list = document.getElementById("productList");
+  const draw = () => { const q = inp.value.toLowerCase().trim(); const xs = base("product").filter(p => !q || p.name.toLowerCase().includes(q)).slice(0, 60); list.innerHTML = xs.map(p => `<div class="combo-item" data-id="${p.id}"><span class="nm">${esc(p.name)}</span><span class="cnt">${esc(p.outcome)}</span></div>`).join("") || `<div class="combo-item"><span class="nm muted">No match</span></div>`; list.classList.add("open"); list.querySelectorAll("[data-id]").forEach(i => i.onmousedown = () => { state.product = i.dataset.id; inp.value = ""; list.classList.remove("open"); render(); }); };
+  inp.oninput = draw; inp.onfocus = draw; inp.onblur = () => setTimeout(() => list.classList.remove("open"), 150);
+}
+let booted = false;
+function boot() {
+  if (booted) return; booted = true; wireSearch();
+  document.getElementById("clearAll").onclick = () => { Object.assign(state, { store: "all", sup: "all", stage: null, outcome: null, act: null, defect: null, cat: null, product: null, dq: null, check: null }); render(); };
+  document.getElementById("refreshBtn").onclick = async e => { e.target.disabled = true; await load(); e.target.disabled = false; };
+  let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => ALL.length && render(), 200); });
+  setInterval(() => ALL.length && renderAge(), 60000);
+  setInterval(load, 300000);
+  load();
+}
+</script>
+</body>
+</html>
