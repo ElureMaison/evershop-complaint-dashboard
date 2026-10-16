@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QC Command Center — Demo</title>
+<meta name="description" content="A demo quality-control dashboard for a dropshipping store, built on invented sample data.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --page:#f6f6f3; --surface:#ffffff; --surface-2:#f1f0ec; --surface-3:#e9e8e3;
+    --text:#111110; --text-2:#55544f; --text-3:#8a8983; --border:rgba(17,17,16,.09); --grid:#e4e3dd; --base:#c6c5bc;
+    --accent:#2a78d6; --accent-soft:rgba(42,120,214,.10);
+    --good:#0ca30c; --warning:#d99400; --critical:#d03b3b;
+    --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s0:#b8b6ad;
+    --shadow:0 1px 2px rgba(0,0,0,.04), 0 8px 24px -12px rgba(0,0,0,.10);
+    --demo:#6d4ae0;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page:#0c0c0b; --surface:#171716; --surface-2:#1f1f1d; --surface-3:#2a2a27;
+    --text:#f5f5f2; --text-2:#c3c2b7; --text-3:#8a8983; --border:rgba(255,255,255,.08); --grid:#2a2a28; --base:#3a3a37;
+    --accent:#3987e5; --accent-soft:rgba(57,135,229,.16);
+    --critical:#e66767; --warning:#e8a90f;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s0:#5c5b56;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.6); --demo:#9a7cf4;
+  } }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page:#0c0c0b; --surface:#171716; --surface-2:#1f1f1d; --surface-3:#2a2a27;
+    --text:#f5f5f2; --text-2:#c3c2b7; --text-3:#8a8983; --border:rgba(255,255,255,.08); --grid:#2a2a28; --base:#3a3a37;
+    --accent:#3987e5; --accent-soft:rgba(57,135,229,.16);
+    --critical:#e66767; --warning:#e8a90f;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s0:#5c5b56;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.6); --demo:#9a7cf4;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 130px; }
+  body { margin: 0; background: var(--page); color: var(--text); font: 14px/1.5 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+  button { font: inherit; color: inherit; }
+  .num { font-variant-numeric: tabular-nums; }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+  @media (max-width: 640px) { .wrap { padding: 0 16px; } }
+
+  .demo-bar { background: var(--demo); color: #fff; font-size: 12.5px; text-align: center; padding: 7px 16px; }
+  .demo-bar b { font-weight: 700; }
+
+  header.hero { padding: 26px 0 18px; }
+  .hero-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+  .eyebrow { font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); margin-bottom: 4px; }
+  h1 { font-size: 28px; font-weight: 800; letter-spacing: -.02em; margin: 0; }
+  .hero p { margin: 4px 0 0; color: var(--text-2); max-width: 640px; }
+  .hero-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 99px; background: var(--surface); border: 1px solid var(--border); color: var(--text-2); }
+  .badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--demo); }
+  .icon-btn { width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+  .icon-btn:hover { border-color: var(--accent); }
+
+  .toolbar { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--page) 88%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+  .toolbar .wrap { display: flex; flex-direction: column; gap: 8px; padding-top: 10px; padding-bottom: 10px; }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+  .seg { display: inline-flex; background: var(--surface-2); border-radius: 10px; padding: 3px; gap: 2px; flex-wrap: wrap; }
+  .seg button { border: 0; background: none; padding: 5px 11px; border-radius: 8px; font-size: 12.5px; font-weight: 600; color: var(--text-2); cursor: pointer; white-space: nowrap; }
+  .seg button:hover { color: var(--text); }
+  .seg button.on { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  select, input[type=search] { font: inherit; font-size: 12.5px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 9px; padding: 6px 10px; outline: none; }
+  select:focus, input[type=search]:focus { border-color: var(--accent); }
+  input[type=search] { width: 200px; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 600; padding: 4px 6px 4px 10px; border-radius: 99px; }
+  .chip button { border: 0; background: var(--accent); color: #fff; width: 16px; height: 16px; border-radius: 50%; cursor: pointer; font-size: 10px; line-height: 1; }
+  .clear { border: 0; background: none; color: var(--text-3); font-size: 12px; text-decoration: underline; cursor: pointer; }
+  nav.sections { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+  nav.sections::-webkit-scrollbar { display: none; }
+  nav.sections a { font-size: 12.5px; font-weight: 600; color: var(--text-3); text-decoration: none; padding: 4px 10px; border-radius: 7px; white-space: nowrap; }
+  nav.sections a:hover, nav.sections a.on { color: var(--text); background: var(--surface-2); }
+
+  main { padding: 18px 0 60px; }
+  .grid { display: grid; gap: 16px; }
+  .g-kpi { grid-template-columns: repeat(6, 1fr); }
+  .g-2 { grid-template-columns: 1.35fr 1fr; }
+  .g-2e { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 1100px) { .g-kpi { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 900px) { .g-2, .g-2e { grid-template-columns: 1fr; } }
+  @media (max-width: 560px) { .g-kpi { grid-template-columns: repeat(2, 1fr); } }
+  section { margin-top: 28px; }
+  .sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .sec-head h2 { font-size: 17px; font-weight: 750; letter-spacing: -.01em; margin: 0; }
+  .sec-head p { margin: 0; color: var(--text-3); font-size: 12.5px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px 18px; box-shadow: var(--shadow); min-width: 0; }
+  .card h3 { font-size: 13.5px; font-weight: 700; margin: 0 0 2px; }
+  .card .sub { font-size: 12px; color: var(--text-3); margin: 0 0 12px; }
+  .scrollx { overflow-x: auto; }
+
+  .kpi { cursor: pointer; text-align: left; border: 1px solid var(--border); position: relative; overflow: hidden; }
+  .kpi:hover { border-color: var(--accent); }
+  .kpi.on { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft), var(--shadow); }
+  .kpi .l { font-size: 11.5px; font-weight: 600; color: var(--text-3); }
+  .kpi .v { font-size: 26px; font-weight: 800; letter-spacing: -.02em; margin: 2px 0 0; }
+  .kpi .s { font-size: 11.5px; color: var(--text-2); min-height: 17px; }
+  .kpi svg { margin-top: 8px; width: 100%; height: 28px; }
+  .up { color: var(--critical); font-weight: 700; } .down { color: var(--good); font-weight: 700; } .flat { color: var(--text-3); font-weight: 700; }
+
+  .pipeline { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+  @media (max-width: 900px) { .pipeline { grid-template-columns: repeat(2, 1fr); } }
+  .stage { position: relative; background: var(--surface-2); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; cursor: pointer; text-align: left; }
+  .stage:hover { border-color: var(--accent); }
+  .stage.on { border-color: var(--accent); background: var(--accent-soft); }
+  .stage .n { font-size: 11px; font-weight: 700; color: var(--text-3); letter-spacing: .04em; text-transform: uppercase; }
+  .stage .c { font-size: 26px; font-weight: 800; margin: 2px 0; }
+  .stage .m { font-size: 11.5px; color: var(--text-2); }
+  .stage .bar { height: 4px; border-radius: 4px; background: var(--surface-3); margin-top: 10px; overflow: hidden; }
+  .stage .bar i { display: block; height: 100%; background: var(--accent); border-radius: 4px; }
+
+  .bars { display: flex; flex-direction: column; gap: 3px; }
+  .brow { display: grid; grid-template-columns: minmax(110px, 40%) 1fr 74px; gap: 10px; align-items: center; border: 1px solid transparent; background: none; border-radius: 8px; padding: 5px 6px; text-align: left; cursor: pointer; width: 100%; }
+  .brow:hover { background: var(--surface-2); }
+  .brow.on { background: var(--accent-soft); border-color: var(--accent); }
+  .brow .bl { font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .brow .bt { display: block; height: 8px; background: var(--surface-2); border-radius: 4px; overflow: hidden; }
+  .brow .bf { display: block; height: 100%; background: var(--accent); border-radius: 4px; }
+  .brow .bv { font-size: 12px; text-align: right; white-space: nowrap; }
+  .brow .bv small { color: var(--text-3); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th { text-align: left; font-size: 11px; font-weight: 600; color: var(--text-3); padding: 0 10px 8px; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  th.sort { cursor: pointer; user-select: none; }
+  th.sort:hover { color: var(--text); }
+  th .arr { opacity: .7; }
+  td { padding: 8px 10px; border-bottom: 1px solid var(--grid); vertical-align: middle; }
+  tr:last-child td { border-bottom: 0; }
+  tbody tr.click { cursor: pointer; }
+  tbody tr.click:hover { background: var(--surface-2); }
+  td.r, th.r { text-align: right; }
+  .pn { font-weight: 600; }
+  .muted { color: var(--text-3); }
+  .pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 99px; background: var(--surface-2); color: var(--text-2); white-space: nowrap; }
+  .pill i { width: 7px; height: 7px; border-radius: 50%; }
+  .age-amber { color: var(--warning); font-weight: 700; } .age-red { color: var(--critical); font-weight: 700; }
+  .pager { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 12px; color: var(--text-3); gap: 10px; flex-wrap: wrap; }
+  .pager button { border: 1px solid var(--border); background: var(--surface); border-radius: 8px; padding: 4px 10px; cursor: pointer; }
+  .pager button:disabled { opacity: .4; cursor: default; }
+
+  .legend { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .legend button { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; border: 1px solid transparent; background: var(--surface-2); color: var(--text-2); border-radius: 99px; padding: 3px 10px 3px 8px; cursor: pointer; }
+  .legend button.on { border-color: var(--text); color: var(--text); font-weight: 700; }
+  .legend i { width: 9px; height: 9px; border-radius: 3px; }
+  svg { display: block; overflow: visible; }
+  .ax { fill: var(--text-3); font-size: 10.5px; font-family: inherit; }
+  .gl { stroke: var(--grid); }
+  .bl0 { stroke: var(--base); }
+  .hit { fill: transparent; cursor: pointer; }
+  .hit:hover { fill: var(--text); fill-opacity: .04; }
+
+  .insights { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .insights li { display: grid; grid-template-columns: 22px 1fr; gap: 8px; font-size: 13px; line-height: 1.5; }
+  .insights .ic { width: 22px; height: 22px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; }
+  .ic.crit { background: color-mix(in srgb, var(--critical) 14%, transparent); color: var(--critical); }
+  .ic.warn { background: color-mix(in srgb, var(--warning) 16%, transparent); color: var(--warning); }
+  .ic.good { background: color-mix(in srgb, var(--good) 14%, transparent); color: var(--good); }
+  .insights .m { color: var(--text-2); }
+  .lnk { color: var(--accent); cursor: pointer; border-bottom: 1px dotted var(--accent); }
+
+  .sup-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+  .sup { border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; background: var(--surface-2); cursor: pointer; }
+  .sup:hover { border-color: var(--accent); }
+  .sup.on { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .sup h4 { margin: 0 0 10px; font-size: 14px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .sup h4 span { font-size: 11.5px; color: var(--text-3); font-weight: 500; }
+  .sup dl { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; margin: 0 0 12px; font-size: 12.5px; }
+  .sup dt { color: var(--text-2); } .sup dd { margin: 0; font-weight: 700; text-align: right; }
+  .sup dd.best::after { content: " ●"; color: var(--good); font-size: 9px; vertical-align: middle; }
+  .chk { display: grid; grid-template-columns: 70px 1fr 40px; gap: 8px; align-items: center; font-size: 11.5px; margin-top: 4px; }
+  .chk .t { height: 6px; background: var(--surface-3); border-radius: 3px; overflow: hidden; display: block; }
+  .chk .t i { display: block; height: 100%; background: var(--s2); border-radius: 3px; }
+
+  .heat td { text-align: center; font-size: 12px; font-weight: 600; padding: 7px 6px; cursor: pointer; border: 2px solid var(--surface); border-radius: 6px; }
+  .heat td.rl { text-align: left; font-weight: 600; cursor: pointer; color: var(--text); background: none !important; }
+  .heat td.on { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .heat th { text-align: center; }
+
+  .rc { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+  .rc-card { border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; background: var(--surface-2); cursor: pointer; }
+  .rc-card:hover, .rc-card.on { border-color: var(--accent); }
+  .rc-card .h { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+  .rc-card .h b { font-size: 13.5px; }
+  .rc-card .share { font-size: 11.5px; font-weight: 700; padding: 1px 8px; border-radius: 99px; background: var(--surface); border: 1px solid var(--border); }
+  .rc-card dl { margin: 0; display: grid; grid-template-columns: 74px 1fr; gap: 4px 10px; font-size: 12.5px; }
+  .rc-card dt { color: var(--text-3); font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; font-weight: 700; padding-top: 2px; }
+  .rc-card dd { margin: 0; color: var(--text-2); }
+  .prio { display: inline-flex; width: 22px; height: 22px; border-radius: 7px; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 800; background: var(--surface-2); border: 1px solid var(--border); }
+  .prio.p1 { color: var(--critical); border-color: var(--critical); }
+  .prio.p2 { color: var(--warning); border-color: var(--warning); }
+
+  .tip { position: fixed; z-index: 60; pointer-events: none; background: var(--text); color: var(--surface); font-size: 11.5px; line-height: 1.5; padding: 8px 10px; border-radius: 9px; box-shadow: 0 6px 20px rgba(0,0,0,.25); opacity: 0; transform: translate(-50%, calc(-100% - 12px)); max-width: 260px; transition: opacity .08s; }
+  .tip.show { opacity: 1; }
+  .tip .tt { font-weight: 700; margin-bottom: 3px; }
+  .tip .tr { display: flex; justify-content: space-between; gap: 14px; white-space: nowrap; }
+  .tip i { display: inline-block; width: 7px; height: 7px; border-radius: 2px; margin-right: 5px; }
+
+  .scrim { position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 70; opacity: 0; pointer-events: none; transition: opacity .15s; }
+  .scrim.show { opacity: 1; pointer-events: auto; }
+  .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(520px, 100vw); background: var(--surface); z-index: 80; box-shadow: -10px 0 40px rgba(0,0,0,.2); transform: translateX(100%); transition: transform .2s ease; overflow-y: auto; padding: 20px 22px 40px; }
+  .drawer.show { transform: none; }
+  .drawer .dh { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+  .drawer h3 { margin: 4px 0 6px; font-size: 18px; letter-spacing: -.01em; }
+  .drawer .meta { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .drawer h5 { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-3); margin: 18px 0 8px; }
+  .tl { list-style: none; margin: 0; padding: 0 0 0 4px; }
+  .tl li { position: relative; padding: 0 0 12px 22px; font-size: 13px; }
+  .tl li::before { content: ""; position: absolute; left: 4px; top: 6px; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); }
+  .tl li::after { content: ""; position: absolute; left: 8px; top: 17px; bottom: -2px; width: 1px; background: var(--grid); }
+  .tl li:last-child::after { display: none; }
+  .tl li.todo::before { background: var(--surface-3); }
+  .tl li span { color: var(--text-3); margin-left: 6px; font-size: 12px; }
+  .checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; }
+  .checks div { display: flex; justify-content: space-between; gap: 8px; padding: 7px 10px; border-radius: 9px; background: var(--surface-2); font-size: 12.5px; }
+  .ok { color: var(--good); font-weight: 700; } .bad { color: var(--critical); font-weight: 700; }
+  .stats3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stats3 div { background: var(--surface-2); border-radius: 10px; padding: 9px 11px; }
+  .stats3 b { display: block; font-size: 17px; }
+  .stats3 span { font-size: 11px; color: var(--text-3); }
+
+  footer { border-top: 1px solid var(--border); padding: 22px 0 40px; color: var(--text-3); font-size: 12.5px; line-height: 1.65; }
+  footer b { color: var(--text-2); }
+  .empty { color: var(--text-3); font-size: 12.5px; padding: 18px 4px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="demo-bar"><b>Demo with invented data.</b> Maple &amp; Moss Group, its stores, suppliers and every product here are fictional, generated by a seeded script.</div>
+
+<header class="hero">
+  <div class="wrap hero-row">
+    <div>
+      <div class="eyebrow">Maple &amp; Moss Group · Quality control</div>
+      <h1>QC Command Center</h1>
+      <p>Every product is checked when it reaches its 5th sale. This shows where each one is, what QC found, which supplier does better, and whether the fixes cut refunds.</p>
+    </div>
+    <div class="hero-meta">
+      <span class="badge"><span class="dot"></span><span id="asOf">Sample data</span></span>
+      <button class="icon-btn" id="themeBtn" title="Switch light / dark" aria-label="Switch light or dark theme">◐</button>
+    </div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="wrap">
+    <div class="filters">
+      <div class="seg" id="granSeg"></div>
+      <select id="periodSel" aria-label="Period"></select>
+      <div class="seg" id="storeSeg"></div>
+      <div class="seg" id="supSeg"></div>
+      <select id="catSel" aria-label="Category"></select>
+      <input type="search" id="q" placeholder="Search products…" aria-label="Search products">
+      <div class="chips" id="chips"></div>
+      <button class="clear" id="clearAll">Clear all</button>
+    </div>
+    <nav class="sections" id="secNav">
+      <a href="#overview">Overview</a><a href="#pipeline">Pipeline</a><a href="#findings">Findings</a><a href="#suppliers">Suppliers</a><a href="#refunds">Refund impact</a><a href="#causes">Root causes</a><a href="#products">Products</a>
+    </nav>
+  </div>
+</div>
+
+<main class="wrap">
+  <section id="overview" style="margin-top:0">
+    <div class="grid g-kpi" id="kpis"></div>
+  </section>
+
+  <section id="pipeline">
+    <div class="sec-head"><h2>Pipeline now</h2><p>Click a stage to filter. Days count from the 5th sale.</p></div>
+    <div class="pipeline" id="stages"></div>
+    <div class="grid g-2" style="margin-top:16px">
+      <div class="card">
+        <h3 id="trendTitle">Products entering QC</h3>
+        <p class="sub">By the month they hit 5 sales, split by outcome. Click a bar to pick that period, or a legend chip to isolate an outcome.</p>
+        <div class="legend" id="legend"></div>
+        <div id="trend" class="scrollx"></div>
+      </div>
+      <div class="card">
+        <h3>Waiting longest</h3>
+        <p class="sub">Open products, oldest first. Click one for its full history.</p>
+        <div id="waiting" class="scrollx"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="findings">
+    <div class="sec-head"><h2>What QC found</h2><p>All shares are of finished products that have a QC record.</p></div>
+    <div class="grid g-2">
+      <div class="card"><h3>Key insights</h3><p class="sub">Recalculated for the filters above.</p><ul class="insights" id="insights"></ul></div>
+      <div class="card"><h3>What QC changed</h3><p class="sub">Listing edits made after QC. Click to filter.</p><div id="edits"></div></div>
+    </div>
+    <div class="grid g-2e" style="margin-top:16px">
+      <div class="card"><h3>Defects found</h3><p class="sub">From the supplier QC reports. Share of products with a report.</p><div id="defects"></div></div>
+      <div class="card"><h3>Where fixes cluster</h3><p class="sub">Share of each category's finished products that needed each edit. Click a cell to filter.</p><div id="heat" class="scrollx"></div></div>
+    </div>
+  </section>
+
+  <section id="suppliers">
+    <div class="sec-head"><h2>Supplier comparison</h2><p>Click a card to filter to that supplier. ● marks the better figure.</p></div>
+    <div class="sup-cards" id="sups"></div>
+  </section>
+
+  <section id="refunds">
+    <div class="sec-head"><h2>Did QC cut refunds?</h2><p>Each product compared with itself: month 1 after QC vs the per-30-day rate in months 2–3.</p></div>
+    <div class="grid g-2">
+      <div class="card"><h3>Refund growth by outcome</h3><p class="sub" id="refSub">Products at least 90 days past QC. Sales keep ramping, so every group rises; the gap between groups is the signal.</p><div id="refChart" class="scrollx"></div></div>
+      <div class="card"><h3>Still refunding</h3><p class="sub">Finished products with the most € refunded since QC.</p><div id="refTop" class="scrollx"></div></div>
+    </div>
+  </section>
+
+  <section id="causes">
+    <div class="sec-head"><h2>Root causes &amp; action plan</h2><p>Click a cause to filter to it.</p></div>
+    <div class="rc" id="rc"></div>
+    <div class="card" style="margin-top:16px"><h3>Action plan</h3><p class="sub">Ranked by how many products each fix would have caught in the current view.</p><div id="plan" class="scrollx"></div></div>
+  </section>
+
+  <section id="products">
+    <div class="sec-head"><h2>All products</h2><p id="prodCount"></p></div>
+    <div class="card"><div id="table" class="scrollx"></div><div class="pager" id="pager"></div></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <b>About this demo.</b> A rebuild of a real QC dashboard with the data swapped for an invented company. The data comes from <code>generate_sample_data.py</code> in this folder (fixed seed, so it reproduces exactly). The page is one HTML file with hand-drawn SVG charts and no libraries. Every panel follows the filters, and every bar, row, card and tile is clickable.<br>
+    <b>Definitions.</b> <i>Needed edits</i> = fixed or pulled, of finished products with a QC record. <i>Report fail</i> = fail ÷ (pass + warn + fail). <i>✗ rate</i> = mismatches ÷ (ok + mismatch) per check. <i>Refund growth</i> compares each product's month 1 with its months 2–3, for products 90+ days past QC.
+  </div>
+</footer>
+
+<div class="tip" id="tip"></div>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Product detail"></aside>
+
+<script src="data.js"></script>
+<script>
+const D = window.QC_DATA;
+const AS_OF = D.as_of;
+const OUTCOMES = ["Fixed", "Passed clean", "Pulled", "No QC record", "Open"];
+const OCOL = { "Fixed": "var(--s1)", "Passed clean": "var(--s3)", "Pulled": "var(--s2)", "No QC record": "var(--s0)", "Open": "var(--s4)" };
+const ROOT = {
+  "Size chart": { where: "The supplier's size chart doesn't match the garment, or the listing copies it unchecked.", fix: "Measure the QC sample and publish our own chart before launch.", owner: "Listings" },
+  "Photos": { where: "Listing photos are edited, AI-made or show a different colour.", fix: "Use the supplier's real QC photos for colour and fit shots.", owner: "Listings" },
+  "Features": { where: "The listing promises features the factory version doesn't have.", fix: "Check every feature claim against the sample before writing copy.", owner: "Listings + QC" },
+  "Material": { where: "Fabric weight or blend differs from what the supplier quoted.", fix: "Ask for the fabric label in the QC photos; reject on mismatch.", owner: "Sourcing" },
+  "Description": { where: "Copy is vague or wrong on fit, care or contents.", fix: "Write fit and care notes from the QC report, not the supplier text.", owner: "Listings" },
+  "Pulled": { where: "Product failed QC or the supplier can't source it.", fix: "Re-quote with the other supplier before pulling a product with sales.", owner: "Sourcing" },
+};
+const P = D.products.map(p => ({ ...p, sup: p.supplier || "Unknown", days: daysBetween(p.qc, AS_OF), month: p.qc.slice(0, 7), quarter: p.qc.slice(0, 4) + "-Q" + (Math.floor((+p.qc.slice(5, 7) - 1) / 3) + 1) }));
+
+const S = { gran: "all", period: null, store: "all", sup: "all", cat: "all", q: "", stage: null, outcome: null, edit: null, defect: null, refunding: false, failVerdict: false, sort: ["qc", -1], page: 0 };
+
+function daysBetween(a, b) { return Math.round((new Date(b) - new Date(a)) / 864e5); }
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+const eur = v => "€" + Math.round(v).toLocaleString("en-US");
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const lblPeriod = (k, g) => g === "month" ? MON[+k.slice(5, 7) - 1] + " " + k.slice(0, 4) : g === "quarter" ? k.slice(5) + " " + k.slice(0, 4) : "All time";
+const keyOf = (p, g) => g === "month" ? p.month : g === "quarter" ? p.quarter : "all";
+const finished = r => r.filter(p => p.outcome !== "Open");
+const recorded = r => r.filter(p => ["Fixed", "Passed clean", "Pulled"].includes(p.outcome));
+const needed = r => r.filter(p => p.outcome === "Fixed" || p.outcome === "Pulled");
+
+// ---------- filtering ----------
+function base(except) {
+  const q = S.q.toLowerCase();
+  return P.filter(p =>
+    (except === "store" || S.store === "all" || p.store === S.store) &&
+    (except === "sup" || S.sup === "all" || p.sup === S.sup) &&
+    (except === "cat" || S.cat === "all" || p.category === S.cat) &&
+    (!q || p.name.toLowerCase().includes(q)) &&
+    (except === "stage" || !S.stage || p.stage === S.stage) &&
+    (except === "outcome" || !S.outcome || p.outcome === S.outcome) &&
+    (except === "edit" || !S.edit || p.edits.includes(S.edit)) &&
+    (except === "defect" || !S.defect || p.defects.includes(S.defect)) &&
+    (!S.refunding || (p.outcome !== "Open" && p.refunds >= 5)) &&
+    (!S.failVerdict || p.verdict === "fail"));
+}
+const inPer = (r, key) => S.gran === "all" || !key ? r : r.filter(p => keyOf(p, S.gran) === key);
+function keys(g) { return [...new Set(P.map(p => keyOf(p, g)))].sort(); }
+function prevKey(k, g) { const ks = keys(g); const i = ks.indexOf(k); return i > 0 ? ks[i - 1] : null; }
+function view(except) { return inPer(base(except), S.period); }
+
+// ---------- tooltip ----------
+const tip = document.getElementById("tip");
+function showTip(e, h) { tip.innerHTML = h; tip.classList.add("show"); tip.style.left = Math.min(Math.max(e.clientX, 140), innerWidth - 140) + "px"; tip.style.top = e.clientY + "px"; }
+function hideTip() { tip.classList.remove("show"); }
+
+// ---------- controls ----------
+function seg(el, items, cur, on) {
+  el.innerHTML = items.map(([k, l]) => `<button class="${cur === k ? "on" : ""}" data-k="${esc(k)}">${esc(l)}</button>`).join("");
+  el.querySelectorAll("button").forEach(b => b.onclick = () => on(b.dataset.k));
+}
+function renderControls() {
+  seg(document.getElementById("granSeg"), [["all", "All time"], ["month", "Month"], ["quarter", "Quarter"]], S.gran, k => { S.gran = k; S.period = k === "all" ? null : keys(k).slice(-1)[0]; render(); });
+  const ps = document.getElementById("periodSel");
+  ps.style.display = S.gran === "all" ? "none" : "";
+  if (S.gran !== "all") { ps.innerHTML = keys(S.gran).slice().reverse().map(k => `<option value="${k}" ${k === S.period ? "selected" : ""}>${lblPeriod(k, S.gran)}${k === keyOf({ month: AS_OF.slice(0, 7), quarter: AS_OF.slice(0, 4) + "-Q4" }, S.gran) ? " (so far)" : ""}</option>`).join(""); }
+  ps.onchange = () => { S.period = ps.value; render(); };
+  seg(document.getElementById("storeSeg"), [["all", "All stores"], ...D.stores.map(s => [s, s])], S.store, k => { S.store = k; render(); });
+  seg(document.getElementById("supSeg"), [["all", "All suppliers"], ...D.suppliers.map(s => [s, s.split(" ")[0]]), ["Unknown", "Unknown"]], S.sup, k => { S.sup = k; render(); });
+  const cats = [...new Set(P.map(p => p.category))].sort();
+  const cs = document.getElementById("catSel");
+  cs.innerHTML = `<option value="all">All categories</option>` + cats.map(c => `<option ${c === S.cat ? "selected" : ""}>${esc(c)}</option>`).join("");
+  cs.onchange = () => { S.cat = cs.value; render(); };
+  const chips = [];
+  if (S.stage) chips.push(["stage", "Stage: " + S.stage]);
+  if (S.outcome) chips.push(["outcome", "Outcome: " + S.outcome]);
+  if (S.edit) chips.push(["edit", "Edit: " + S.edit]);
+  if (S.defect) chips.push(["defect", "Defect: " + S.defect]);
+  if (S.refunding) chips.push(["refunding", "Still refunding"]);
+  if (S.failVerdict) chips.push(["failVerdict", "Report failed"]);
+  const ce = document.getElementById("chips");
+  ce.innerHTML = chips.map(([k, l]) => `<span class="chip">${esc(l)}<button data-k="${k}" aria-label="Remove filter">✕</button></span>`).join("");
+  ce.querySelectorAll("button").forEach(b => b.onclick = () => { S[b.dataset.k] = typeof S[b.dataset.k] === "boolean" ? false : null; render(); });
+}
+
+// ---------- KPIs ----------
+function metrics(r) {
+  const rec = recorded(r), fin = finished(r), rep = r.filter(p => p.verdict), op = r.filter(p => p.outcome === "Open");
+  return {
+    n: r.length, done: fin.length, open: op.length,
+    needed: rec.length ? pct(needed(rec).length, rec.length) : null, recN: rec.length,
+    size: rec.length ? pct(rec.filter(p => p.edits.includes("Size chart")).length, rec.length) : null,
+    fail: rep.length ? pct(rep.filter(p => p.verdict === "fail").length, rep.length) : null, repN: rep.length,
+    oldest: op.length ? Math.max(...op.map(p => p.days)) : 0,
+    refunding: fin.filter(p => p.refunds >= 5).length,
+  };
+}
+function spark(series, color) {
+  const w = 200, h = 28, max = Math.max(1, ...series.map(v => v ?? 0));
+  const pts = series.map((v, i) => [i / Math.max(1, series.length - 1) * w, h - (v ?? 0) / max * (h - 4) - 2]);
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts.map(p => p.join(",")).join(" ")}" fill="none" stroke="${color}" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/><circle cx="${pts[pts.length - 1][0]}" cy="${pts[pts.length - 1][1]}" r="2.5" fill="${color}"/></svg>`;
+}
+function delta(now, prev, unit, goodDown = true) {
+  if (now == null || prev == null) return "";
+  const d = unit === "pp" ? now - prev : prev ? (now - prev) / prev * 100 : null;
+  if (d == null) return "";
+  if (Math.abs(d) < 1) return `<span class="flat">±0${unit === "pp" ? "pp" : "%"}</span>`;
+  const bad = goodDown ? d > 0 : d < 0;
+  return `<span class="${bad ? "up" : "down"}">${d > 0 ? "▲" : "▼"} ${Math.abs(d).toFixed(0)}${unit === "pp" ? "pp" : "%"}</span>`;
+}
+function renderKpis() {
+  const b = base(), r = inPer(b, S.period), m = metrics(r);
+  const pk = S.period ? prevKey(S.period, S.gran) : null;
+  const pm = pk ? metrics(inPer(b, pk)) : null;
+  const months = keys("month");
+  const byM = months.map(k => metrics(b.filter(p => p.month === k)));
+  const vs = pk ? " vs " + lblPeriod(pk, S.gran) : "";
+  const tiles = [
+    { l: "Products QC'd", v: m.n.toLocaleString(), s: `${m.done} done · ${m.open} open ${pm ? delta(m.n, pm.n, "%", false) : ""}`, sp: byM.map(x => x.n), c: "var(--s1)", on: false, click: () => { S.stage = S.outcome = S.edit = S.defect = null; S.refunding = S.failVerdict = false; } },
+    { l: "Needed edits", v: m.needed == null ? "—" : m.needed + "%", s: `of ${m.recN} with a QC record ${pm ? delta(m.needed, pm.needed, "pp") : ""}`, sp: byM.map(x => x.needed), c: "var(--s1)", on: S.outcome === "Fixed", click: () => { S.outcome = S.outcome === "Fixed" ? null : "Fixed"; } },
+    { l: "Size-chart edits", v: m.size == null ? "—" : m.size + "%", s: `most common fix ${pm ? delta(m.size, pm.size, "pp") : ""}`, sp: byM.map(x => x.size), c: "var(--s1)", on: S.edit === "Size chart", click: () => { S.edit = S.edit === "Size chart" ? null : "Size chart"; } },
+    { l: "Report fail rate", v: m.fail == null ? "—" : m.fail + "%", s: `of ${m.repN} QC reports ${pm ? delta(m.fail, pm.fail, "pp") : ""}`, sp: byM.map(x => x.fail), c: "var(--s2)", on: S.failVerdict, click: () => { S.failVerdict = !S.failVerdict; } },
+    { l: "Open now", v: m.open.toLocaleString(), s: m.open ? `oldest <b class="${m.oldest > 14 ? "age-red" : m.oldest > 7 ? "age-amber" : ""}">${m.oldest} days</b>` : "nothing waiting", sp: byM.map(x => x.open), c: "var(--s4)", on: S.outcome === "Open", click: () => { S.outcome = S.outcome === "Open" ? null : "Open"; } },
+    { l: "Still refunding", v: m.refunding.toLocaleString(), s: "finished, 5+ refunds since QC", sp: byM.map(x => x.refunding), c: "var(--s2)", on: S.refunding, click: () => { S.refunding = !S.refunding; } },
+  ];
+  const el = document.getElementById("kpis");
+  el.innerHTML = tiles.map((t, i) => `<button class="card kpi ${t.on ? "on" : ""}" data-i="${i}"><div class="l">${t.l}</div><div class="v num">${t.v}</div><div class="s num">${t.s}</div>${spark(t.sp, t.c)}</button>`).join("");
+  el.querySelectorAll(".kpi").forEach(b => b.onclick = () => { tiles[+b.dataset.i].click(); render(); });
+  void vs;
+}
+
+// ---------- pipeline ----------
+function renderStages() {
+  const r = view("stage");
+  const max = Math.max(1, ...D.stages.map(s => r.filter(p => p.stage === s).length));
+  const el = document.getElementById("stages");
+  el.innerHTML = D.stages.map((s, i) => {
+    const x = r.filter(p => p.stage === s);
+    const meta = s === "Done" ? (() => { const rec = recorded(x); return rec.length ? `${pct(needed(rec).length, rec.length)}% needed edits` : "—"; })()
+      : x.length ? `oldest ${Math.max(...x.map(p => p.days))} days` : "empty";
+    return `<button class="stage ${S.stage === s ? "on" : ""}" data-s="${esc(s)}"><div class="n">${i + 1} · ${esc(s)}</div><div class="c num">${x.length}</div><div class="m">${meta}</div><div class="bar"><i style="width:${x.length / max * 100}%"></i></div></button>`;
+  }).join("");
+  el.querySelectorAll(".stage").forEach(b => b.onclick = () => { S.stage = S.stage === b.dataset.s ? null : b.dataset.s; render(); });
+  const w = view().filter(p => p.outcome === "Open").sort((a, b) => b.days - a.days).slice(0, 8);
+  document.getElementById("waiting").innerHTML = w.length ? `<table><thead><tr><th>Product</th><th>Stage</th><th class="r">Days</th></tr></thead><tbody>${w.map(p => `<tr class="click" data-id="${p.id}"><td><div class="pn">${esc(p.name)}</div><div class="muted" style="font-size:11.5px">${esc(p.note || "")}</div></td><td><span class="pill">${esc(p.stage)}</span></td><td class="r num ${p.days > 14 ? "age-red" : p.days > 7 ? "age-amber" : ""}">${p.days}</td></tr>`).join("")}</tbody></table>` : `<div class="empty">Nothing open in this view.</div>`;
+  bindRows("#waiting");
+}
+
+// ---------- trend ----------
+function niceStep(x) { const p = Math.pow(10, Math.floor(Math.log10(x || 1))), f = x / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p; }
+function roundTop(x, y, w, h, r) { if (h <= 0) return ""; r = Math.min(r, h, w / 2); return `M${x},${y + h}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h}Z`; }
+function renderTrend() {
+  const g = S.gran === "quarter" ? "quarter" : "month";
+  const b = base("outcome").filter(p => !S.outcome || p.outcome === S.outcome);
+  const ks = keys(g);
+  const data = ks.map(k => { const x = b.filter(p => keyOf(p, g) === k); const by = {}; OUTCOMES.forEach(o => by[o] = x.filter(p => p.outcome === o).length); return { k, by, t: x.length }; });
+  document.getElementById("legend").innerHTML = OUTCOMES.map(o => `<button class="${S.outcome === o ? "on" : ""}" data-o="${o}"><i style="background:${OCOL[o]}"></i>${o}</button>`).join("");
+  document.querySelectorAll("#legend button").forEach(bt => bt.onclick = () => { S.outcome = S.outcome === bt.dataset.o ? null : bt.dataset.o; render(); });
+  const el = document.getElementById("trend");
+  const W = Math.max(el.clientWidth || 600, ks.length * 44), H = 230, m = { l: 34, r: 6, t: 8, b: 26 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b, max = Math.max(1, ...data.map(d => d.t)), st = niceStep(max / 4), top = Math.ceil(max / st) * st;
+  const y = v => m.t + ih - v / top * ih, bw = iw / ks.length, gap = Math.min(18, bw * .3);
+  let s = `<svg width="${W}" height="${H}" role="img" aria-label="Products entering QC per ${g}">`;
+  for (let v = 0; v <= top; v += st) s += `<line class="gl" x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/><text class="ax" x="${m.l - 6}" y="${y(v) + 3}" text-anchor="end">${v}</text>`;
+  data.forEach((d, i) => {
+    const x = m.l + i * bw + gap / 2, w = bw - gap, sel = S.period && d.k === S.period, dim = S.period && !sel ? .4 : 1;
+    let acc = 0; const segs = OUTCOMES.filter(o => d.by[o]);
+    segs.forEach((o, j) => { const y0 = y(acc), y1 = y(acc + d.by[o]); acc += d.by[o]; const last = j === segs.length - 1, h = Math.max(0, y0 - y1 - (last ? 0 : 2));
+      s += last ? `<path d="${roundTop(x, y1, w, h, 4)}" fill="${OCOL[o]}" opacity="${dim}"/>` : `<rect x="${x}" y="${y1 + 2}" width="${w}" height="${h}" fill="${OCOL[o]}" opacity="${dim}"/>`; });
+    s += `<text class="ax" x="${x + w / 2}" y="${H - 8}" text-anchor="middle" ${sel ? 'style="font-weight:700;fill:var(--text)"' : ""}>${g === "month" ? MON[+d.k.slice(5, 7) - 1] : d.k.slice(5)}</text>`;
+    s += `<rect class="hit" data-i="${i}" x="${m.l + i * bw}" y="${m.t}" width="${bw}" height="${ih}"/>`;
+  });
+  el.innerHTML = s + `<line class="bl0" x1="${m.l}" x2="${W - m.r}" y1="${y(0)}" y2="${y(0)}"/></svg>`;
+  el.querySelectorAll(".hit").forEach(h => { const d = data[+h.dataset.i];
+    h.onmousemove = e => showTip(e, `<div class="tt">${lblPeriod(d.k, g)}</div>${OUTCOMES.filter(o => d.by[o]).map(o => `<div class="tr"><span><i style="background:${OCOL[o]}"></i>${o}</span><b>${d.by[o]}</b></div>`).join("")}<div class="tr" style="margin-top:3px"><span>Total</span><b>${d.t}</b></div>`);
+    h.onmouseleave = hideTip;
+    h.onclick = () => { hideTip(); if (S.gran === "all") S.gran = g; S.period = S.period === d.k ? null : d.k; if (!S.period) S.gran = "all"; render(); }; });
+}
+
+// ---------- bar lists ----------
+function bars(el, items, picked, onPick, fmt = v => v + "%") {
+  const max = Math.max(1, ...items.map(i => i.v));
+  el.innerHTML = items.length ? `<div class="bars">${items.map((i, n) => `<button class="brow ${picked === i.k ? "on" : ""}" data-n="${n}" title="${esc(i.title || i.k)}"><span class="bl">${esc(i.label || i.k)}</span><span class="bt"><span class="bf" style="width:${i.v / max * 100}%;${i.c ? "background:" + i.c : ""}"></span></span><span class="bv num">${fmt(i.v)} <small>${i.extra || ""}</small></span></button>`).join("")}</div>` : `<div class="empty">Nothing in this view.</div>`;
+  el.querySelectorAll(".brow").forEach(b => b.onclick = () => onPick(items[+b.dataset.n]));
+}
+function renderEdits() {
+  const rec = recorded(view("edit"));
+  const items = D.edits.map(e => { const n = rec.filter(p => p.edits.includes(e)).length; return { k: e, v: pct(n, rec.length), extra: n }; }).sort((a, b) => b.v - a.v);
+  const clean = rec.filter(p => p.outcome === "Passed clean").length;
+  items.push({ k: "__clean", label: "No edits needed", v: pct(clean, rec.length), extra: clean, c: "var(--s3)" });
+  bars(document.getElementById("edits"), items, S.edit || (S.outcome === "Passed clean" ? "__clean" : null), i => {
+    if (i.k === "__clean") { S.outcome = S.outcome === "Passed clean" ? null : "Passed clean"; S.edit = null; } else { S.edit = S.edit === i.k ? null : i.k; } render(); });
+}
+function renderDefects() {
+  const rep = view("defect").filter(p => p.verdict);
+  const c = {}; rep.forEach(p => p.defects.forEach(d => c[d] = (c[d] || 0) + 1));
+  const items = Object.entries(c).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([k, n]) => ({ k, v: pct(n, rep.length), extra: n, c: "var(--s2)" }));
+  bars(document.getElementById("defects"), items, S.defect, i => { S.defect = S.defect === i.k ? null : i.k; render(); });
+}
+function renderHeat() {
+  const r = recorded(view("cat").filter(p => S.cat === "all" || true));
+  const cats = [...new Set(r.map(p => p.category))].map(c => ({ c, rows: r.filter(p => p.category === c) })).filter(x => x.rows.length >= 3).sort((a, b) => b.rows.length - a.rows.length);
+  const el = document.getElementById("heat");
+  if (!cats.length) { el.innerHTML = `<div class="empty">Nothing in this view.</div>`; return; }
+  const cell = (v) => `background: color-mix(in srgb, var(--s1) ${Math.round(v * 0.9)}%, var(--surface-2)); color: ${v > 55 ? "#fff" : "var(--text)"}`;
+  el.innerHTML = `<table class="heat"><thead><tr><th style="text-align:left">Category</th>${D.edits.map(e => `<th>${e === "Description" ? "Copy" : e}</th>`).join("")}<th>n</th></tr></thead><tbody>` +
+    cats.map(({ c, rows }) => `<tr><td class="rl" data-cat="${esc(c)}">${esc(c)}</td>${D.edits.map(e => { const v = pct(rows.filter(p => p.edits.includes(e)).length, rows.length); return `<td class="num ${S.cat === c && S.edit === e ? "on" : ""}" data-cat="${esc(c)}" data-e="${e}" style="${cell(v)}" title="${esc(c)} · ${e}: ${v}% of ${rows.length}">${v}%</td>`; }).join("")}<td class="muted num" style="background:none;cursor:default">${rows.length}</td></tr>`).join("") + `</tbody></table>`;
+  el.querySelectorAll("td[data-cat]").forEach(td => td.onclick = () => {
+    const c = td.dataset.cat, e = td.dataset.e;
+    if (e) { const on = S.cat === c && S.edit === e; S.cat = on ? "all" : c; S.edit = on ? null : e; } else S.cat = S.cat === c ? "all" : c;
+    render(); });
+}
+
+// ---------- suppliers ----------
+function supStats(r) {
+  const rec = recorded(r), rep = r.filter(p => p.verdict), ah = r.map(p => p.answer_h).sort((a, b) => a - b);
+  const checks = {}; D.checks.forEach(c => { const v = rep.map(p => p.checks[c]).filter(x => x === "ok" || x === "mismatch"); checks[c] = v.length ? pct(v.filter(x => x === "mismatch").length, v.length) : null; });
+  return { n: r.length, needed: rec.length ? pct(needed(rec).length, rec.length) : null, fail: rep.length ? pct(rep.filter(p => p.verdict === "fail").length, rep.length) : null, rep: rep.length,
+    answer: ah.length ? ah[Math.floor(ah.length / 2)] : null, cost: r.length ? r.reduce((a, p) => a + p.cost, 0) / r.length : null,
+    requote: pct(r.filter(p => p.quotes > 1).length, r.length), refund: r.filter(p => p.outcome !== "Open").reduce((a, p) => a + p.refund_eur, 0), checks };
+}
+function renderSups() {
+  const r = view("sup");
+  const list = [...D.suppliers, "Unknown"].map(s => ({ s, st: supStats(r.filter(p => p.sup === s)) })).filter(x => x.st.n);
+  const best = (k, low = true) => { const v = list.filter(x => x.s !== "Unknown" && x.st[k] != null).map(x => x.st[k]); return v.length > 1 ? (low ? Math.min(...v) : Math.max(...v)) : null; };
+  const B = { needed: best("needed"), fail: best("fail"), answer: best("answer"), cost: best("cost"), requote: best("requote") };
+  const row = (l, k, v) => `<dt>${l}</dt><dd class="num ${B[k] != null && v.raw === B[k] ? "best" : ""}">${v.txt}</dd>`;
+  const el = document.getElementById("sups");
+  el.innerHTML = list.map(({ s, st }) => `<div class="sup ${S.sup === s ? "on" : ""}" data-s="${esc(s)}"><h4>${esc(s)}<span>${st.n} products · ${st.rep} reports</span></h4><dl>
+    ${row("Needed edits", "needed", { raw: st.needed, txt: st.needed == null ? "—" : st.needed + "%" })}
+    ${row("Report fail rate", "fail", { raw: st.fail, txt: st.fail == null ? "—" : st.fail + "%" })}
+    ${row("Median answer time", "answer", { raw: st.answer, txt: st.answer == null ? "—" : st.answer + " h" })}
+    ${row("Avg unit cost", "cost", { raw: st.cost, txt: st.cost == null ? "—" : "$" + st.cost.toFixed(2) })}
+    ${row("Needed a re-quote", "requote", { raw: st.requote, txt: st.requote + "%" })}
+    <dt>€ refunded since QC</dt><dd class="num">${eur(st.refund)}</dd></dl>
+    <div class="muted" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">✗ rate per check</div>
+    ${D.checks.map(c => `<div class="chk"><span>${c}</span><span class="t"><i style="width:${st.checks[c] || 0}%"></i></span><span class="num" style="text-align:right">${st.checks[c] == null ? "—" : st.checks[c] + "%"}</span></div>`).join("")}</div>`).join("");
+  el.querySelectorAll(".sup").forEach(c => c.onclick = () => { S.sup = S.sup === c.dataset.s ? "all" : c.dataset.s; render(); });
+}
+
+// ---------- refunds ----------
+function renderRefunds() {
+  const r = view().filter(p => p.m23 != null && p.outcome !== "Open");
+  const groups = ["Fixed", "Passed clean", "Pulled", "No QC record"].map(o => { const x = r.filter(p => p.outcome === o); return { o, n: x.length, m1: x.length ? x.reduce((a, p) => a + p.m1, 0) / x.length : 0, m23: x.length ? x.reduce((a, p) => a + p.m23, 0) / x.length : 0 }; }).filter(g => g.n >= 3);
+  const el = document.getElementById("refChart");
+  if (!groups.length) { el.innerHTML = `<div class="empty">Too few products 90+ days past QC in this view.</div>`; } else {
+    const W = Math.max(el.clientWidth || 520, 300), H = 220, m = { l: 34, r: 6, t: 10, b: 40 }, iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const max = Math.max(...groups.map(g => Math.max(g.m1, g.m23))), st = niceStep(max / 4) || 1, top = Math.ceil(max / st) * st, y = v => m.t + ih - v / top * ih;
+    const gw = iw / groups.length, bw = Math.min(34, gw * .3);
+    let s = `<svg width="${W}" height="${H}" role="img" aria-label="Refunds per product, month 1 vs months 2-3">`;
+    for (let v = 0; v <= top + 1e-9; v += st) s += `<line class="gl" x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/><text class="ax" x="${m.l - 6}" y="${y(v) + 3}" text-anchor="end">${+v.toFixed(1)}</text>`;
+    groups.forEach((g, i) => { const cx = m.l + gw * i + gw / 2;
+      s += `<path d="${roundTop(cx - bw - 2, y(g.m1), bw, y(0) - y(g.m1), 4)}" fill="var(--base)"/><path d="${roundTop(cx + 2, y(g.m23), bw, y(0) - y(g.m23), 4)}" fill="${OCOL[g.o]}"/>`;
+      s += `<text class="ax" x="${cx}" y="${H - 22}" text-anchor="middle" style="fill:var(--text);font-weight:600">${g.o}</text><text class="ax" x="${cx}" y="${H - 8}" text-anchor="middle">×${g.m1 ? (g.m23 / g.m1).toFixed(1) : "—"} · n=${g.n}</text>`;
+      s += `<rect class="hit" data-i="${i}" x="${m.l + gw * i}" y="${m.t}" width="${gw}" height="${ih}"/>`; });
+    el.innerHTML = s + `<line class="bl0" x1="${m.l}" x2="${W - m.r}" y1="${y(0)}" y2="${y(0)}"/></svg><div class="legend" style="margin:8px 0 0"><button disabled><i style="background:var(--base)"></i>Month 1 (all groups)</button><button disabled><i style="background:var(--text-3)"></i>Months 2–3, per 30 days, in the outcome colour</button></div>`;
+    el.querySelectorAll(".hit").forEach(h => { const g = groups[+h.dataset.i];
+      h.onmousemove = e => showTip(e, `<div class="tt">${g.o} · ${g.n} products</div><div class="tr"><span>Month 1</span><b>${g.m1.toFixed(2)}</b></div><div class="tr"><span>Months 2–3 / 30d</span><b>${g.m23.toFixed(2)}</b></div><div class="tr"><span>Growth</span><b>×${g.m1 ? (g.m23 / g.m1).toFixed(2) : "—"}</b></div>`);
+      h.onmouseleave = hideTip; h.onclick = () => { hideTip(); S.outcome = S.outcome === g.o ? null : g.o; render(); }; });
+  }
+  const top = finished(view()).filter(p => p.refunds > 0).sort((a, b) => b.refund_eur - a.refund_eur).slice(0, 8);
+  document.getElementById("refTop").innerHTML = top.length ? `<table><thead><tr><th>Product</th><th>Outcome</th><th class="r">Refunds</th><th class="r">€</th></tr></thead><tbody>${top.map(p => `<tr class="click" data-id="${p.id}"><td class="pn">${esc(p.name)}</td><td><span class="pill"><i style="background:${OCOL[p.outcome]}"></i>${p.outcome}</span></td><td class="r num">${p.refunds}</td><td class="r num">${eur(p.refund_eur)}</td></tr>`).join("")}</tbody></table>` : `<div class="empty">No refunds in this view.</div>`;
+  bindRows("#refTop");
+}
+
+// ---------- insights ----------
+function renderInsights() {
+  const r = view(), rec = recorded(r), fin = finished(r), op = r.filter(p => p.outcome === "Open"), L = [];
+  if (rec.length) L.push(["crit", "!", `<b>${pct(needed(rec).length, rec.length)}% of checked products needed changes</b> <span class="m">— ${needed(rec).length} of ${rec.length} with a QC record.</span>`]);
+  const ec = D.edits.map(e => [e, rec.filter(p => p.edits.includes(e)).length]).sort((a, b) => b[1] - a[1]);
+  if (ec[0] && ec[0][1]) L.push(["crit", "1", `<b><span class="lnk" data-edit="${ec[0][0]}">${ec[0][0]}</span> is the most common fix</b> <span class="m">— ${pct(ec[0][1], rec.length)}% of checked products; most of these could be caught before launch.</span>`]);
+  const late = op.filter(p => p.days > 14);
+  if (late.length) L.push(["warn", "⏱", `<b>${late.length} products open over 14 days</b> <span class="m">— oldest ${Math.max(...late.map(p => p.days))} days; <span class="lnk" data-open="1">show open</span>.</span>`]);
+  const s = D.suppliers.map(x => [x, supStats(r.filter(p => p.sup === x))]).filter(x => x[1].fail != null && x[1].rep >= 10);
+  if (s.length === 2) { s.sort((a, b) => b[1].fail - a[1].fail); const gap = s[0][1].fail - s[1][1].fail; if (gap >= 5) L.push(["warn", "≠", `<b><span class="lnk" data-sup="${esc(s[0][0])}">${esc(s[0][0])}</span>'s reports fail more</b> <span class="m">— ${s[0][1].fail}% vs ${s[1][1].fail}%.</span>`]); }
+  const g = o => { const x = r.filter(p => p.outcome === o && p.m23 != null); const a = x.reduce((t, p) => t + p.m1, 0), b = x.reduce((t, p) => t + p.m23, 0); return x.length >= 5 && a ? [b / a, x.length] : null; };
+  const gf = g("Fixed"), gp = g("Passed clean");
+  if (gf && gp) L.push([gf[0] < gp[0] ? "good" : "warn", gf[0] < gp[0] ? "↓" : "↑", `<b>Fixed products' refunds grew ×${gf[0].toFixed(1)}, passed ones ×${gp[0].toFixed(1)}</b> <span class="m">— ${gf[0] < gp[0] ? "the fixes look like they work" : "the fixes aren't showing up in refunds yet"} (${gf[1]} vs ${gp[1]} products, 90+ days old).</span>`]);
+  const nr = fin.filter(p => p.outcome === "No QC record");
+  if (nr.length) L.push(["warn", "?", `<b>${nr.length} finished products have no QC record</b> <span class="m">— <span class="lnk" data-outcome="No QC record">show them</span>; nothing was written down, so they're left out of the rates.</span>`]);
+  const ref = fin.filter(p => p.refunds >= 5).sort((a, b) => b.refund_eur - a.refund_eur);
+  if (ref.length) L.push(["crit", "€", `<b>${ref.length} finished products are still refunding</b> <span class="m">— worst: <span class="lnk" data-id="${ref[0].id}">${esc(ref[0].name)}</span>, ${eur(ref[0].refund_eur)}.</span>`]);
+  const el = document.getElementById("insights");
+  el.innerHTML = L.length ? L.map(([c, i, h]) => `<li><span class="ic ${c}">${i}</span><span>${h}</span></li>`).join("") : `<li class="empty">Nothing in this view.</li>`;
+  el.querySelectorAll("[data-edit]").forEach(a => a.onclick = () => { S.edit = a.dataset.edit; render(); });
+  el.querySelectorAll("[data-open]").forEach(a => a.onclick = () => { S.outcome = "Open"; render(); });
+  el.querySelectorAll("[data-sup]").forEach(a => a.onclick = () => { S.sup = a.dataset.sup; render(); });
+  el.querySelectorAll("[data-outcome]").forEach(a => a.onclick = () => { S.outcome = a.dataset.outcome; render(); });
+  el.querySelectorAll("[data-id]").forEach(a => a.onclick = () => openDrawer(a.dataset.id));
+}
+
+// ---------- root causes + plan ----------
+function renderCauses() {
+  const r = view("edit"), rec = recorded(r);
+  const causes = [...D.edits.map(e => ({ k: e, x: rec.filter(p => p.edits.includes(e)) })), { k: "Pulled", x: rec.filter(p => p.outcome === "Pulled") }].filter(c => c.x.length).sort((a, b) => b.x.length - a.x.length);
+  const el = document.getElementById("rc");
+  el.innerHTML = causes.map(c => { const R = ROOT[c.k]; const d = {}; c.x.forEach(p => p.defects.forEach(t => d[t] = (d[t] || 0) + 1)); const td = Object.entries(d).sort((a, b) => b[1] - a[1]).slice(0, 2).map(e => e[0]).join(", ");
+    const on = c.k === "Pulled" ? S.outcome === "Pulled" : S.edit === c.k;
+    return `<div class="rc-card ${on ? "on" : ""}" data-k="${c.k}"><div class="h"><b>${c.k}</b><span class="share">${pct(c.x.length, rec.length)}%</span><span class="muted" style="font-size:11.5px">${c.x.length} products · ${c.x.filter(p => p.refunds >= 5).length} still refunding · owner: ${R.owner}</span></div><dl><dt>Where</dt><dd>${R.where}</dd>${td ? `<dt>Seen as</dt><dd>${esc(td)}</dd>` : ""}<dt>Fix</dt><dd>${R.fix}</dd></dl></div>`; }).join("") || `<div class="empty">Nothing in this view.</div>`;
+  el.querySelectorAll(".rc-card").forEach(c => c.onclick = () => { const k = c.dataset.k; if (k === "Pulled") { S.outcome = S.outcome === "Pulled" ? null : "Pulled"; S.edit = null; } else { S.edit = S.edit === k ? null : k; } render(); });
+
+  const all = view(), arec = recorded(all), acts = [];
+  const sc = arec.filter(p => p.edits.includes("Size chart"));
+  if (sc.length) acts.push({ n: sc.length, a: "Publish our own size chart, measured from the QC sample, before a product launches", o: "Listings", f: () => S.edit = "Size chart" });
+  const ph = arec.filter(p => p.edits.includes("Photos") || p.edits.includes("Features"));
+  if (ph.length) acts.push({ n: ph.length, a: "Check photos and every feature claim against the sample at listing time", o: "Listings + QC", f: () => S.edit = "Photos" });
+  const rf = finished(all).filter(p => p.refunds >= 5);
+  if (rf.length) acts.push({ n: rf.length, a: "Re-QC finished products that keep refunding, starting with the highest €", o: "QC lead", f: () => S.refunding = true });
+  const late = all.filter(p => p.outcome === "Open" && p.days > 7);
+  if (late.length) acts.push({ n: late.length, a: "Chase products open more than 7 days: set a 48-hour answer target with suppliers", o: "Sourcing", f: () => S.outcome = "Open" });
+  const ss = D.suppliers.map(x => [x, supStats(all.filter(p => p.sup === x))]).filter(x => x[1].fail != null).sort((a, b) => a[1].fail - b[1].fail);
+  if (ss.length === 2 && ss[1][1].fail - ss[0][1].fail >= 10) acts.push({ n: Math.round(ss[1][1].rep * (ss[1][1].fail - ss[0][1].fail) / 100), a: `Default new products to ${ss[0][0]}, whose reports fail ${ss[1][1].fail - ss[0][1].fail} points less`, o: "Sourcing", f: () => S.sup = ss[1][0] });
+  const unk = all.filter(p => p.sup === "Unknown");
+  if (unk.length) acts.push({ n: unk.length, a: "Record the supplier on every product so the comparison covers everything", o: "QC lead", f: () => S.sup = "Unknown" });
+  acts.sort((a, b) => b.n - a.n);
+  document.getElementById("plan").innerHTML = acts.length ? `<table><thead><tr><th>#</th><th>Action</th><th>Owner</th><th class="r">Products</th></tr></thead><tbody>${acts.map((a, i) => `<tr class="click" data-i="${i}"><td><span class="prio ${i < 2 ? "p1" : i < 4 ? "p2" : ""}">${i + 1}</span></td><td>${a.a}</td><td class="muted" style="white-space:nowrap">${a.o}</td><td class="r num"><b>${a.n}</b></td></tr>`).join("")}</tbody></table>` : `<div class="empty">Nothing to act on in this view.</div>`;
+  document.querySelectorAll("#plan tr[data-i]").forEach(t => t.onclick = () => { acts[+t.dataset.i].f(); render(); document.getElementById("overview").scrollIntoView(); });
+}
+
+// ---------- product table ----------
+const COLS = [["name", "Product"], ["category", "Category"], ["sup", "Supplier"], ["stage", "Stage"], ["outcome", "Outcome"], ["qc", "5th sale"], ["days", "Days"], ["refunds", "Refunds"], ["refund_eur", "€ refunded"]];
+function renderTable() {
+  const r = view().slice();
+  const [k, dir] = S.sort;
+  r.sort((a, b) => (a[k] > b[k] ? 1 : a[k] < b[k] ? -1 : 0) * dir);
+  const per = 15, pages = Math.max(1, Math.ceil(r.length / per));
+  S.page = Math.min(S.page, pages - 1);
+  const rows = r.slice(S.page * per, S.page * per + per);
+  document.getElementById("prodCount").textContent = r.length + " products in this view · click a row for its full history";
+  document.getElementById("table").innerHTML = `<table><thead><tr>${COLS.map(([c, l]) => `<th class="sort ${["days", "refunds", "refund_eur"].includes(c) ? "r" : ""}" data-c="${c}">${l} <span class="arr">${k === c ? (dir > 0 ? "↑" : "↓") : ""}</span></th>`).join("")}</tr></thead><tbody>` +
+    (rows.map(p => `<tr class="click" data-id="${p.id}"><td class="pn">${esc(p.name)}${p.flagged ? ' <span class="pill" style="color:var(--critical)">flagged</span>' : ""}</td><td class="muted">${esc(p.category)}</td><td>${esc(p.sup)}</td><td><span class="pill">${esc(p.stage)}</span></td><td><span class="pill"><i style="background:${OCOL[p.outcome]}"></i>${p.outcome}</span></td><td class="num muted">${p.qc}</td><td class="r num">${p.days}</td><td class="r num">${p.refunds}</td><td class="r num">${eur(p.refund_eur)}</td></tr>`).join("") || `<tr><td colspan="9" class="empty">No products match.</td></tr>`) + `</tbody></table>`;
+  document.querySelectorAll("#table th.sort").forEach(th => th.onclick = () => { const c = th.dataset.c; S.sort = [c, S.sort[0] === c ? -S.sort[1] : (["name", "category", "sup", "stage", "outcome"].includes(c) ? 1 : -1)]; S.page = 0; renderTable(); });
+  bindRows("#table");
+  const pg = document.getElementById("pager");
+  pg.innerHTML = `<span>${r.length ? S.page * per + 1 : 0}–${Math.min(r.length, S.page * per + per)} of ${r.length}</span><span><button id="pPrev" ${S.page === 0 ? "disabled" : ""}>← Prev</button> <button id="pNext" ${S.page >= pages - 1 ? "disabled" : ""}>Next →</button></span>`;
+  document.getElementById("pPrev").onclick = () => { S.page--; renderTable(); };
+  document.getElementById("pNext").onclick = () => { S.page++; renderTable(); };
+}
+function bindRows(sel) { document.querySelectorAll(sel + " tr[data-id]").forEach(t => t.onclick = () => openDrawer(t.dataset.id)); }
+
+// ---------- drawer ----------
+const drawer = document.getElementById("drawer"), scrim = document.getElementById("scrim");
+function openDrawer(id) {
+  const p = P.find(x => x.id === id); if (!p) return;
+  const reached = p.history.map(h => h[0]);
+  const tl = D.stages.map(s => { const h = p.history.find(x => x[0] === s); return `<li class="${h ? "" : "todo"}">${esc(s)}${h ? `<span>${h[1]}</span>` : `<span>not yet</span>`}</li>`; }).join("");
+  const checks = Object.entries(p.checks).map(([c, v]) => `<div><span>${c}</span><span class="${v === "ok" ? "ok" : v === "mismatch" ? "bad" : "muted"}">${v === "ok" ? "✓ ok" : v === "mismatch" ? "✗ mismatch" : v}</span></div>`).join("");
+  drawer.innerHTML = `<div class="dh"><div><div class="eyebrow">${esc(p.id)} · ${esc(p.category)} · ${esc(p.store)}</div><h3>${esc(p.name)}</h3></div><button class="icon-btn" id="dClose" aria-label="Close">✕</button></div>
+    <div class="meta"><span class="pill"><i style="background:${OCOL[p.outcome]}"></i>${p.outcome}</span><span class="pill">${esc(p.sup)}</span>${p.verdict ? `<span class="pill">Report: ${p.verdict}</span>` : ""}${p.flagged ? '<span class="pill" style="color:var(--critical)">Flagged</span>' : ""}</div>
+    <div class="stats3"><div><b class="num">${p.days}</b><span>days since 5th sale</span></div><div><b class="num">${p.refunds}</b><span>refunds since QC</span></div><div><b class="num">${eur(p.refund_eur)}</b><span>refunded</span></div></div>
+    ${p.note ? `<h5>Latest note</h5><div style="font-size:13px">${esc(p.note)}</div>` : ""}
+    <h5>QC timeline</h5><ul class="tl">${tl}</ul>
+    ${checks ? `<h5>QC report checks</h5><div class="checks">${checks}</div>` : `<h5>QC report</h5><div class="muted" style="font-size:13px">${p.outcome === "Open" ? "No report yet." : "No QC report was recorded for this product."}</div>`}
+    ${p.defects.length ? `<h5>Defects found</h5><div class="meta">${p.defects.map(d => `<span class="pill">${esc(d)}</span>`).join("")}</div>` : ""}
+    ${p.edits.length ? `<h5>Listing edits after QC</h5><div class="meta">${p.edits.map(e => `<span class="pill" style="color:var(--accent)">${e}</span>`).join("")}</div>` : ""}
+    <h5>Sourcing</h5><div class="stats3"><div><b class="num">$${p.cost.toFixed(2)}</b><span>unit cost</span></div><div><b class="num">$${p.price.toFixed(2)}</b><span>retail price</span></div><div><b class="num">${p.answer_h} h</b><span>supplier answer time</span></div></div>
+    ${p.m23 != null ? `<h5>Refunds after QC</h5><div class="stats3"><div><b class="num">${p.m1}</b><span>month 1</span></div><div><b class="num">${p.m23}</b><span>months 2–3, per 30 days</span></div><div><b class="num">${p.m1 ? "×" + (p.m23 / p.m1).toFixed(1) : "—"}</b><span>growth</span></div></div>` : ""}`;
+  drawer.classList.add("show"); scrim.classList.add("show");
+  document.getElementById("dClose").onclick = closeDrawer;
+  void reached;
+}
+function closeDrawer() { drawer.classList.remove("show"); scrim.classList.remove("show"); }
+scrim.onclick = closeDrawer;
+addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); });
+
+// ---------- section nav highlight ----------
+const navLinks = [...document.querySelectorAll("#secNav a")];
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) navLinks.forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id)); }), { rootMargin: "-140px 0px -60% 0px" });
+document.querySelectorAll("main section").forEach(s => io.observe(s));
+
+// ---------- theme ----------
+function setTheme(t) { if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme; try { t ? localStorage.setItem("qc-theme", t) : localStorage.removeItem("qc-theme"); } catch (e) {} }
+try { const t = localStorage.getItem("qc-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+document.getElementById("themeBtn").onclick = () => { const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; setTheme(dark ? "light" : "dark"); render(); };
+
+// ---------- boot ----------
+function render() {
+  renderControls(); renderKpis(); renderStages(); renderTrend(); renderInsights(); renderEdits(); renderDefects(); renderHeat(); renderSups(); renderRefunds(); renderCauses(); renderTable();
+}
+document.getElementById("q").oninput = e => { S.q = e.target.value; S.page = 0; render(); };
+document.getElementById("clearAll").onclick = () => { Object.assign(S, { gran: "all", period: null, store: "all", sup: "all", cat: "all", q: "", stage: null, outcome: null, edit: null, defect: null, refunding: false, failVerdict: false, page: 0 }); document.getElementById("q").value = ""; render(); };
+const d0 = new Date(AS_OF + "T00:00:00");
+document.getElementById("asOf").textContent = "Sample data · as of " + d0.getDate() + " " + MON[d0.getMonth()] + " " + d0.getFullYear();
+let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(render, 150); });
+render();
+</script>
+</body>
+</html>
