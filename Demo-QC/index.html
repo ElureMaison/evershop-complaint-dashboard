@@ -3,720 +3,568 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>QC Command Center — Demo</title>
-<meta name="description" content="A demo quality-control dashboard for a dropshipping store, built on invented sample data.">
+<title>QC Board — Demo</title>
+<meta name="description" content="A demo of a sourcing quality-control board for an online store, on invented data.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
     color-scheme: light;
-    --page:#f6f6f3; --surface:#ffffff; --surface-2:#f1f0ec; --surface-3:#e9e8e3;
-    --text:#111110; --text-2:#55544f; --text-3:#8a8983; --border:rgba(17,17,16,.09); --grid:#e4e3dd; --base:#c6c5bc;
-    --accent:#2a78d6; --accent-soft:rgba(42,120,214,.10);
-    --good:#0ca30c; --warning:#d99400; --critical:#d03b3b;
-    --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s0:#b8b6ad;
-    --shadow:0 1px 2px rgba(0,0,0,.04), 0 8px 24px -12px rgba(0,0,0,.10);
-    --demo:#6d4ae0;
+    --page:#f5f5f2; --side:#fbfbf9; --surface:#ffffff; --s2:#f2f1ed; --s3:#e8e7e2;
+    --text:#121211; --t2:#55544f; --t3:#8a8983; --line:rgba(18,18,17,.09); --line2:rgba(18,18,17,.16);
+    --accent:#2a78d6; --accent-soft:rgba(42,120,214,.10); --accent-ink:#fff;
+    --good:#0f9d58; --good-soft:rgba(15,157,88,.12); --warn:#c98500; --warn-soft:rgba(234,170,0,.15); --bad:#d03b3b; --bad-soft:rgba(208,59,59,.11);
+    --st1:#8a8983; --st2:#d03b3b; --st3:#e0a400; --st4:#eb6834; --st5:#0f9d58; --flag:#c98500;
+    --shadow:0 1px 2px rgba(0,0,0,.04), 0 10px 30px -14px rgba(0,0,0,.18); --demo:#6d4ae0;
   }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --page:#0c0c0b; --surface:#171716; --surface-2:#1f1f1d; --surface-3:#2a2a27;
-    --text:#f5f5f2; --text-2:#c3c2b7; --text-3:#8a8983; --border:rgba(255,255,255,.08); --grid:#2a2a28; --base:#3a3a37;
-    --accent:#3987e5; --accent-soft:rgba(57,135,229,.16);
-    --critical:#e66767; --warning:#e8a90f;
-    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s0:#5c5b56;
-    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.6); --demo:#9a7cf4;
+    --page:#111110; --side:#151514; --surface:#1b1b1a; --s2:#232321; --s3:#2d2d2a;
+    --text:#f3f3f0; --t2:#c3c2b7; --t3:#8a8983; --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.16);
+    --accent:#4b93ea; --accent-soft:rgba(75,147,234,.16);
+    --good:#2fbf75; --good-soft:rgba(47,191,117,.15); --warn:#f0b429; --warn-soft:rgba(240,180,41,.15); --bad:#ef6b6b; --bad-soft:rgba(239,107,107,.14);
+    --st1:#8a8983; --st2:#ef6b6b; --st3:#f0b429; --st4:#f08a55; --st5:#2fbf75; --flag:#f0b429;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.7); --demo:#9a7cf4;
   } }
   :root[data-theme="dark"] {
     color-scheme: dark;
-    --page:#0c0c0b; --surface:#171716; --surface-2:#1f1f1d; --surface-3:#2a2a27;
-    --text:#f5f5f2; --text-2:#c3c2b7; --text-3:#8a8983; --border:rgba(255,255,255,.08); --grid:#2a2a28; --base:#3a3a37;
-    --accent:#3987e5; --accent-soft:rgba(57,135,229,.16);
-    --critical:#e66767; --warning:#e8a90f;
-    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s0:#5c5b56;
-    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.6); --demo:#9a7cf4;
+    --page:#111110; --side:#151514; --surface:#1b1b1a; --s2:#232321; --s3:#2d2d2a;
+    --text:#f3f3f0; --t2:#c3c2b7; --t3:#8a8983; --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.16);
+    --accent:#4b93ea; --accent-soft:rgba(75,147,234,.16);
+    --good:#2fbf75; --good-soft:rgba(47,191,117,.15); --warn:#f0b429; --warn-soft:rgba(240,180,41,.15); --bad:#ef6b6b; --bad-soft:rgba(239,107,107,.14);
+    --st1:#8a8983; --st2:#ef6b6b; --st3:#f0b429; --st4:#f08a55; --st5:#2fbf75; --flag:#f0b429;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.7); --demo:#9a7cf4;
   }
   * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; scroll-padding-top: 130px; }
+  html, body { height: 100%; }
   body { margin: 0; background: var(--page); color: var(--text); font: 14px/1.5 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
-  button { font: inherit; color: inherit; }
+  button, input, textarea, select { font: inherit; color: inherit; }
+  button { cursor: pointer; }
   .num { font-variant-numeric: tabular-nums; }
-  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
-  @media (max-width: 640px) { .wrap { padding: 0 16px; } }
+  svg.i { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
 
-  .demo-bar { background: var(--demo); color: #fff; font-size: 12.5px; text-align: center; padding: 7px 16px; }
-  .demo-bar b { font-weight: 700; }
+  .demo-bar { background: var(--demo); color: #fff; font-size: 12.5px; text-align: center; padding: 6px 16px; position: relative; z-index: 5; }
+  .demo-bar button { background: rgba(255,255,255,.2); border: 0; color: #fff; border-radius: 6px; padding: 1px 8px; margin-left: 8px; font-size: 12px; }
 
-  header.hero { padding: 26px 0 18px; }
-  .hero-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
-  .eyebrow { font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); margin-bottom: 4px; }
-  h1 { font-size: 28px; font-weight: 800; letter-spacing: -.02em; margin: 0; }
-  .hero p { margin: 4px 0 0; color: var(--text-2); max-width: 640px; }
-  .hero-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-  .badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 99px; background: var(--surface); border: 1px solid var(--border); color: var(--text-2); }
-  .badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--demo); }
-  .icon-btn { width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
-  .icon-btn:hover { border-color: var(--accent); }
+  .app { display: grid; grid-template-columns: 248px 1fr; height: calc(100% - 31px); }
+  aside.side { background: var(--side); border-right: 1px solid var(--line); display: flex; flex-direction: column; padding: 16px 12px; gap: 4px; overflow-y: auto; }
+  .brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 14px; }
+  .brand .logo { width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(135deg, var(--accent), #7a5af0); display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 13px; }
+  .brand b { display: block; font-size: 14px; line-height: 1.2; }
+  .brand span { font-size: 11.5px; color: var(--t3); }
+  .side h6 { font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--t3); margin: 12px 8px 4px; }
+  .nav { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 9px; border: 0; background: none; text-align: left; width: 100%; color: var(--t2); font-weight: 500; }
+  .nav:hover { background: var(--s2); color: var(--text); }
+  .nav.on { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.08); font-weight: 650; }
+  .nav .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .nav .lbl { flex: 1; min-width: 0; }
+  .nav .lbl small { display: block; font-size: 11px; color: var(--t3); font-weight: 400; line-height: 1.3; }
+  .nav .ct { font-size: 12px; color: var(--t3); font-weight: 600; }
+  .side .foot { margin-top: auto; padding: 10px 8px 0; font-size: 11.5px; color: var(--t3); }
 
-  .toolbar { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--page) 88%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
-  .toolbar .wrap { display: flex; flex-direction: column; gap: 8px; padding-top: 10px; padding-bottom: 10px; }
-  .filters { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
-  .seg { display: inline-flex; background: var(--surface-2); border-radius: 10px; padding: 3px; gap: 2px; flex-wrap: wrap; }
-  .seg button { border: 0; background: none; padding: 5px 11px; border-radius: 8px; font-size: 12.5px; font-weight: 600; color: var(--text-2); cursor: pointer; white-space: nowrap; }
-  .seg button:hover { color: var(--text); }
+  .main { display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+  .top { display: flex; align-items: center; gap: 12px; padding: 16px 24px 12px; flex-wrap: wrap; }
+  .top h1 { font-size: 20px; font-weight: 750; letter-spacing: -.015em; margin: 0; }
+  .top .hint { color: var(--t3); font-size: 12.5px; }
+  .top .grow { flex: 1; }
+  .menu-btn { display: none; }
+  .search { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; width: 260px; color: var(--t3); }
+  .search input { border: 0; outline: 0; background: none; width: 100%; color: var(--text); }
+  .search kbd { font-size: 10.5px; border: 1px solid var(--line2); border-radius: 4px; padding: 0 5px; color: var(--t3); }
+  .seg { display: inline-flex; background: var(--s2); border-radius: 10px; padding: 3px; gap: 2px; }
+  .seg button { border: 0; background: none; padding: 5px 10px; border-radius: 8px; font-size: 12.5px; font-weight: 600; color: var(--t2); display: inline-flex; gap: 6px; align-items: center; }
   .seg button.on { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
-  select, input[type=search] { font: inherit; font-size: 12.5px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 9px; padding: 6px 10px; outline: none; }
-  select:focus, input[type=search]:focus { border-color: var(--accent); }
-  input[type=search] { width: 200px; }
-  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
-  .chip { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 600; padding: 4px 6px 4px 10px; border-radius: 99px; }
-  .chip button { border: 0; background: var(--accent); color: #fff; width: 16px; height: 16px; border-radius: 50%; cursor: pointer; font-size: 10px; line-height: 1; }
-  .clear { border: 0; background: none; color: var(--text-3); font-size: 12px; text-decoration: underline; cursor: pointer; }
-  nav.sections { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
-  nav.sections::-webkit-scrollbar { display: none; }
-  nav.sections a { font-size: 12.5px; font-weight: 600; color: var(--text-3); text-decoration: none; padding: 4px 10px; border-radius: 7px; white-space: nowrap; }
-  nav.sections a:hover, nav.sections a.on { color: var(--text); background: var(--surface-2); }
+  .ibtn { width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); display: inline-grid; place-items: center; color: var(--t2); }
+  .ibtn:hover { color: var(--text); border-color: var(--line2); }
 
-  main { padding: 18px 0 60px; }
-  .grid { display: grid; gap: 16px; }
-  .g-kpi { grid-template-columns: repeat(6, 1fr); }
-  .g-2 { grid-template-columns: 1.35fr 1fr; }
-  .g-2e { grid-template-columns: 1fr 1fr; }
-  @media (max-width: 1100px) { .g-kpi { grid-template-columns: repeat(3, 1fr); } }
-  @media (max-width: 900px) { .g-2, .g-2e { grid-template-columns: 1fr; } }
-  @media (max-width: 560px) { .g-kpi { grid-template-columns: repeat(2, 1fr); } }
-  section { margin-top: 28px; }
-  .sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
-  .sec-head h2 { font-size: 17px; font-weight: 750; letter-spacing: -.01em; margin: 0; }
-  .sec-head p { margin: 0; color: var(--text-3); font-size: 12.5px; }
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px 18px; box-shadow: var(--shadow); min-width: 0; }
-  .card h3 { font-size: 13.5px; font-weight: 700; margin: 0 0 2px; }
-  .card .sub { font-size: 12px; color: var(--text-3); margin: 0 0 12px; }
-  .scrollx { overflow-x: auto; }
+  .content { flex: 1; overflow: auto; padding: 0 24px 40px; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+  .fchip { border: 1px solid var(--line); background: var(--surface); border-radius: 99px; padding: 4px 11px; font-size: 12.5px; color: var(--t2); display: inline-flex; gap: 6px; align-items: center; }
+  .fchip.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+  .fchip .n { font-size: 11px; color: var(--t3); }
 
-  .kpi { cursor: pointer; text-align: left; border: 1px solid var(--border); position: relative; overflow: hidden; }
-  .kpi:hover { border-color: var(--accent); }
-  .kpi.on { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft), var(--shadow); }
-  .kpi .l { font-size: 11.5px; font-weight: 600; color: var(--text-3); }
-  .kpi .v { font-size: 26px; font-weight: 800; letter-spacing: -.02em; margin: 2px 0 0; }
-  .kpi .s { font-size: 11.5px; color: var(--text-2); min-height: 17px; }
-  .kpi svg { margin-top: 8px; width: 100%; height: 28px; }
-  .up { color: var(--critical); font-weight: 700; } .down { color: var(--good); font-weight: 700; } .flat { color: var(--text-3); font-weight: 700; }
+  .list { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
+  .lhead, .row { display: grid; grid-template-columns: 150px 92px minmax(260px, 1fr) 190px 64px; gap: 14px; align-items: center; padding: 0 16px; }
+  .lhead { font-size: 11px; font-weight: 600; color: var(--t3); text-transform: uppercase; letter-spacing: .05em; height: 38px; border-bottom: 1px solid var(--line); }
+  .row { min-height: 66px; border-bottom: 1px solid var(--line); cursor: pointer; padding-top: 8px; padding-bottom: 8px; }
+  .row:last-child { border-bottom: 0; }
+  .row:hover { background: var(--s2); }
+  .row.cur { box-shadow: inset 3px 0 0 var(--accent); background: var(--accent-soft); }
+  .stp { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 99px; background: var(--s2); white-space: nowrap; }
+  .stp i { width: 7px; height: 7px; border-radius: 50%; }
+  .pcell { display: flex; gap: 12px; align-items: center; min-width: 0; }
+  .thumb { width: 42px; height: 42px; border-radius: 10px; flex-shrink: 0; overflow: hidden; }
+  .pname { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 3px; }
+  .tag { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 6px; background: var(--s2); color: var(--t2); white-space: nowrap; }
+  .tag.good { background: var(--good-soft); color: var(--good); }
+  .tag.warn { background: var(--warn-soft); color: var(--warn); }
+  .tag.bad { background: var(--bad-soft); color: var(--bad); }
+  .tag.flag { background: var(--warn-soft); color: var(--flag); }
+  .sups { display: flex; gap: 5px; flex-wrap: wrap; }
+  .sq { font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 7px; border: 1px solid var(--line); color: var(--t3); white-space: nowrap; }
+  .sq.in { color: var(--good); border-color: color-mix(in srgb, var(--good) 40%, transparent); background: var(--good-soft); }
+  .sq.ful { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
+  .age { font-size: 12px; text-align: right; color: var(--t3); }
+  .age b { display: block; font-size: 13px; color: var(--text); }
+  .age .warnc { color: var(--warn); } .age .badc { color: var(--bad); }
+  .empty { padding: 50px 20px; text-align: center; color: var(--t3); }
+  .more { display: block; width: 100%; border: 0; border-top: 1px solid var(--line); background: none; padding: 12px; color: var(--accent); font-weight: 600; }
 
-  .pipeline { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
-  @media (max-width: 900px) { .pipeline { grid-template-columns: repeat(2, 1fr); } }
-  .stage { position: relative; background: var(--surface-2); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; cursor: pointer; text-align: left; }
-  .stage:hover { border-color: var(--accent); }
-  .stage.on { border-color: var(--accent); background: var(--accent-soft); }
-  .stage .n { font-size: 11px; font-weight: 700; color: var(--text-3); letter-spacing: .04em; text-transform: uppercase; }
-  .stage .c { font-size: 26px; font-weight: 800; margin: 2px 0; }
-  .stage .m { font-size: 11.5px; color: var(--text-2); }
-  .stage .bar { height: 4px; border-radius: 4px; background: var(--surface-3); margin-top: 10px; overflow: hidden; }
-  .stage .bar i { display: block; height: 100%; background: var(--accent); border-radius: 4px; }
+  .board { display: grid; grid-template-columns: repeat(5, minmax(230px, 1fr)); gap: 12px; align-items: start; min-width: 1180px; }
+  .col { background: var(--s2); border-radius: 14px; padding: 10px; }
+  .col h3 { font-size: 12.5px; margin: 2px 4px 10px; display: flex; gap: 8px; align-items: center; }
+  .col h3 i { width: 8px; height: 8px; border-radius: 50%; }
+  .col h3 span { color: var(--t3); font-weight: 600; }
+  .kcard { background: var(--surface); border: 1px solid var(--line); border-radius: 11px; padding: 10px; margin-bottom: 8px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+  .kcard:hover { border-color: var(--accent); }
+  .kcard .pname { white-space: normal; font-size: 13px; line-height: 1.35; }
+  .kcard .kmeta { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 11.5px; color: var(--t3); }
+  .avatar { width: 22px; height: 22px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 10.5px; font-weight: 700; color: #fff; }
 
-  .bars { display: flex; flex-direction: column; gap: 3px; }
-  .brow { display: grid; grid-template-columns: minmax(110px, 40%) 1fr 74px; gap: 10px; align-items: center; border: 1px solid transparent; background: none; border-radius: 8px; padding: 5px 6px; text-align: left; cursor: pointer; width: 100%; }
-  .brow:hover { background: var(--surface-2); }
-  .brow.on { background: var(--accent-soft); border-color: var(--accent); }
-  .brow .bl { font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .brow .bt { display: block; height: 8px; background: var(--surface-2); border-radius: 4px; overflow: hidden; }
-  .brow .bf { display: block; height: 100%; background: var(--accent); border-radius: 4px; }
-  .brow .bv { font-size: 12px; text-align: right; white-space: nowrap; }
-  .brow .bv small { color: var(--text-3); }
-
-  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-  th { text-align: left; font-size: 11px; font-weight: 600; color: var(--text-3); padding: 0 10px 8px; border-bottom: 1px solid var(--grid); white-space: nowrap; }
-  th.sort { cursor: pointer; user-select: none; }
-  th.sort:hover { color: var(--text); }
-  th .arr { opacity: .7; }
-  td { padding: 8px 10px; border-bottom: 1px solid var(--grid); vertical-align: middle; }
-  tr:last-child td { border-bottom: 0; }
-  tbody tr.click { cursor: pointer; }
-  tbody tr.click:hover { background: var(--surface-2); }
-  td.r, th.r { text-align: right; }
-  .pn { font-weight: 600; }
-  .muted { color: var(--text-3); }
-  .pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 99px; background: var(--surface-2); color: var(--text-2); white-space: nowrap; }
-  .pill i { width: 7px; height: 7px; border-radius: 50%; }
-  .age-amber { color: var(--warning); font-weight: 700; } .age-red { color: var(--critical); font-weight: 700; }
-  .pager { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 12px; color: var(--text-3); gap: 10px; flex-wrap: wrap; }
-  .pager button { border: 1px solid var(--border); background: var(--surface); border-radius: 8px; padding: 4px 10px; cursor: pointer; }
-  .pager button:disabled { opacity: .4; cursor: default; }
-
-  .legend { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
-  .legend button { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; border: 1px solid transparent; background: var(--surface-2); color: var(--text-2); border-radius: 99px; padding: 3px 10px 3px 8px; cursor: pointer; }
-  .legend button.on { border-color: var(--text); color: var(--text); font-weight: 700; }
-  .legend i { width: 9px; height: 9px; border-radius: 3px; }
-  svg { display: block; overflow: visible; }
-  .ax { fill: var(--text-3); font-size: 10.5px; font-family: inherit; }
-  .gl { stroke: var(--grid); }
-  .bl0 { stroke: var(--base); }
-  .hit { fill: transparent; cursor: pointer; }
-  .hit:hover { fill: var(--text); fill-opacity: .04; }
-
-  .insights { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-  .insights li { display: grid; grid-template-columns: 22px 1fr; gap: 8px; font-size: 13px; line-height: 1.5; }
-  .insights .ic { width: 22px; height: 22px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; }
-  .ic.crit { background: color-mix(in srgb, var(--critical) 14%, transparent); color: var(--critical); }
-  .ic.warn { background: color-mix(in srgb, var(--warning) 16%, transparent); color: var(--warning); }
-  .ic.good { background: color-mix(in srgb, var(--good) 14%, transparent); color: var(--good); }
-  .insights .m { color: var(--text-2); }
-  .lnk { color: var(--accent); cursor: pointer; border-bottom: 1px dotted var(--accent); }
-
-  .sup-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
-  .sup { border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; background: var(--surface-2); cursor: pointer; }
-  .sup:hover { border-color: var(--accent); }
-  .sup.on { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-  .sup h4 { margin: 0 0 10px; font-size: 14px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-  .sup h4 span { font-size: 11.5px; color: var(--text-3); font-weight: 500; }
-  .sup dl { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; margin: 0 0 12px; font-size: 12.5px; }
-  .sup dt { color: var(--text-2); } .sup dd { margin: 0; font-weight: 700; text-align: right; }
-  .sup dd.best::after { content: " ●"; color: var(--good); font-size: 9px; vertical-align: middle; }
-  .chk { display: grid; grid-template-columns: 70px 1fr 40px; gap: 8px; align-items: center; font-size: 11.5px; margin-top: 4px; }
-  .chk .t { height: 6px; background: var(--surface-3); border-radius: 3px; overflow: hidden; display: block; }
-  .chk .t i { display: block; height: 100%; background: var(--s2); border-radius: 3px; }
-
-  .heat td { text-align: center; font-size: 12px; font-weight: 600; padding: 7px 6px; cursor: pointer; border: 2px solid var(--surface); border-radius: 6px; }
-  .heat td.rl { text-align: left; font-weight: 600; cursor: pointer; color: var(--text); background: none !important; }
-  .heat td.on { outline: 2px solid var(--accent); outline-offset: -2px; }
-  .heat th { text-align: center; }
-
-  .rc { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
-  .rc-card { border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; background: var(--surface-2); cursor: pointer; }
-  .rc-card:hover, .rc-card.on { border-color: var(--accent); }
-  .rc-card .h { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-  .rc-card .h b { font-size: 13.5px; }
-  .rc-card .share { font-size: 11.5px; font-weight: 700; padding: 1px 8px; border-radius: 99px; background: var(--surface); border: 1px solid var(--border); }
-  .rc-card dl { margin: 0; display: grid; grid-template-columns: 74px 1fr; gap: 4px 10px; font-size: 12.5px; }
-  .rc-card dt { color: var(--text-3); font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; font-weight: 700; padding-top: 2px; }
-  .rc-card dd { margin: 0; color: var(--text-2); }
-  .prio { display: inline-flex; width: 22px; height: 22px; border-radius: 7px; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 800; background: var(--surface-2); border: 1px solid var(--border); }
-  .prio.p1 { color: var(--critical); border-color: var(--critical); }
-  .prio.p2 { color: var(--warning); border-color: var(--warning); }
-
-  .tip { position: fixed; z-index: 60; pointer-events: none; background: var(--text); color: var(--surface); font-size: 11.5px; line-height: 1.5; padding: 8px 10px; border-radius: 9px; box-shadow: 0 6px 20px rgba(0,0,0,.25); opacity: 0; transform: translate(-50%, calc(-100% - 12px)); max-width: 260px; transition: opacity .08s; }
-  .tip.show { opacity: 1; }
-  .tip .tt { font-weight: 700; margin-bottom: 3px; }
-  .tip .tr { display: flex; justify-content: space-between; gap: 14px; white-space: nowrap; }
-  .tip i { display: inline-block; width: 7px; height: 7px; border-radius: 2px; margin-right: 5px; }
-
-  .scrim { position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 70; opacity: 0; pointer-events: none; transition: opacity .15s; }
+  /* product panel */
+  .scrim { position: fixed; inset: 0; background: rgba(10,10,10,.42); z-index: 40; opacity: 0; pointer-events: none; transition: opacity .15s; }
   .scrim.show { opacity: 1; pointer-events: auto; }
-  .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(520px, 100vw); background: var(--surface); z-index: 80; box-shadow: -10px 0 40px rgba(0,0,0,.2); transform: translateX(100%); transition: transform .2s ease; overflow-y: auto; padding: 20px 22px 40px; }
-  .drawer.show { transform: none; }
-  .drawer .dh { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
-  .drawer h3 { margin: 4px 0 6px; font-size: 18px; letter-spacing: -.01em; }
-  .drawer .meta { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
-  .drawer h5 { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-3); margin: 18px 0 8px; }
-  .tl { list-style: none; margin: 0; padding: 0 0 0 4px; }
-  .tl li { position: relative; padding: 0 0 12px 22px; font-size: 13px; }
-  .tl li::before { content: ""; position: absolute; left: 4px; top: 6px; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); }
-  .tl li::after { content: ""; position: absolute; left: 8px; top: 17px; bottom: -2px; width: 1px; background: var(--grid); }
-  .tl li:last-child::after { display: none; }
-  .tl li.todo::before { background: var(--surface-3); }
-  .tl li span { color: var(--text-3); margin-left: 6px; font-size: 12px; }
-  .checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; }
-  .checks div { display: flex; justify-content: space-between; gap: 8px; padding: 7px 10px; border-radius: 9px; background: var(--surface-2); font-size: 12.5px; }
-  .ok { color: var(--good); font-weight: 700; } .bad { color: var(--critical); font-weight: 700; }
-  .stats3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .stats3 div { background: var(--surface-2); border-radius: 10px; padding: 9px 11px; }
-  .stats3 b { display: block; font-size: 17px; }
-  .stats3 span { font-size: 11px; color: var(--text-3); }
+  .panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(980px, 100vw); background: var(--page); z-index: 50; box-shadow: -20px 0 50px rgba(0,0,0,.25); transform: translateX(102%); transition: transform .22s ease; display: flex; flex-direction: column; }
+  .panel.show { transform: none; }
+  .ph { background: var(--surface); border-bottom: 1px solid var(--line); padding: 14px 20px 0; }
+  .ph-row { display: flex; gap: 14px; align-items: flex-start; }
+  .ph .thumb { width: 54px; height: 54px; border-radius: 12px; }
+  .ph h2 { margin: 0; font-size: 18px; letter-spacing: -.01em; line-height: 1.3; }
+  .ph .meta { font-size: 12px; color: var(--t3); margin-top: 2px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .ph .acts { margin-left: auto; display: flex; gap: 6px; flex-shrink: 0; }
+  .ibtn.on { color: var(--flag); border-color: var(--flag); background: var(--warn-soft); }
+  select.status { border: 1px solid var(--line); background: var(--s2); border-radius: 99px; padding: 3px 10px; font-size: 12px; font-weight: 600; }
+  .tabs { display: flex; gap: 2px; margin-top: 12px; overflow-x: auto; scrollbar-width: none; }
+  .tabs button { border: 0; background: none; padding: 9px 12px; font-weight: 600; font-size: 13px; color: var(--t3); border-bottom: 2px solid transparent; white-space: nowrap; display: inline-flex; gap: 6px; align-items: center; }
+  .tabs button.on { color: var(--text); border-bottom-color: var(--accent); }
+  .tabs .badge { font-size: 10.5px; background: var(--s2); color: var(--t2); padding: 0 6px; border-radius: 99px; }
+  .pb { flex: 1; overflow-y: auto; padding: 18px 20px 24px; }
+  .pf { background: var(--surface); border-top: 1px solid var(--line); padding: 12px 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .pf .grow { flex: 1; }
 
-  footer { border-top: 1px solid var(--border); padding: 22px 0 40px; color: var(--text-3); font-size: 12.5px; line-height: 1.65; }
-  footer b { color: var(--text-2); }
-  .empty { color: var(--text-3); font-size: 12.5px; padding: 18px 4px; text-align: center; }
+  .box { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; }
+  .box h4 { margin: 0 0 10px; font-size: 13px; display: flex; gap: 8px; align-items: center; }
+  .box h4 .sub { font-weight: 500; color: var(--t3); font-size: 12px; }
+  .ai { background: linear-gradient(135deg, var(--accent-soft), transparent); border-color: color-mix(in srgb, var(--accent) 30%, transparent); }
+  .ai ul { margin: 0; padding-left: 18px; }
+  .ai li { margin: 3px 0; }
+  .gal-wrap { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+  .gal h5 { margin: 0 0 6px; font-size: 12px; color: var(--t2); display: flex; justify-content: space-between; }
+  .gal .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .gal .tiles button { border: 0; padding: 0; border-radius: 9px; overflow: hidden; aspect-ratio: 1; background: none; position: relative; }
+  .gal .tiles button:hover { outline: 2px solid var(--accent); }
+  .gal .tiles button span { position: absolute; left: 5px; bottom: 4px; font-size: 10px; font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.5); }
+  .gal .none { font-size: 12.5px; color: var(--t3); padding: 22px 6px; text-align: center; background: var(--s2); border-radius: 10px; }
+  table.facts { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  table.facts th, table.facts td { padding: 7px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  table.facts th { font-size: 11px; color: var(--t3); font-weight: 600; }
+  table.facts tr:last-child td { border-bottom: 0; }
+  table.facts td:first-child { color: var(--t3); width: 130px; }
+  .miss { color: var(--t3); font-style: italic; }
+  .diff { color: var(--bad); font-weight: 600; }
+  .okc { color: var(--good); font-weight: 600; }
+  .warnc { color: var(--warn); font-weight: 600; }
+  .cog-g { color: var(--good); font-weight: 700; } .cog-o { color: var(--warn); font-weight: 700; } .cog-r { color: var(--bad); font-weight: 700; }
+  .rec { display: inline-flex; gap: 6px; align-items: center; font-weight: 700; padding: 3px 10px; border-radius: 8px; font-size: 12.5px; }
+  .rec.same { background: var(--good-soft); color: var(--good); } .rec.up { background: var(--warn-soft); color: var(--warn); } .rec.down { background: var(--accent-soft); color: var(--accent); }
+
+  .q { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; padding: 10px 0; border-bottom: 1px solid var(--line); align-items: start; }
+  .q:last-child { border-bottom: 0; }
+  .q .why { grid-column: 1 / -1; font-size: 12px; color: var(--t3); margin-top: -4px; }
+  .q.not .txt { color: var(--t3); text-decoration: line-through; }
+  .q .acts { display: flex; gap: 4px; }
+  .sbtn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 4px 10px; font-size: 12px; font-weight: 600; color: var(--t2); display: inline-flex; gap: 6px; align-items: center; white-space: nowrap; }
+  .sbtn:hover { color: var(--text); border-color: var(--line2); }
+  .sbtn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .sbtn.good { background: var(--good); border-color: var(--good); color: #fff; }
+  .sbtn.bad { background: var(--bad-soft); border-color: transparent; color: var(--bad); }
+  .sbtn:disabled { opacity: .45; cursor: default; }
+  .sbtn.good:disabled, .sbtn.primary:disabled { background: var(--s3); border-color: var(--s3); color: var(--t3); opacity: 1; }
+  .big { padding: 8px 14px; font-size: 13px; border-radius: 10px; }
+  .field { display: flex; gap: 8px; margin-top: 10px; }
+  .field input, .field textarea, .field select { flex: 1; border: 1px solid var(--line); background: var(--s2); border-radius: 9px; padding: 7px 10px; outline: 0; min-width: 0; }
+  .field input:focus, .field textarea:focus { border-color: var(--accent); }
+  .pickers { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pick { border: 1.5px solid var(--line); background: var(--surface); border-radius: 11px; padding: 8px 12px; text-align: left; min-width: 150px; }
+  .pick b { display: block; font-size: 13px; }
+  .pick small { color: var(--t3); font-size: 11.5px; }
+  .pick.on { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .pick:disabled { opacity: .45; cursor: default; }
+  .verdict { display: inline-flex; gap: 6px; }
+  .verdict button { border: 1.5px solid var(--line); background: var(--surface); border-radius: 10px; padding: 7px 14px; font-weight: 700; }
+  .verdict .p.on { border-color: var(--good); background: var(--good-soft); color: var(--good); }
+  .verdict .f.on { border-color: var(--bad); background: var(--bad-soft); color: var(--bad); }
+  .msg { display: grid; grid-template-columns: 30px 1fr; gap: 10px; padding: 8px 0; }
+  .msg .who { font-weight: 700; font-size: 12.5px; }
+  .msg .who span { font-weight: 400; color: var(--t3); margin-left: 6px; font-size: 11.5px; }
+  .note { background: var(--warn-soft); border-radius: 10px; padding: 9px 12px; margin-bottom: 8px; display: flex; gap: 10px; justify-content: space-between; align-items: flex-start; font-size: 13px; }
+  .note small { color: var(--t3); display: block; }
+  .edit { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+  .edit:last-child { border-bottom: 0; }
+  .edit .grow { flex: 1; }
+
+  .lightbox { position: fixed; inset: 0; z-index: 70; background: rgba(0,0,0,.85); display: none; align-items: center; justify-content: center; flex-direction: column; gap: 10px; }
+  .lightbox.show { display: flex; }
+  .lightbox .img { width: min(560px, 86vw); aspect-ratio: 1; border-radius: 16px; overflow: hidden; }
+  .lightbox .cap { color: #fff; font-size: 13px; }
+  .lightbox .nav2 { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(255,255,255,.15); color: #fff; font-size: 20px; }
+
+  .sheet { position: fixed; z-index: 60; right: 20px; bottom: 20px; width: min(380px, calc(100vw - 32px)); background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 14px 16px; display: none; }
+  .sheet.show { display: block; }
+  .sheet h4 { margin: 0 0 4px; display: flex; justify-content: space-between; align-items: center; }
+  .sheet p { margin: 0 0 10px; color: var(--t3); font-size: 12.5px; }
+  .sheet textarea { width: 100%; min-height: 180px; border: 1px solid var(--line); background: var(--s2); border-radius: 10px; padding: 10px; outline: 0; resize: vertical; }
+  .toast { position: fixed; z-index: 90; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); background: var(--text); color: var(--surface); padding: 9px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; opacity: 0; transition: all .2s; pointer-events: none; max-width: 90vw; }
+  .toast.show { opacity: 1; transform: translateX(-50%); }
+
+  .portal-card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; display: grid; grid-template-columns: 54px 1fr; gap: 14px; }
+  .portal-card ol { margin: 6px 0 0; padding-left: 18px; font-size: 13px; }
+
+  @media (max-width: 1000px) {
+    .lhead, .row { grid-template-columns: 1fr 64px; }
+    .lhead > :nth-child(1), .lhead > :nth-child(2), .lhead > :nth-child(4) { display: none; }
+    .row > :nth-child(1), .row > :nth-child(2) { display: none; }
+    .row > :nth-child(4) { grid-column: 1; grid-row: 2; }
+    .row > :nth-child(5) { grid-column: 2; grid-row: 1 / span 2; }
+  }
+  @media (max-width: 760px) {
+    .app { grid-template-columns: 1fr; }
+    aside.side { position: fixed; z-index: 45; top: 0; bottom: 0; left: 0; width: 270px; transform: translateX(-102%); transition: transform .2s; box-shadow: 10px 0 40px rgba(0,0,0,.25); }
+    aside.side.show { transform: none; }
+    .menu-btn { display: inline-grid; }
+    .top { padding: 12px 16px 10px; }
+    .content { padding: 0 16px 40px; }
+    .search { width: 100%; order: 5; }
+    .top .hint { display: none; }
+    .ph, .pb, .pf { padding-left: 16px; padding-right: 16px; }
+    .pf { gap: 8px; padding-top: 10px; padding-bottom: 10px; }
+    .pf > div:first-child { width: 100%; }
+    .pf .pickers { flex-wrap: nowrap; overflow-x: auto; }
+    .pick { min-width: 130px; padding: 6px 10px; }
+    .pf .grow { display: none; }
+    .pf .big { padding: 7px 11px; font-size: 12.5px; }
+    .verdict button { padding: 6px 11px; }
+  }
 </style>
 </head>
 <body>
-<div class="demo-bar"><b>Demo with invented data.</b> Maple &amp; Moss Group, its stores, suppliers and every product here are fictional, generated by a seeded script.</div>
+<div class="demo-bar"><b>Demo with invented data.</b> Maple &amp; Moss Group, its suppliers, team and products are fictional. Changes are saved in your browser only. <button id="resetDemo">Reset demo</button></div>
+<div class="app">
+  <aside class="side" id="side">
+    <div class="brand"><div class="logo">QC</div><div><b>Quality Control</b><span>Maple &amp; Moss Group</span></div></div>
+    <h6>Lists</h6>
+    <div id="lists"></div>
+    <h6>Tools</h6>
+    <button class="nav" id="navPortal"><svg class="i" viewBox="0 0 24 24"><path d="M7 17 17 7M10 7h7v7"/></svg><span class="lbl">Supplier portal<small>What the supplier sees</small></span></button>
+    <button class="nav" id="navNotes"><svg class="i" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg><span class="lbl">Notepad</span></button>
+    <button class="nav" id="navHelp"><svg class="i" viewBox="0 0 24 24"><path d="M9.6 9.2a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.6M12 17.2v.1"/><circle cx="12" cy="12" r="9"/></svg><span class="lbl">How this works</span></button>
+    <div class="foot">Every product is checked when it reaches its 5th sale.</div>
+  </aside>
 
-<header class="hero">
-  <div class="wrap hero-row">
-    <div>
-      <div class="eyebrow">Maple &amp; Moss Group · Quality control</div>
-      <h1>QC Command Center</h1>
-      <p>Every product is checked when it reaches its 5th sale. This shows where each one is, what QC found, which supplier does better, and whether the fixes cut refunds.</p>
+  <div class="main">
+    <div class="top">
+      <button class="ibtn menu-btn" id="menuBtn" aria-label="Open the menu"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <div><h1 id="title">We review QC</h1><div class="hint" id="hint"></div></div>
+      <div class="grow"></div>
+      <label class="search"><svg class="i" viewBox="0 0 24 24"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4.2-4.2"/></svg><input id="q" placeholder="Search products…" aria-label="Search products"><kbd>/</kbd></label>
+      <div class="seg" id="viewSeg"><button data-v="list" class="on"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>List</button><button data-v="board"><svg class="i" viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg>Board</button></div>
+      <button class="ibtn" id="themeBtn" title="Light / dark" aria-label="Switch theme">◐</button>
     </div>
-    <div class="hero-meta">
-      <span class="badge"><span class="dot"></span><span id="asOf">Sample data</span></span>
-      <button class="icon-btn" id="themeBtn" title="Switch light / dark" aria-label="Switch light or dark theme">◐</button>
-    </div>
-  </div>
-</header>
-
-<div class="toolbar">
-  <div class="wrap">
-    <div class="filters">
-      <div class="seg" id="granSeg"></div>
-      <select id="periodSel" aria-label="Period"></select>
-      <div class="seg" id="storeSeg"></div>
-      <div class="seg" id="supSeg"></div>
-      <select id="catSel" aria-label="Category"></select>
-      <input type="search" id="q" placeholder="Search products…" aria-label="Search products">
-      <div class="chips" id="chips"></div>
-      <button class="clear" id="clearAll">Clear all</button>
-    </div>
-    <nav class="sections" id="secNav">
-      <a href="#overview">Overview</a><a href="#pipeline">Pipeline</a><a href="#findings">Findings</a><a href="#suppliers">Suppliers</a><a href="#refunds">Refund impact</a><a href="#causes">Root causes</a><a href="#products">Products</a>
-    </nav>
+    <div class="content" id="content"></div>
   </div>
 </div>
 
-<main class="wrap">
-  <section id="overview" style="margin-top:0">
-    <div class="grid g-kpi" id="kpis"></div>
-  </section>
-
-  <section id="pipeline">
-    <div class="sec-head"><h2>Pipeline now</h2><p>Click a stage to filter. Days count from the 5th sale.</p></div>
-    <div class="pipeline" id="stages"></div>
-    <div class="grid g-2" style="margin-top:16px">
-      <div class="card">
-        <h3 id="trendTitle">Products entering QC</h3>
-        <p class="sub">By the month they hit 5 sales, split by outcome. Click a bar to pick that period, or a legend chip to isolate an outcome.</p>
-        <div class="legend" id="legend"></div>
-        <div id="trend" class="scrollx"></div>
-      </div>
-      <div class="card">
-        <h3>Waiting longest</h3>
-        <p class="sub">Open products, oldest first. Click one for its full history.</p>
-        <div id="waiting" class="scrollx"></div>
-      </div>
-    </div>
-  </section>
-
-  <section id="findings">
-    <div class="sec-head"><h2>What QC found</h2><p>All shares are of finished products that have a QC record.</p></div>
-    <div class="grid g-2">
-      <div class="card"><h3>Key insights</h3><p class="sub">Recalculated for the filters above.</p><ul class="insights" id="insights"></ul></div>
-      <div class="card"><h3>What QC changed</h3><p class="sub">Listing edits made after QC. Click to filter.</p><div id="edits"></div></div>
-    </div>
-    <div class="grid g-2e" style="margin-top:16px">
-      <div class="card"><h3>Defects found</h3><p class="sub">From the supplier QC reports. Share of products with a report.</p><div id="defects"></div></div>
-      <div class="card"><h3>Where fixes cluster</h3><p class="sub">Share of each category's finished products that needed each edit. Click a cell to filter.</p><div id="heat" class="scrollx"></div></div>
-    </div>
-  </section>
-
-  <section id="suppliers">
-    <div class="sec-head"><h2>Supplier comparison</h2><p>Click a card to filter to that supplier. ● marks the better figure.</p></div>
-    <div class="sup-cards" id="sups"></div>
-  </section>
-
-  <section id="refunds">
-    <div class="sec-head"><h2>Did QC cut refunds?</h2><p>Each product compared with itself: month 1 after QC vs the per-30-day rate in months 2–3.</p></div>
-    <div class="grid g-2">
-      <div class="card"><h3>Refund growth by outcome</h3><p class="sub" id="refSub">Products at least 90 days past QC. Sales keep ramping, so every group rises; the gap between groups is the signal.</p><div id="refChart" class="scrollx"></div></div>
-      <div class="card"><h3>Still refunding</h3><p class="sub">Finished products with the most € refunded since QC.</p><div id="refTop" class="scrollx"></div></div>
-    </div>
-  </section>
-
-  <section id="causes">
-    <div class="sec-head"><h2>Root causes &amp; action plan</h2><p>Click a cause to filter to it.</p></div>
-    <div class="rc" id="rc"></div>
-    <div class="card" style="margin-top:16px"><h3>Action plan</h3><p class="sub">Ranked by how many products each fix would have caught in the current view.</p><div id="plan" class="scrollx"></div></div>
-  </section>
-
-  <section id="products">
-    <div class="sec-head"><h2>All products</h2><p id="prodCount"></p></div>
-    <div class="card"><div id="table" class="scrollx"></div><div class="pager" id="pager"></div></div>
-  </section>
-</main>
-
-<footer>
-  <div class="wrap">
-    <b>About this demo.</b> A rebuild of a real QC dashboard with the data swapped for an invented company. The data comes from <code>generate_sample_data.py</code> in this folder (fixed seed, so it reproduces exactly). The page is one HTML file with hand-drawn SVG charts and no libraries. Every panel follows the filters, and every bar, row, card and tile is clickable.<br>
-    <b>Definitions.</b> <i>Needed edits</i> = fixed or pulled, of finished products with a QC record. <i>Report fail</i> = fail ÷ (pass + warn + fail). <i>✗ rate</i> = mismatches ÷ (ok + mismatch) per check. <i>Refund growth</i> compares each product's month 1 with its months 2–3, for products 90+ days past QC.
-  </div>
-</footer>
-
-<div class="tip" id="tip"></div>
 <div class="scrim" id="scrim"></div>
-<aside class="drawer" id="drawer" aria-label="Product detail"></aside>
+<section class="panel" id="panel" aria-label="Product"></section>
+<div class="lightbox" id="lightbox"><button class="nav2" style="left:20px" id="lbPrev" aria-label="Previous photo">‹</button><div class="img" id="lbImg"></div><div class="cap" id="lbCap"></div><button class="nav2" style="right:20px" id="lbNext" aria-label="Next photo">›</button></div>
+<div class="sheet" id="notepad"><h4>Notepad <button class="ibtn" data-close="notepad" aria-label="Close">✕</button></h4><p>Ideas, products to check, loose thoughts… saved automatically in this browser.</p><textarea id="padText"></textarea></div>
+<div class="sheet" id="help"><h4>How this works <button class="ibtn" data-close="help" aria-label="Close">✕</button></h4>
+  <p style="color:var(--t2)">When a product reaches its 5th sale, suppliers are asked to quote it and send QC photos, a size chart and the material. It then moves through five lists:</p>
+  <ol style="margin:0 0 10px;padding-left:18px;font-size:13px;line-height:1.6"><li><b>Supplier does QC</b>: waiting for the supplier.</li><li><b>We review QC</b>: compare photos, size chart and cost; send questions.</li><li><b>Supplier replies</b>: waiting for answers and edits.</li><li><b>Final updates</b>: pick who fulfils it, fix the listing, set Done.</li><li><b>Done</b>.</li></ol>
+  <p>Open any product to try it: send questions, pick a supplier, pass or fail it. ←/→ move between products, Esc closes, / searches.</p></div>
+<div class="toast" id="toast"></div>
 
 <script src="data.js"></script>
 <script>
-const D = window.QC_DATA;
-const AS_OF = D.as_of;
-const OUTCOMES = ["Fixed", "Passed clean", "Pulled", "No QC record", "Open"];
-const OCOL = { "Fixed": "var(--s1)", "Passed clean": "var(--s3)", "Pulled": "var(--s2)", "No QC record": "var(--s0)", "Open": "var(--s4)" };
-const ROOT = {
-  "Size chart": { where: "The supplier's size chart doesn't match the garment, or the listing copies it unchecked.", fix: "Measure the QC sample and publish our own chart before launch.", owner: "Listings" },
-  "Photos": { where: "Listing photos are edited, AI-made or show a different colour.", fix: "Use the supplier's real QC photos for colour and fit shots.", owner: "Listings" },
-  "Features": { where: "The listing promises features the factory version doesn't have.", fix: "Check every feature claim against the sample before writing copy.", owner: "Listings + QC" },
-  "Material": { where: "Fabric weight or blend differs from what the supplier quoted.", fix: "Ask for the fabric label in the QC photos; reject on mismatch.", owner: "Sourcing" },
-  "Description": { where: "Copy is vague or wrong on fit, care or contents.", fix: "Write fit and care notes from the QC report, not the supplier text.", owner: "Listings" },
-  "Pulled": { where: "Product failed QC or the supplier can't source it.", fix: "Re-quote with the other supplier before pulling a product with sales.", owner: "Sourcing" },
-};
-const P = D.products.map(p => ({ ...p, sup: p.supplier || "Unknown", days: daysBetween(p.qc, AS_OF), month: p.qc.slice(0, 7), quarter: p.qc.slice(0, 4) + "-Q" + (Math.floor((+p.qc.slice(5, 7) - 1) / 3) + 1) }));
+const D = window.QC_BOARD;
+const STAGES = D.stages;
+const HINT = { "Supplier does QC": "Waiting for the supplier to send its QC", "We review QC": "The QC is in: our turn — size, edits, questions", "Supplier replies": "Report sent, waiting for the supplier's answers", "Final updates": "Answers are in: update the website, then Done", "Done": "Finished", "Flagged": "Products someone has flagged for a question — they keep their own status too" };
+const SCOL = { "Supplier does QC": "var(--st1)", "We review QC": "var(--st2)", "Supplier replies": "var(--st3)", "Final updates": "var(--st4)", "Done": "var(--st5)" };
+const AV = { Ines: "#c2577f", Marco: "#3b7fd0", Priya: "#2f9c6a", Tomas: "#b9772c" };
+const KEY = "qc-demo-v1";
 
-const S = { gran: "all", period: null, store: "all", sup: "all", cat: "all", q: "", stage: null, outcome: null, edit: null, defect: null, refunding: false, failVerdict: false, sort: ["qc", -1], page: 0 };
+// ---------- state (data + local changes) ----------
+let P = structuredClone(D.products);
+try { const saved = JSON.parse(localStorage.getItem(KEY) || "null"); if (saved && saved.length === P.length) P = saved; } catch (e) {}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(P)); } catch (e) {} }
+const UI = { list: "We review QC", view: "list", q: "", sup: "all", open: null, tab: "review", limit: 40, portalSup: D.suppliers[0] };
 
-function daysBetween(a, b) { return Math.round((new Date(b) - new Date(a)) / 864e5); }
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
-const eur = v => "€" + Math.round(v).toLocaleString("en-US");
-const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-const lblPeriod = (k, g) => g === "month" ? MON[+k.slice(5, 7) - 1] + " " + k.slice(0, 4) : g === "quarter" ? k.slice(5) + " " + k.slice(0, 4) : "All time";
-const keyOf = (p, g) => g === "month" ? p.month : g === "quarter" ? p.quarter : "all";
-const finished = r => r.filter(p => p.outcome !== "Open");
-const recorded = r => r.filter(p => ["Fixed", "Passed clean", "Pulled"].includes(p.outcome));
-const needed = r => r.filter(p => p.outcome === "Fixed" || p.outcome === "Pulled");
+const days = d => Math.round((new Date(D.as_of) - new Date(d)) / 864e5);
+const fmtDate = d => { const x = new Date(d + "T00:00:00"); return x.getDate() + " " + ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][x.getMonth()]; };
+function toast(t) { const el = document.getElementById("toast"); el.textContent = t; el.classList.add("show"); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove("show"), 2200); }
 
-// ---------- filtering ----------
-function base(except) {
-  const q = S.q.toLowerCase();
-  return P.filter(p =>
-    (except === "store" || S.store === "all" || p.store === S.store) &&
-    (except === "sup" || S.sup === "all" || p.sup === S.sup) &&
-    (except === "cat" || S.cat === "all" || p.category === S.cat) &&
-    (!q || p.name.toLowerCase().includes(q)) &&
-    (except === "stage" || !S.stage || p.stage === S.stage) &&
-    (except === "outcome" || !S.outcome || p.outcome === S.outcome) &&
-    (except === "edit" || !S.edit || p.edits.includes(S.edit)) &&
-    (except === "defect" || !S.defect || p.defects.includes(S.defect)) &&
-    (!S.refunding || (p.outcome !== "Open" && p.refunds >= 5)) &&
-    (!S.failVerdict || p.verdict === "fail"));
-}
-const inPer = (r, key) => S.gran === "all" || !key ? r : r.filter(p => keyOf(p, S.gran) === key);
-function keys(g) { return [...new Set(P.map(p => keyOf(p, g)))].sort(); }
-function prevKey(k, g) { const ks = keys(g); const i = ks.indexOf(k); return i > 0 ? ks[i - 1] : null; }
-function view(except) { return inPer(base(except), S.period); }
-
-// ---------- tooltip ----------
-const tip = document.getElementById("tip");
-function showTip(e, h) { tip.innerHTML = h; tip.classList.add("show"); tip.style.left = Math.min(Math.max(e.clientX, 140), innerWidth - 140) + "px"; tip.style.top = e.clientY + "px"; }
-function hideTip() { tip.classList.remove("show"); }
-
-// ---------- controls ----------
-function seg(el, items, cur, on) {
-  el.innerHTML = items.map(([k, l]) => `<button class="${cur === k ? "on" : ""}" data-k="${esc(k)}">${esc(l)}</button>`).join("");
-  el.querySelectorAll("button").forEach(b => b.onclick = () => on(b.dataset.k));
-}
-function renderControls() {
-  seg(document.getElementById("granSeg"), [["all", "All time"], ["month", "Month"], ["quarter", "Quarter"]], S.gran, k => { S.gran = k; S.period = k === "all" ? null : keys(k).slice(-1)[0]; render(); });
-  const ps = document.getElementById("periodSel");
-  ps.style.display = S.gran === "all" ? "none" : "";
-  if (S.gran !== "all") { ps.innerHTML = keys(S.gran).slice().reverse().map(k => `<option value="${k}" ${k === S.period ? "selected" : ""}>${lblPeriod(k, S.gran)}${k === keyOf({ month: AS_OF.slice(0, 7), quarter: AS_OF.slice(0, 4) + "-Q4" }, S.gran) ? " (so far)" : ""}</option>`).join(""); }
-  ps.onchange = () => { S.period = ps.value; render(); };
-  seg(document.getElementById("storeSeg"), [["all", "All stores"], ...D.stores.map(s => [s, s])], S.store, k => { S.store = k; render(); });
-  seg(document.getElementById("supSeg"), [["all", "All suppliers"], ...D.suppliers.map(s => [s, s.split(" ")[0]]), ["Unknown", "Unknown"]], S.sup, k => { S.sup = k; render(); });
-  const cats = [...new Set(P.map(p => p.category))].sort();
-  const cs = document.getElementById("catSel");
-  cs.innerHTML = `<option value="all">All categories</option>` + cats.map(c => `<option ${c === S.cat ? "selected" : ""}>${esc(c)}</option>`).join("");
-  cs.onchange = () => { S.cat = cs.value; render(); };
-  const chips = [];
-  if (S.stage) chips.push(["stage", "Stage: " + S.stage]);
-  if (S.outcome) chips.push(["outcome", "Outcome: " + S.outcome]);
-  if (S.edit) chips.push(["edit", "Edit: " + S.edit]);
-  if (S.defect) chips.push(["defect", "Defect: " + S.defect]);
-  if (S.refunding) chips.push(["refunding", "Still refunding"]);
-  if (S.failVerdict) chips.push(["failVerdict", "Report failed"]);
-  const ce = document.getElementById("chips");
-  ce.innerHTML = chips.map(([k, l]) => `<span class="chip">${esc(l)}<button data-k="${k}" aria-label="Remove filter">✕</button></span>`).join("");
-  ce.querySelectorAll("button").forEach(b => b.onclick = () => { S[b.dataset.k] = typeof S[b.dataset.k] === "boolean" ? false : null; render(); });
+// ---------- generated product art ----------
+const GLYPH = {
+  Dresses: "M26 10h12l-2 10 9 30H19l9-30z", Tops: "M20 14l8-4h8l8 4 6 10-7 3v23H21V27l-7-3z", Pants: "M22 10h20l3 40h-9l-4-28-4 28h-9z",
+  Outerwear: "M22 10l10 6 10-6 8 8v32H14V18zM32 16v34", Knitwear: "M20 14l8-4h8l8 4 7 14-7 2v20H20V30l-7-2zM24 22h16", Swimwear: "M22 12c4 6 16 6 20 0l2 16-6 20H26l-6-20z",
+  Home: "M32 10a20 20 0 1 0 .1 0zM32 18v14l8 6", Craft: "M32 10l6 14 15 1-11 10 4 15-14-8-14 8 4-15-11-10 15-1z",
+};
+function art(p, n = 0, label) {
+  const c = p.colors[n % p.colors.length][1];
+  const tone = ["#00000000", "#ffffff22", "#00000018", "#ffffff10"][n % 4];
+  const rot = [0, -6, 5, -3, 7, 0, -4][n % 7];
+  return `<svg viewBox="0 0 64 64" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="g${p.id}${n}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c}" stop-opacity=".35"/><stop offset="1" stop-color="${c}" stop-opacity=".75"/></linearGradient></defs><rect width="64" height="64" fill="url(#g${p.id}${n})"/><rect width="64" height="64" fill="${tone}"/><path d="${GLYPH[p.category]}" fill="${c}" stroke="#00000030" stroke-width="1" transform="rotate(${rot} 32 32)"/>${label ? `<text x="4" y="60" font-size="7" font-family="Inter" font-weight="700" fill="#fff">${label}</text>` : ""}</svg>`;
 }
 
-// ---------- KPIs ----------
-function metrics(r) {
-  const rec = recorded(r), fin = finished(r), rep = r.filter(p => p.verdict), op = r.filter(p => p.outcome === "Open");
-  return {
-    n: r.length, done: fin.length, open: op.length,
-    needed: rec.length ? pct(needed(rec).length, rec.length) : null, recN: rec.length,
-    size: rec.length ? pct(rec.filter(p => p.edits.includes("Size chart")).length, rec.length) : null,
-    fail: rep.length ? pct(rep.filter(p => p.verdict === "fail").length, rep.length) : null, repN: rep.length,
-    oldest: op.length ? Math.max(...op.map(p => p.days)) : 0,
-    refunding: fin.filter(p => p.refunds >= 5).length,
-  };
-}
-function spark(series, color) {
-  const w = 200, h = 28, max = Math.max(1, ...series.map(v => v ?? 0));
-  const pts = series.map((v, i) => [i / Math.max(1, series.length - 1) * w, h - (v ?? 0) / max * (h - 4) - 2]);
-  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts.map(p => p.join(",")).join(" ")}" fill="none" stroke="${color}" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/><circle cx="${pts[pts.length - 1][0]}" cy="${pts[pts.length - 1][1]}" r="2.5" fill="${color}"/></svg>`;
-}
-function delta(now, prev, unit, goodDown = true) {
-  if (now == null || prev == null) return "";
-  const d = unit === "pp" ? now - prev : prev ? (now - prev) / prev * 100 : null;
-  if (d == null) return "";
-  if (Math.abs(d) < 1) return `<span class="flat">±0${unit === "pp" ? "pp" : "%"}</span>`;
-  const bad = goodDown ? d > 0 : d < 0;
-  return `<span class="${bad ? "up" : "down"}">${d > 0 ? "▲" : "▼"} ${Math.abs(d).toFixed(0)}${unit === "pp" ? "pp" : "%"}</span>`;
-}
-function renderKpis() {
-  const b = base(), r = inPer(b, S.period), m = metrics(r);
-  const pk = S.period ? prevKey(S.period, S.gran) : null;
-  const pm = pk ? metrics(inPer(b, pk)) : null;
-  const months = keys("month");
-  const byM = months.map(k => metrics(b.filter(p => p.month === k)));
-  const vs = pk ? " vs " + lblPeriod(pk, S.gran) : "";
-  const tiles = [
-    { l: "Products QC'd", v: m.n.toLocaleString(), s: `${m.done} done · ${m.open} open ${pm ? delta(m.n, pm.n, "%", false) : ""}`, sp: byM.map(x => x.n), c: "var(--s1)", on: false, click: () => { S.stage = S.outcome = S.edit = S.defect = null; S.refunding = S.failVerdict = false; } },
-    { l: "Needed edits", v: m.needed == null ? "—" : m.needed + "%", s: `of ${m.recN} with a QC record ${pm ? delta(m.needed, pm.needed, "pp") : ""}`, sp: byM.map(x => x.needed), c: "var(--s1)", on: S.outcome === "Fixed", click: () => { S.outcome = S.outcome === "Fixed" ? null : "Fixed"; } },
-    { l: "Size-chart edits", v: m.size == null ? "—" : m.size + "%", s: `most common fix ${pm ? delta(m.size, pm.size, "pp") : ""}`, sp: byM.map(x => x.size), c: "var(--s1)", on: S.edit === "Size chart", click: () => { S.edit = S.edit === "Size chart" ? null : "Size chart"; } },
-    { l: "Report fail rate", v: m.fail == null ? "—" : m.fail + "%", s: `of ${m.repN} QC reports ${pm ? delta(m.fail, pm.fail, "pp") : ""}`, sp: byM.map(x => x.fail), c: "var(--s2)", on: S.failVerdict, click: () => { S.failVerdict = !S.failVerdict; } },
-    { l: "Open now", v: m.open.toLocaleString(), s: m.open ? `oldest <b class="${m.oldest > 14 ? "age-red" : m.oldest > 7 ? "age-amber" : ""}">${m.oldest} days</b>` : "nothing waiting", sp: byM.map(x => x.open), c: "var(--s4)", on: S.outcome === "Open", click: () => { S.outcome = S.outcome === "Open" ? null : "Open"; } },
-    { l: "Still refunding", v: m.refunding.toLocaleString(), s: "finished, 5+ refunds since QC", sp: byM.map(x => x.refunding), c: "var(--s2)", on: S.refunding, click: () => { S.refunding = !S.refunding; } },
-  ];
-  const el = document.getElementById("kpis");
-  el.innerHTML = tiles.map((t, i) => `<button class="card kpi ${t.on ? "on" : ""}" data-i="${i}"><div class="l">${t.l}</div><div class="v num">${t.v}</div><div class="s num">${t.s}</div>${spark(t.sp, t.c)}</button>`).join("");
-  el.querySelectorAll(".kpi").forEach(b => b.onclick = () => { tiles[+b.dataset.i].click(); render(); });
-  void vs;
-}
-
-// ---------- pipeline ----------
-function renderStages() {
-  const r = view("stage");
-  const max = Math.max(1, ...D.stages.map(s => r.filter(p => p.stage === s).length));
-  const el = document.getElementById("stages");
-  el.innerHTML = D.stages.map((s, i) => {
-    const x = r.filter(p => p.stage === s);
-    const meta = s === "Done" ? (() => { const rec = recorded(x); return rec.length ? `${pct(needed(rec).length, rec.length)}% needed edits` : "—"; })()
-      : x.length ? `oldest ${Math.max(...x.map(p => p.days))} days` : "empty";
-    return `<button class="stage ${S.stage === s ? "on" : ""}" data-s="${esc(s)}"><div class="n">${i + 1} · ${esc(s)}</div><div class="c num">${x.length}</div><div class="m">${meta}</div><div class="bar"><i style="width:${x.length / max * 100}%"></i></div></button>`;
-  }).join("");
-  el.querySelectorAll(".stage").forEach(b => b.onclick = () => { S.stage = S.stage === b.dataset.s ? null : b.dataset.s; render(); });
-  const w = view().filter(p => p.outcome === "Open").sort((a, b) => b.days - a.days).slice(0, 8);
-  document.getElementById("waiting").innerHTML = w.length ? `<table><thead><tr><th>Product</th><th>Stage</th><th class="r">Days</th></tr></thead><tbody>${w.map(p => `<tr class="click" data-id="${p.id}"><td><div class="pn">${esc(p.name)}</div><div class="muted" style="font-size:11.5px">${esc(p.note || "")}</div></td><td><span class="pill">${esc(p.stage)}</span></td><td class="r num ${p.days > 14 ? "age-red" : p.days > 7 ? "age-amber" : ""}">${p.days}</td></tr>`).join("")}</tbody></table>` : `<div class="empty">Nothing open in this view.</div>`;
-  bindRows("#waiting");
-}
-
-// ---------- trend ----------
-function niceStep(x) { const p = Math.pow(10, Math.floor(Math.log10(x || 1))), f = x / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p; }
-function roundTop(x, y, w, h, r) { if (h <= 0) return ""; r = Math.min(r, h, w / 2); return `M${x},${y + h}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h}Z`; }
-function renderTrend() {
-  const g = S.gran === "quarter" ? "quarter" : "month";
-  const b = base("outcome").filter(p => !S.outcome || p.outcome === S.outcome);
-  const ks = keys(g);
-  const data = ks.map(k => { const x = b.filter(p => keyOf(p, g) === k); const by = {}; OUTCOMES.forEach(o => by[o] = x.filter(p => p.outcome === o).length); return { k, by, t: x.length }; });
-  document.getElementById("legend").innerHTML = OUTCOMES.map(o => `<button class="${S.outcome === o ? "on" : ""}" data-o="${o}"><i style="background:${OCOL[o]}"></i>${o}</button>`).join("");
-  document.querySelectorAll("#legend button").forEach(bt => bt.onclick = () => { S.outcome = S.outcome === bt.dataset.o ? null : bt.dataset.o; render(); });
-  const el = document.getElementById("trend");
-  const W = Math.max(el.clientWidth || 600, ks.length * 44), H = 230, m = { l: 34, r: 6, t: 8, b: 26 };
-  const iw = W - m.l - m.r, ih = H - m.t - m.b, max = Math.max(1, ...data.map(d => d.t)), st = niceStep(max / 4), top = Math.ceil(max / st) * st;
-  const y = v => m.t + ih - v / top * ih, bw = iw / ks.length, gap = Math.min(18, bw * .3);
-  let s = `<svg width="${W}" height="${H}" role="img" aria-label="Products entering QC per ${g}">`;
-  for (let v = 0; v <= top; v += st) s += `<line class="gl" x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/><text class="ax" x="${m.l - 6}" y="${y(v) + 3}" text-anchor="end">${v}</text>`;
-  data.forEach((d, i) => {
-    const x = m.l + i * bw + gap / 2, w = bw - gap, sel = S.period && d.k === S.period, dim = S.period && !sel ? .4 : 1;
-    let acc = 0; const segs = OUTCOMES.filter(o => d.by[o]);
-    segs.forEach((o, j) => { const y0 = y(acc), y1 = y(acc + d.by[o]); acc += d.by[o]; const last = j === segs.length - 1, h = Math.max(0, y0 - y1 - (last ? 0 : 2));
-      s += last ? `<path d="${roundTop(x, y1, w, h, 4)}" fill="${OCOL[o]}" opacity="${dim}"/>` : `<rect x="${x}" y="${y1 + 2}" width="${w}" height="${h}" fill="${OCOL[o]}" opacity="${dim}"/>`; });
-    s += `<text class="ax" x="${x + w / 2}" y="${H - 8}" text-anchor="middle" ${sel ? 'style="font-weight:700;fill:var(--text)"' : ""}>${g === "month" ? MON[+d.k.slice(5, 7) - 1] : d.k.slice(5)}</text>`;
-    s += `<rect class="hit" data-i="${i}" x="${m.l + i * bw}" y="${m.t}" width="${bw}" height="${ih}"/>`;
-  });
-  el.innerHTML = s + `<line class="bl0" x1="${m.l}" x2="${W - m.r}" y1="${y(0)}" y2="${y(0)}"/></svg>`;
-  el.querySelectorAll(".hit").forEach(h => { const d = data[+h.dataset.i];
-    h.onmousemove = e => showTip(e, `<div class="tt">${lblPeriod(d.k, g)}</div>${OUTCOMES.filter(o => d.by[o]).map(o => `<div class="tr"><span><i style="background:${OCOL[o]}"></i>${o}</span><b>${d.by[o]}</b></div>`).join("")}<div class="tr" style="margin-top:3px"><span>Total</span><b>${d.t}</b></div>`);
-    h.onmouseleave = hideTip;
-    h.onclick = () => { hideTip(); if (S.gran === "all") S.gran = g; S.period = S.period === d.k ? null : d.k; if (!S.period) S.gran = "all"; render(); }; });
-}
-
-// ---------- bar lists ----------
-function bars(el, items, picked, onPick, fmt = v => v + "%") {
-  const max = Math.max(1, ...items.map(i => i.v));
-  el.innerHTML = items.length ? `<div class="bars">${items.map((i, n) => `<button class="brow ${picked === i.k ? "on" : ""}" data-n="${n}" title="${esc(i.title || i.k)}"><span class="bl">${esc(i.label || i.k)}</span><span class="bt"><span class="bf" style="width:${i.v / max * 100}%;${i.c ? "background:" + i.c : ""}"></span></span><span class="bv num">${fmt(i.v)} <small>${i.extra || ""}</small></span></button>`).join("")}</div>` : `<div class="empty">Nothing in this view.</div>`;
-  el.querySelectorAll(".brow").forEach(b => b.onclick = () => onPick(items[+b.dataset.n]));
-}
-function renderEdits() {
-  const rec = recorded(view("edit"));
-  const items = D.edits.map(e => { const n = rec.filter(p => p.edits.includes(e)).length; return { k: e, v: pct(n, rec.length), extra: n }; }).sort((a, b) => b.v - a.v);
-  const clean = rec.filter(p => p.outcome === "Passed clean").length;
-  items.push({ k: "__clean", label: "No edits needed", v: pct(clean, rec.length), extra: clean, c: "var(--s3)" });
-  bars(document.getElementById("edits"), items, S.edit || (S.outcome === "Passed clean" ? "__clean" : null), i => {
-    if (i.k === "__clean") { S.outcome = S.outcome === "Passed clean" ? null : "Passed clean"; S.edit = null; } else { S.edit = S.edit === i.k ? null : i.k; } render(); });
-}
-function renderDefects() {
-  const rep = view("defect").filter(p => p.verdict);
-  const c = {}; rep.forEach(p => p.defects.forEach(d => c[d] = (c[d] || 0) + 1));
-  const items = Object.entries(c).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([k, n]) => ({ k, v: pct(n, rep.length), extra: n, c: "var(--s2)" }));
-  bars(document.getElementById("defects"), items, S.defect, i => { S.defect = S.defect === i.k ? null : i.k; render(); });
-}
-function renderHeat() {
-  const r = recorded(view("cat").filter(p => S.cat === "all" || true));
-  const cats = [...new Set(r.map(p => p.category))].map(c => ({ c, rows: r.filter(p => p.category === c) })).filter(x => x.rows.length >= 3).sort((a, b) => b.rows.length - a.rows.length);
-  const el = document.getElementById("heat");
-  if (!cats.length) { el.innerHTML = `<div class="empty">Nothing in this view.</div>`; return; }
-  const cell = (v) => `background: color-mix(in srgb, var(--s1) ${Math.round(v * 0.9)}%, var(--surface-2)); color: ${v > 55 ? "#fff" : "var(--text)"}`;
-  el.innerHTML = `<table class="heat"><thead><tr><th style="text-align:left">Category</th>${D.edits.map(e => `<th>${e === "Description" ? "Copy" : e}</th>`).join("")}<th>n</th></tr></thead><tbody>` +
-    cats.map(({ c, rows }) => `<tr><td class="rl" data-cat="${esc(c)}">${esc(c)}</td>${D.edits.map(e => { const v = pct(rows.filter(p => p.edits.includes(e)).length, rows.length); return `<td class="num ${S.cat === c && S.edit === e ? "on" : ""}" data-cat="${esc(c)}" data-e="${e}" style="${cell(v)}" title="${esc(c)} · ${e}: ${v}% of ${rows.length}">${v}%</td>`; }).join("")}<td class="muted num" style="background:none;cursor:default">${rows.length}</td></tr>`).join("") + `</tbody></table>`;
-  el.querySelectorAll("td[data-cat]").forEach(td => td.onclick = () => {
-    const c = td.dataset.cat, e = td.dataset.e;
-    if (e) { const on = S.cat === c && S.edit === e; S.cat = on ? "all" : c; S.edit = on ? null : e; } else S.cat = S.cat === c ? "all" : c;
-    render(); });
-}
-
-// ---------- suppliers ----------
-function supStats(r) {
-  const rec = recorded(r), rep = r.filter(p => p.verdict), ah = r.map(p => p.answer_h).sort((a, b) => a - b);
-  const checks = {}; D.checks.forEach(c => { const v = rep.map(p => p.checks[c]).filter(x => x === "ok" || x === "mismatch"); checks[c] = v.length ? pct(v.filter(x => x === "mismatch").length, v.length) : null; });
-  return { n: r.length, needed: rec.length ? pct(needed(rec).length, rec.length) : null, fail: rep.length ? pct(rep.filter(p => p.verdict === "fail").length, rep.length) : null, rep: rep.length,
-    answer: ah.length ? ah[Math.floor(ah.length / 2)] : null, cost: r.length ? r.reduce((a, p) => a + p.cost, 0) / r.length : null,
-    requote: pct(r.filter(p => p.quotes > 1).length, r.length), refund: r.filter(p => p.outcome !== "Open").reduce((a, p) => a + p.refund_eur, 0), checks };
-}
-function renderSups() {
-  const r = view("sup");
-  const list = [...D.suppliers, "Unknown"].map(s => ({ s, st: supStats(r.filter(p => p.sup === s)) })).filter(x => x.st.n);
-  const best = (k, low = true) => { const v = list.filter(x => x.s !== "Unknown" && x.st[k] != null).map(x => x.st[k]); return v.length > 1 ? (low ? Math.min(...v) : Math.max(...v)) : null; };
-  const B = { needed: best("needed"), fail: best("fail"), answer: best("answer"), cost: best("cost"), requote: best("requote") };
-  const row = (l, k, v) => `<dt>${l}</dt><dd class="num ${B[k] != null && v.raw === B[k] ? "best" : ""}">${v.txt}</dd>`;
-  const el = document.getElementById("sups");
-  el.innerHTML = list.map(({ s, st }) => `<div class="sup ${S.sup === s ? "on" : ""}" data-s="${esc(s)}"><h4>${esc(s)}<span>${st.n} products · ${st.rep} reports</span></h4><dl>
-    ${row("Needed edits", "needed", { raw: st.needed, txt: st.needed == null ? "—" : st.needed + "%" })}
-    ${row("Report fail rate", "fail", { raw: st.fail, txt: st.fail == null ? "—" : st.fail + "%" })}
-    ${row("Median answer time", "answer", { raw: st.answer, txt: st.answer == null ? "—" : st.answer + " h" })}
-    ${row("Avg unit cost", "cost", { raw: st.cost, txt: st.cost == null ? "—" : "$" + st.cost.toFixed(2) })}
-    ${row("Needed a re-quote", "requote", { raw: st.requote, txt: st.requote + "%" })}
-    <dt>€ refunded since QC</dt><dd class="num">${eur(st.refund)}</dd></dl>
-    <div class="muted" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">✗ rate per check</div>
-    ${D.checks.map(c => `<div class="chk"><span>${c}</span><span class="t"><i style="width:${st.checks[c] || 0}%"></i></span><span class="num" style="text-align:right">${st.checks[c] == null ? "—" : st.checks[c] + "%"}</span></div>`).join("")}</div>`).join("");
-  el.querySelectorAll(".sup").forEach(c => c.onclick = () => { S.sup = S.sup === c.dataset.s ? "all" : c.dataset.s; render(); });
-}
-
-// ---------- refunds ----------
-function renderRefunds() {
-  const r = view().filter(p => p.m23 != null && p.outcome !== "Open");
-  const groups = ["Fixed", "Passed clean", "Pulled", "No QC record"].map(o => { const x = r.filter(p => p.outcome === o); return { o, n: x.length, m1: x.length ? x.reduce((a, p) => a + p.m1, 0) / x.length : 0, m23: x.length ? x.reduce((a, p) => a + p.m23, 0) / x.length : 0 }; }).filter(g => g.n >= 3);
-  const el = document.getElementById("refChart");
-  if (!groups.length) { el.innerHTML = `<div class="empty">Too few products 90+ days past QC in this view.</div>`; } else {
-    const W = Math.max(el.clientWidth || 520, 300), H = 220, m = { l: 34, r: 6, t: 10, b: 40 }, iw = W - m.l - m.r, ih = H - m.t - m.b;
-    const max = Math.max(...groups.map(g => Math.max(g.m1, g.m23))), st = niceStep(max / 4) || 1, top = Math.ceil(max / st) * st, y = v => m.t + ih - v / top * ih;
-    const gw = iw / groups.length, bw = Math.min(34, gw * .3);
-    let s = `<svg width="${W}" height="${H}" role="img" aria-label="Refunds per product, month 1 vs months 2-3">`;
-    for (let v = 0; v <= top + 1e-9; v += st) s += `<line class="gl" x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/><text class="ax" x="${m.l - 6}" y="${y(v) + 3}" text-anchor="end">${+v.toFixed(1)}</text>`;
-    groups.forEach((g, i) => { const cx = m.l + gw * i + gw / 2;
-      s += `<path d="${roundTop(cx - bw - 2, y(g.m1), bw, y(0) - y(g.m1), 4)}" fill="var(--base)"/><path d="${roundTop(cx + 2, y(g.m23), bw, y(0) - y(g.m23), 4)}" fill="${OCOL[g.o]}"/>`;
-      s += `<text class="ax" x="${cx}" y="${H - 22}" text-anchor="middle" style="fill:var(--text);font-weight:600">${g.o}</text><text class="ax" x="${cx}" y="${H - 8}" text-anchor="middle">×${g.m1 ? (g.m23 / g.m1).toFixed(1) : "—"} · n=${g.n}</text>`;
-      s += `<rect class="hit" data-i="${i}" x="${m.l + gw * i}" y="${m.t}" width="${gw}" height="${ih}"/>`; });
-    el.innerHTML = s + `<line class="bl0" x1="${m.l}" x2="${W - m.r}" y1="${y(0)}" y2="${y(0)}"/></svg><div class="legend" style="margin:8px 0 0"><button disabled><i style="background:var(--base)"></i>Month 1 (all groups)</button><button disabled><i style="background:var(--text-3)"></i>Months 2–3, per 30 days, in the outcome colour</button></div>`;
-    el.querySelectorAll(".hit").forEach(h => { const g = groups[+h.dataset.i];
-      h.onmousemove = e => showTip(e, `<div class="tt">${g.o} · ${g.n} products</div><div class="tr"><span>Month 1</span><b>${g.m1.toFixed(2)}</b></div><div class="tr"><span>Months 2–3 / 30d</span><b>${g.m23.toFixed(2)}</b></div><div class="tr"><span>Growth</span><b>×${g.m1 ? (g.m23 / g.m1).toFixed(2) : "—"}</b></div>`);
-      h.onmouseleave = hideTip; h.onclick = () => { hideTip(); S.outcome = S.outcome === g.o ? null : g.o; render(); }; });
+// ---------- helpers ----------
+const inList = (p, l) => l === "Flagged" ? p.flagged : p.stage === l;
+function tagsOf(p) {
+  const t = [];
+  const reviewing = p.stage === "We review QC" || p.stage === "Supplier replies";
+  for (const s of p.suppliers) {
+    if (!reviewing) { if (s.similar && p.fulfiller === s.name) t.push(["", "Similar · " + s.name]); continue; }
+    if (s.quote === "Re-quote · low quality") t.push(["warn", "Re-quote · low quality"]);
+    else if (s.quote === "Cannot source") t.push(["bad", "Cannot source · " + s.name]);
+    else if (s.quote === "Quote asked") t.push(["", "Quote asked · " + s.name]);
+    else if (p.stage === "We review QC") t.push(["", "Quote in · " + s.name]);
+    if (s.similar) t.push(["", "Similar · " + s.name]);
   }
-  const top = finished(view()).filter(p => p.refunds > 0).sort((a, b) => b.refund_eur - a.refund_eur).slice(0, 8);
-  document.getElementById("refTop").innerHTML = top.length ? `<table><thead><tr><th>Product</th><th>Outcome</th><th class="r">Refunds</th><th class="r">€</th></tr></thead><tbody>${top.map(p => `<tr class="click" data-id="${p.id}"><td class="pn">${esc(p.name)}</td><td><span class="pill"><i style="background:${OCOL[p.outcome]}"></i>${p.outcome}</span></td><td class="r num">${p.refunds}</td><td class="r num">${eur(p.refund_eur)}</td></tr>`).join("")}</tbody></table>` : `<div class="empty">No refunds in this view.</div>`;
-  bindRows("#refTop");
+  if (p.apparel && p.stage !== "Supplier does QC" && !p.suppliers.some(s => s.chart)) t.push(["bad", "No size chart"]);
+  if (p.flagged) t.push(["flag", "Flagged · " + Math.max(1, p.notes.length)]);
+  if (p.stage === "Done" && p.decision === "Failed") t.push(["bad", "QC failed"]);
+  const seen = new Set(); return t.filter(x => !seen.has(x[1]) && seen.add(x[1])).slice(0, 5);
+}
+function supChips(p) { return p.suppliers.map(s => `<span class="sq ${p.fulfiller === s.name ? "ful" : s.qc ? "in" : ""}" title="${p.fulfiller === s.name ? "Fulfils this product" : s.qc ? "QC received" : "No QC yet"}">${p.fulfiller === s.name ? "★" : s.qc ? "✓" : "·"} ${esc(s.name)}</span>`).join(""); }
+function ageHtml(p) { const d = days(p.date); const cls = p.stage === "Done" ? "" : d > 14 ? "badc" : d > 7 ? "warnc" : ""; return `<div class="age num"><b class="${cls}">${d}d</b>${fmtDate(p.date)}</div>`; }
+function filtered() {
+  const q = UI.q.toLowerCase();
+  return P.filter(p => inList(p, UI.list) && (!q || p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q)) && (UI.sup === "all" || p.suppliers.some(s => s.name === UI.sup)));
+}
+// Supplier price per piece with the 2-piece price weighed in.
+const unitCost = s => (s.p1 + s.p2 / 2) / 2;
+const cogCls = v => v < 28 ? "cog-g" : v < 30 ? "cog-o" : "cog-r";
+function sizeRec(p, s) {
+  if (!s.chart || !p.listing.chart) return null;
+  const sizes = p.listing.chart.map(r => r[0]);
+  const offs = p.listing.chart.map((r, i) => { let best = 0, bd = 1e9; s.chart.forEach((c, j) => { const d = Math.abs(c[1] - r[1]) + Math.abs(c[2] - r[2]); if (d < bd) { bd = d; best = j; } }); return best - i; });
+  const o = offs.sort((a, b) => a - b)[Math.floor(offs.length / 2)];
+  return o === 0 ? ["same", "Same size"] : o > 0 ? ["up", `Ship ${o} size${o > 1 ? "s" : ""} up`] : ["down", `Ship ${-o} size down`];
 }
 
-// ---------- insights ----------
-function renderInsights() {
-  const r = view(), rec = recorded(r), fin = finished(r), op = r.filter(p => p.outcome === "Open"), L = [];
-  if (rec.length) L.push(["crit", "!", `<b>${pct(needed(rec).length, rec.length)}% of checked products needed changes</b> <span class="m">— ${needed(rec).length} of ${rec.length} with a QC record.</span>`]);
-  const ec = D.edits.map(e => [e, rec.filter(p => p.edits.includes(e)).length]).sort((a, b) => b[1] - a[1]);
-  if (ec[0] && ec[0][1]) L.push(["crit", "1", `<b><span class="lnk" data-edit="${ec[0][0]}">${ec[0][0]}</span> is the most common fix</b> <span class="m">— ${pct(ec[0][1], rec.length)}% of checked products; most of these could be caught before launch.</span>`]);
-  const late = op.filter(p => p.days > 14);
-  if (late.length) L.push(["warn", "⏱", `<b>${late.length} products open over 14 days</b> <span class="m">— oldest ${Math.max(...late.map(p => p.days))} days; <span class="lnk" data-open="1">show open</span>.</span>`]);
-  const s = D.suppliers.map(x => [x, supStats(r.filter(p => p.sup === x))]).filter(x => x[1].fail != null && x[1].rep >= 10);
-  if (s.length === 2) { s.sort((a, b) => b[1].fail - a[1].fail); const gap = s[0][1].fail - s[1][1].fail; if (gap >= 5) L.push(["warn", "≠", `<b><span class="lnk" data-sup="${esc(s[0][0])}">${esc(s[0][0])}</span>'s reports fail more</b> <span class="m">— ${s[0][1].fail}% vs ${s[1][1].fail}%.</span>`]); }
-  const g = o => { const x = r.filter(p => p.outcome === o && p.m23 != null); const a = x.reduce((t, p) => t + p.m1, 0), b = x.reduce((t, p) => t + p.m23, 0); return x.length >= 5 && a ? [b / a, x.length] : null; };
-  const gf = g("Fixed"), gp = g("Passed clean");
-  if (gf && gp) L.push([gf[0] < gp[0] ? "good" : "warn", gf[0] < gp[0] ? "↓" : "↑", `<b>Fixed products' refunds grew ×${gf[0].toFixed(1)}, passed ones ×${gp[0].toFixed(1)}</b> <span class="m">— ${gf[0] < gp[0] ? "the fixes look like they work" : "the fixes aren't showing up in refunds yet"} (${gf[1]} vs ${gp[1]} products, 90+ days old).</span>`]);
-  const nr = fin.filter(p => p.outcome === "No QC record");
-  if (nr.length) L.push(["warn", "?", `<b>${nr.length} finished products have no QC record</b> <span class="m">— <span class="lnk" data-outcome="No QC record">show them</span>; nothing was written down, so they're left out of the rates.</span>`]);
-  const ref = fin.filter(p => p.refunds >= 5).sort((a, b) => b.refund_eur - a.refund_eur);
-  if (ref.length) L.push(["crit", "€", `<b>${ref.length} finished products are still refunding</b> <span class="m">— worst: <span class="lnk" data-id="${ref[0].id}">${esc(ref[0].name)}</span>, ${eur(ref[0].refund_eur)}.</span>`]);
-  const el = document.getElementById("insights");
-  el.innerHTML = L.length ? L.map(([c, i, h]) => `<li><span class="ic ${c}">${i}</span><span>${h}</span></li>`).join("") : `<li class="empty">Nothing in this view.</li>`;
-  el.querySelectorAll("[data-edit]").forEach(a => a.onclick = () => { S.edit = a.dataset.edit; render(); });
-  el.querySelectorAll("[data-open]").forEach(a => a.onclick = () => { S.outcome = "Open"; render(); });
-  el.querySelectorAll("[data-sup]").forEach(a => a.onclick = () => { S.sup = a.dataset.sup; render(); });
-  el.querySelectorAll("[data-outcome]").forEach(a => a.onclick = () => { S.outcome = a.dataset.outcome; render(); });
-  el.querySelectorAll("[data-id]").forEach(a => a.onclick = () => openDrawer(a.dataset.id));
+// ---------- sidebar ----------
+function renderSide() {
+  const lists = [...STAGES, "Flagged"];
+  document.getElementById("lists").innerHTML = lists.map(l => `<button class="nav ${UI.list === l && !UI.portal ? "on" : ""}" data-l="${l}"><span class="dot" style="background:${l === "Flagged" ? "var(--flag)" : SCOL[l]}"></span><span class="lbl">${l}</span><span class="ct num">${P.filter(p => inList(p, l)).length}</span></button>`).join("");
+  document.querySelectorAll("#lists .nav").forEach(b => b.onclick = () => { UI.list = b.dataset.l; UI.portal = false; UI.limit = 40; document.getElementById("side").classList.remove("show"); render(); });
+  document.getElementById("navPortal").classList.toggle("on", !!UI.portal);
 }
 
-// ---------- root causes + plan ----------
-function renderCauses() {
-  const r = view("edit"), rec = recorded(r);
-  const causes = [...D.edits.map(e => ({ k: e, x: rec.filter(p => p.edits.includes(e)) })), { k: "Pulled", x: rec.filter(p => p.outcome === "Pulled") }].filter(c => c.x.length).sort((a, b) => b.x.length - a.x.length);
-  const el = document.getElementById("rc");
-  el.innerHTML = causes.map(c => { const R = ROOT[c.k]; const d = {}; c.x.forEach(p => p.defects.forEach(t => d[t] = (d[t] || 0) + 1)); const td = Object.entries(d).sort((a, b) => b[1] - a[1]).slice(0, 2).map(e => e[0]).join(", ");
-    const on = c.k === "Pulled" ? S.outcome === "Pulled" : S.edit === c.k;
-    return `<div class="rc-card ${on ? "on" : ""}" data-k="${c.k}"><div class="h"><b>${c.k}</b><span class="share">${pct(c.x.length, rec.length)}%</span><span class="muted" style="font-size:11.5px">${c.x.length} products · ${c.x.filter(p => p.refunds >= 5).length} still refunding · owner: ${R.owner}</span></div><dl><dt>Where</dt><dd>${R.where}</dd>${td ? `<dt>Seen as</dt><dd>${esc(td)}</dd>` : ""}<dt>Fix</dt><dd>${R.fix}</dd></dl></div>`; }).join("") || `<div class="empty">Nothing in this view.</div>`;
-  el.querySelectorAll(".rc-card").forEach(c => c.onclick = () => { const k = c.dataset.k; if (k === "Pulled") { S.outcome = S.outcome === "Pulled" ? null : "Pulled"; S.edit = null; } else { S.edit = S.edit === k ? null : k; } render(); });
-
-  const all = view(), arec = recorded(all), acts = [];
-  const sc = arec.filter(p => p.edits.includes("Size chart"));
-  if (sc.length) acts.push({ n: sc.length, a: "Publish our own size chart, measured from the QC sample, before a product launches", o: "Listings", f: () => S.edit = "Size chart" });
-  const ph = arec.filter(p => p.edits.includes("Photos") || p.edits.includes("Features"));
-  if (ph.length) acts.push({ n: ph.length, a: "Check photos and every feature claim against the sample at listing time", o: "Listings + QC", f: () => S.edit = "Photos" });
-  const rf = finished(all).filter(p => p.refunds >= 5);
-  if (rf.length) acts.push({ n: rf.length, a: "Re-QC finished products that keep refunding, starting with the highest €", o: "QC lead", f: () => S.refunding = true });
-  const late = all.filter(p => p.outcome === "Open" && p.days > 7);
-  if (late.length) acts.push({ n: late.length, a: "Chase products open more than 7 days: set a 48-hour answer target with suppliers", o: "Sourcing", f: () => S.outcome = "Open" });
-  const ss = D.suppliers.map(x => [x, supStats(all.filter(p => p.sup === x))]).filter(x => x[1].fail != null).sort((a, b) => a[1].fail - b[1].fail);
-  if (ss.length === 2 && ss[1][1].fail - ss[0][1].fail >= 10) acts.push({ n: Math.round(ss[1][1].rep * (ss[1][1].fail - ss[0][1].fail) / 100), a: `Default new products to ${ss[0][0]}, whose reports fail ${ss[1][1].fail - ss[0][1].fail} points less`, o: "Sourcing", f: () => S.sup = ss[1][0] });
-  const unk = all.filter(p => p.sup === "Unknown");
-  if (unk.length) acts.push({ n: unk.length, a: "Record the supplier on every product so the comparison covers everything", o: "QC lead", f: () => S.sup = "Unknown" });
-  acts.sort((a, b) => b.n - a.n);
-  document.getElementById("plan").innerHTML = acts.length ? `<table><thead><tr><th>#</th><th>Action</th><th>Owner</th><th class="r">Products</th></tr></thead><tbody>${acts.map((a, i) => `<tr class="click" data-i="${i}"><td><span class="prio ${i < 2 ? "p1" : i < 4 ? "p2" : ""}">${i + 1}</span></td><td>${a.a}</td><td class="muted" style="white-space:nowrap">${a.o}</td><td class="r num"><b>${a.n}</b></td></tr>`).join("")}</tbody></table>` : `<div class="empty">Nothing to act on in this view.</div>`;
-  document.querySelectorAll("#plan tr[data-i]").forEach(t => t.onclick = () => { acts[+t.dataset.i].f(); render(); document.getElementById("overview").scrollIntoView(); });
+// ---------- list / board ----------
+function renderMain() {
+  const t = document.getElementById("title"), h = document.getElementById("hint"), c = document.getElementById("content");
+  document.querySelectorAll("#viewSeg button").forEach(b => b.classList.toggle("on", b.dataset.v === UI.view));
+  if (UI.portal) return renderPortal(t, h, c);
+  t.textContent = UI.view === "board" ? "All lists" : UI.list;
+  h.textContent = UI.view === "board" ? "Every product by stage. Done shows the latest 12." : HINT[UI.list];
+  const supCounts = D.suppliers.map(s => [s, (UI.view === "board" ? P : P.filter(p => inList(p, UI.list))).filter(p => p.suppliers.some(x => x.name === s)).length]);
+  const fl = `<div class="filters"><button class="fchip ${UI.sup === "all" ? "on" : ""}" data-s="all">All suppliers</button>${supCounts.map(([s, n]) => `<button class="fchip ${UI.sup === s ? "on" : ""}" data-s="${s}">${s} <span class="n">${n}</span></button>`).join("")}</div>`;
+  if (UI.view === "board") {
+    const q = UI.q.toLowerCase();
+    const cols = STAGES.map(s => { let x = P.filter(p => p.stage === s && (!q || p.name.toLowerCase().includes(q)) && (UI.sup === "all" || p.suppliers.some(y => y.name === UI.sup))); const total = x.length; if (s === "Done") x = x.slice(0, 12);
+      return `<div class="col"><h3><i style="background:${SCOL[s]}"></i>${s}<span>${total}</span></h3>${x.map(p => `<div class="kcard" data-id="${p.id}"><div class="pcell"><div class="thumb">${art(p)}</div><div style="min-width:0"><div class="pname">${esc(p.name)}</div></div></div><div class="tags">${tagsOf(p).slice(0, 3).map(([k, v]) => `<span class="tag ${k}">${esc(v)}</span>`).join("")}</div><div class="kmeta"><span class="sups">${supChips(p)}</span><span class="avatar" style="background:${AV[p.owner]}" title="${p.owner}">${p.owner[0]}</span></div></div>`).join("") || `<div class="empty" style="padding:20px">Empty</div>`}</div>`; }).join("");
+    c.innerHTML = fl + `<div style="overflow-x:auto"><div class="board">${cols}</div></div>`;
+  } else {
+    const rows = filtered();
+    const shown = rows.slice(0, UI.limit);
+    c.innerHTML = fl + `<div class="list"><div class="lhead"><span>Status</span><span>Date</span><span>Product</span><span>Suppliers</span><span style="text-align:right">Waiting</span></div>` +
+      (shown.map(p => `<div class="row ${UI.open === p.id ? "cur" : ""}" data-id="${p.id}"><span><span class="stp"><i style="background:${SCOL[p.stage]}"></i>${p.stage}</span></span><span class="num" style="color:var(--t2);font-size:12.5px">${fmtDate(p.date)}</span><div class="pcell"><div class="thumb">${art(p)}</div><div style="min-width:0"><div class="pname">${esc(p.name)}</div><div class="tags">${tagsOf(p).map(([k, v]) => `<span class="tag ${k}">${esc(v)}</span>`).join("")}</div></div></div><div class="sups">${supChips(p)}</div>${ageHtml(p)}</div>`).join("") || `<div class="empty">${UI.list === "Flagged" ? "Nothing is flagged right now." : "No products with this status."}</div>`) +
+      (rows.length > shown.length ? `<button class="more" id="more">Show ${Math.min(40, rows.length - shown.length)} more of ${rows.length - shown.length}</button>` : "") + `</div>`;
+    const m = document.getElementById("more"); if (m) m.onclick = () => { UI.limit += 40; renderMain(); };
+  }
+  c.querySelectorAll("[data-s]").forEach(b => b.onclick = () => { UI.sup = b.dataset.s; renderMain(); });
+  c.querySelectorAll("[data-id]").forEach(r => r.onclick = () => openProduct(r.dataset.id));
+}
+function renderPortal(t, h, c) {
+  t.textContent = "Supplier portal"; h.textContent = "What a supplier sees: products waiting on its QC or its answers.";
+  const s = UI.portalSup;
+  const todo = P.filter(p => p.stage !== "Done" && p.suppliers.some(x => x.name === s && x.quote !== "Cannot source"));
+  const qc = todo.filter(p => !p.suppliers.find(x => x.name === s).qc);
+  const ans = todo.filter(p => p.questions.some(q => q.state === "sent" && q.to.includes(s)));
+  c.innerHTML = `<div class="filters">${D.suppliers.map(x => `<button class="fchip ${x === s ? "on" : ""}" data-ps="${x}">${x}</button>`).join("")}<span style="color:var(--t3);font-size:12.5px;margin-left:6px">Viewing as ${s}</span></div>
+    <div class="box"><h4>Send your QC <span class="sub">${qc.length} products · real photos, size chart in cm, material, price for 1 and 2 pieces</span></h4>${qc.map(p => `<div class="portal-card"><div class="thumb" style="width:54px;height:54px">${art(p)}</div><div><b>${esc(p.name)}</b><div style="font-size:12.5px;color:var(--t3)">${p.id} · requested ${fmtDate(p.date)} · ${days(p.date)} days ago</div></div></div>`).join("") || `<div class="empty" style="padding:16px">Nothing waiting.</div>`}</div>
+    <div class="box"><h4>Questions for you <span class="sub">${ans.length} products</span></h4>${ans.map(p => `<div class="portal-card"><div class="thumb" style="width:54px;height:54px">${art(p)}</div><div><b>${esc(p.name)}</b><ol>${p.questions.filter(q => q.state === "sent" && q.to.includes(s)).map(q => `<li>${esc(q.text)}</li>`).join("")}</ol></div></div>`).join("") || `<div class="empty" style="padding:16px">No open questions.</div>`}</div>`;
+  c.querySelectorAll("[data-ps]").forEach(b => b.onclick = () => { UI.portalSup = b.dataset.ps; renderMain(); });
 }
 
-// ---------- product table ----------
-const COLS = [["name", "Product"], ["category", "Category"], ["sup", "Supplier"], ["stage", "Stage"], ["outcome", "Outcome"], ["qc", "5th sale"], ["days", "Days"], ["refunds", "Refunds"], ["refund_eur", "€ refunded"]];
-function renderTable() {
-  const r = view().slice();
-  const [k, dir] = S.sort;
-  r.sort((a, b) => (a[k] > b[k] ? 1 : a[k] < b[k] ? -1 : 0) * dir);
-  const per = 15, pages = Math.max(1, Math.ceil(r.length / per));
-  S.page = Math.min(S.page, pages - 1);
-  const rows = r.slice(S.page * per, S.page * per + per);
-  document.getElementById("prodCount").textContent = r.length + " products in this view · click a row for its full history";
-  document.getElementById("table").innerHTML = `<table><thead><tr>${COLS.map(([c, l]) => `<th class="sort ${["days", "refunds", "refund_eur"].includes(c) ? "r" : ""}" data-c="${c}">${l} <span class="arr">${k === c ? (dir > 0 ? "↑" : "↓") : ""}</span></th>`).join("")}</tr></thead><tbody>` +
-    (rows.map(p => `<tr class="click" data-id="${p.id}"><td class="pn">${esc(p.name)}${p.flagged ? ' <span class="pill" style="color:var(--critical)">flagged</span>' : ""}</td><td class="muted">${esc(p.category)}</td><td>${esc(p.sup)}</td><td><span class="pill">${esc(p.stage)}</span></td><td><span class="pill"><i style="background:${OCOL[p.outcome]}"></i>${p.outcome}</span></td><td class="num muted">${p.qc}</td><td class="r num">${p.days}</td><td class="r num">${p.refunds}</td><td class="r num">${eur(p.refund_eur)}</td></tr>`).join("") || `<tr><td colspan="9" class="empty">No products match.</td></tr>`) + `</tbody></table>`;
-  document.querySelectorAll("#table th.sort").forEach(th => th.onclick = () => { const c = th.dataset.c; S.sort = [c, S.sort[0] === c ? -S.sort[1] : (["name", "category", "sup", "stage", "outcome"].includes(c) ? 1 : -1)]; S.page = 0; renderTable(); });
-  bindRows("#table");
-  const pg = document.getElementById("pager");
-  pg.innerHTML = `<span>${r.length ? S.page * per + 1 : 0}–${Math.min(r.length, S.page * per + per)} of ${r.length}</span><span><button id="pPrev" ${S.page === 0 ? "disabled" : ""}>← Prev</button> <button id="pNext" ${S.page >= pages - 1 ? "disabled" : ""}>Next →</button></span>`;
-  document.getElementById("pPrev").onclick = () => { S.page--; renderTable(); };
-  document.getElementById("pNext").onclick = () => { S.page++; renderTable(); };
+// ---------- product panel ----------
+const panel = document.getElementById("panel"), scrim = document.getElementById("scrim");
+function cur() { return P.find(p => p.id === UI.open); }
+function navList() { return UI.view === "board" ? P : filtered(); }
+function openProduct(id) { UI.open = id; UI.idx = navList().findIndex(p => p.id === id); UI.tab = "review"; UI.editQ = null; renderPanel(); panel.classList.add("show"); scrim.classList.add("show"); renderMain(); }
+function closePanel() { panel.classList.remove("show"); scrim.classList.remove("show"); UI.open = null; renderMain(); }
+function step(d) {
+  const l = navList(); let i = l.findIndex(p => p.id === UI.open);
+  // The open product may have just left this list (sent, done): carry on from where it was.
+  const n = i < 0 ? l[Math.max(0, Math.min(l.length - 1, (UI.idx ?? 0) + (d > 0 ? 0 : -1)))] : l[i + d];
+  if (n) { UI.open = n.id; UI.idx = l.indexOf(n); UI.editQ = null; renderPanel(); renderMain(); }
 }
-function bindRows(sel) { document.querySelectorAll(sel + " tr[data-id]").forEach(t => t.onclick = () => openDrawer(t.dataset.id)); }
+function setStage(p, s, why) { p.stage = s; save(); renderSide(); if (why) toast(why); }
 
-// ---------- drawer ----------
-const drawer = document.getElementById("drawer"), scrim = document.getElementById("scrim");
-function openDrawer(id) {
-  const p = P.find(x => x.id === id); if (!p) return;
-  const reached = p.history.map(h => h[0]);
-  const tl = D.stages.map(s => { const h = p.history.find(x => x[0] === s); return `<li class="${h ? "" : "todo"}">${esc(s)}${h ? `<span>${h[1]}</span>` : `<span>not yet</span>`}</li>`; }).join("");
-  const checks = Object.entries(p.checks).map(([c, v]) => `<div><span>${c}</span><span class="${v === "ok" ? "ok" : v === "mismatch" ? "bad" : "muted"}">${v === "ok" ? "✓ ok" : v === "mismatch" ? "✗ mismatch" : v}</span></div>`).join("");
-  drawer.innerHTML = `<div class="dh"><div><div class="eyebrow">${esc(p.id)} · ${esc(p.category)} · ${esc(p.store)}</div><h3>${esc(p.name)}</h3></div><button class="icon-btn" id="dClose" aria-label="Close">✕</button></div>
-    <div class="meta"><span class="pill"><i style="background:${OCOL[p.outcome]}"></i>${p.outcome}</span><span class="pill">${esc(p.sup)}</span>${p.verdict ? `<span class="pill">Report: ${p.verdict}</span>` : ""}${p.flagged ? '<span class="pill" style="color:var(--critical)">Flagged</span>' : ""}</div>
-    <div class="stats3"><div><b class="num">${p.days}</b><span>days since 5th sale</span></div><div><b class="num">${p.refunds}</b><span>refunds since QC</span></div><div><b class="num">${eur(p.refund_eur)}</b><span>refunded</span></div></div>
-    ${p.note ? `<h5>Latest note</h5><div style="font-size:13px">${esc(p.note)}</div>` : ""}
-    <h5>QC timeline</h5><ul class="tl">${tl}</ul>
-    ${checks ? `<h5>QC report checks</h5><div class="checks">${checks}</div>` : `<h5>QC report</h5><div class="muted" style="font-size:13px">${p.outcome === "Open" ? "No report yet." : "No QC report was recorded for this product."}</div>`}
-    ${p.defects.length ? `<h5>Defects found</h5><div class="meta">${p.defects.map(d => `<span class="pill">${esc(d)}</span>`).join("")}</div>` : ""}
-    ${p.edits.length ? `<h5>Listing edits after QC</h5><div class="meta">${p.edits.map(e => `<span class="pill" style="color:var(--accent)">${e}</span>`).join("")}</div>` : ""}
-    <h5>Sourcing</h5><div class="stats3"><div><b class="num">$${p.cost.toFixed(2)}</b><span>unit cost</span></div><div><b class="num">$${p.price.toFixed(2)}</b><span>retail price</span></div><div><b class="num">${p.answer_h} h</b><span>supplier answer time</span></div></div>
-    ${p.m23 != null ? `<h5>Refunds after QC</h5><div class="stats3"><div><b class="num">${p.m1}</b><span>month 1</span></div><div><b class="num">${p.m23}</b><span>months 2–3, per 30 days</span></div><div><b class="num">${p.m1 ? "×" + (p.m23 / p.m1).toFixed(1) : "—"}</b><span>growth</span></div></div>` : ""}`;
-  drawer.classList.add("show"); scrim.classList.add("show");
-  document.getElementById("dClose").onclick = closeDrawer;
-  void reached;
+function renderPanel() {
+  const p = cur(); if (!p) return;
+  const l = navList(), i = l.findIndex(x => x.id === p.id);
+  const qOpen = p.questions.filter(q => q.state === "suggested").length;
+  const tabs = [["review", "QC review"], ["size", "Size", p.apparel ? "" : "n/a"], ["cost", "Cost"], ["questions", "Questions", qOpen || ""], ["images", "Images", p.edits.filter(e => e.state !== "live").length || ""], ["notes", "Notes & Slack", (p.notes.length + p.thread.length) || ""]];
+  panel.innerHTML = `<div class="ph"><div class="ph-row"><div class="thumb">${art(p)}</div><div style="min-width:0"><h2>${esc(p.name)}</h2><div class="meta"><span>${p.id}</span>·<span>${esc(p.category)}</span>·<span>${esc(p.store)}</span>·<span>$${p.price.toFixed(2)}</span>·
+      <select class="status" id="stSel" aria-label="Change status">${STAGES.map(s => `<option ${s === p.stage ? "selected" : ""}>${s}</option>`).join("")}</select></div></div>
+    <div class="acts"><button class="ibtn ${p.flagged ? "on" : ""}" id="flagBtn" title="${p.flagged ? "Flagged — click to remove the flag (the notes are kept)" : "Flag this product to ask a question about it"}"><svg class="i" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 3.5L16 11H5"/></svg></button><button class="ibtn" id="prevBtn" title="Previous product (←)" ${i <= 0 ? "disabled" : ""}>‹</button><button class="ibtn" id="nextBtn" title="Next product (→)" ${i >= l.length - 1 ? "disabled" : ""}>›</button><button class="ibtn" id="closeBtn" title="Close (Esc)">✕</button></div></div>
+    <div class="tabs">${tabs.map(([k, n, b]) => `<button class="${UI.tab === k ? "on" : ""}" data-t="${k}">${n}${b ? `<span class="badge">${b}</span>` : ""}</button>`).join("")}</div></div>
+    <div class="pb" id="pb"></div><div class="pf" id="pf"></div>`;
+  panel.querySelector("#closeBtn").onclick = closePanel;
+  panel.querySelector("#prevBtn").onclick = () => step(-1);
+  panel.querySelector("#nextBtn").onclick = () => step(1);
+  panel.querySelector("#flagBtn").onclick = () => { p.flagged = !p.flagged; save(); renderSide(); renderPanel(); renderMain(); toast(p.flagged ? "Flagged" : "Flag removed — the notes are kept"); };
+  panel.querySelector("#stSel").onchange = e => { setStage(p, e.target.value, "Moved to " + e.target.value); renderPanel(); renderMain(); };
+  panel.querySelectorAll(".tabs button").forEach(b => b.onclick = () => { UI.tab = b.dataset.t; renderPanel(); });
+  ({ review: tabReview, size: tabSize, cost: tabCost, questions: tabQuestions, images: tabImages, notes: tabNotes })[UI.tab](p, panel.querySelector("#pb"));
+  renderFooter(p, panel.querySelector("#pf"));
 }
-function closeDrawer() { drawer.classList.remove("show"); scrim.classList.remove("show"); }
-scrim.onclick = closeDrawer;
-addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); });
 
-// ---------- section nav highlight ----------
-const navLinks = [...document.querySelectorAll("#secNav a")];
-const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) navLinks.forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id)); }), { rootMargin: "-140px 0px -60% 0px" });
-document.querySelectorAll("main section").forEach(s => io.observe(s));
-
-// ---------- theme ----------
-function setTheme(t) { if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme; try { t ? localStorage.setItem("qc-theme", t) : localStorage.removeItem("qc-theme"); } catch (e) {} }
-try { const t = localStorage.getItem("qc-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
-document.getElementById("themeBtn").onclick = () => { const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; setTheme(dark ? "light" : "dark"); render(); };
-
-// ---------- boot ----------
-function render() {
-  renderControls(); renderKpis(); renderStages(); renderTrend(); renderInsights(); renderEdits(); renderDefects(); renderHeat(); renderSups(); renderRefunds(); renderCauses(); renderTable();
+function gallery(p, title, n, offset, caption) {
+  return `<div class="gal"><h5><span>${title}</span><span>${n ? n + " photos" : ""}</span></h5>${n ? `<div class="tiles">${Array.from({ length: Math.min(n, 6) }, (_, k) => `<button data-lb="${offset + k}" data-cap="${esc(caption)} · photo ${k + 1}">${art(p, offset + k)}<span>${k + 1}</span></button>`).join("")}</div>` : `<div class="none">No QC photos yet</div>`}</div>`;
 }
-document.getElementById("q").oninput = e => { S.q = e.target.value; S.page = 0; render(); };
-document.getElementById("clearAll").onclick = () => { Object.assign(S, { gran: "all", period: null, store: "all", sup: "all", cat: "all", q: "", stage: null, outcome: null, edit: null, defect: null, refunding: false, failVerdict: false, page: 0 }); document.getElementById("q").value = ""; render(); };
-const d0 = new Date(AS_OF + "T00:00:00");
-document.getElementById("asOf").textContent = "Sample data · as of " + d0.getDate() + " " + MON[d0.getMonth()] + " " + d0.getFullYear();
-let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(render, 150); });
+function tabReview(p, el) {
+  const sups = p.suppliers;
+  const ai = p.ai.length ? `<div class="box ai"><h4>✦ AI noticed <span class="sub">from comparing the QC photos, charts and listing</span></h4><ul>${p.ai.map(a => `<li>${esc(a)}</li>`).join("")}</ul></div>` : "";
+  const facts = [
+    ["Quote", s => s.quote === "Quote in" ? `<span class="okc">Quote in</span>` : s.quote === "Cannot source" ? `<span class="diff">Cannot source</span>` : s.quote.startsWith("Re-quote") ? `<span class="warnc">${s.quote}</span>` : `<span class="miss">${s.quote}</span>`],
+    ["Product", s => s.similar ? `<span class="warnc">Similar, not the exact one</span>` : "Exact match"],
+    ["Material", s => s.material ? (s.material === p.listing.material ? `<span class="okc">${esc(s.material)}</span>` : `<span class="diff">${esc(s.material)}</span><br><small class="miss">listing: ${esc(p.listing.material)}</small>`) : `<span class="miss">Not given</span>`],
+    ...(p.apparel ? [...(["Dresses", "Pants", "Outerwear"].includes(p.category) ? [["Pockets", s => s.pockets ? esc(s.pockets) : `<span class="miss">Not given</span>`]] : []), ["Size chart", s => s.chart ? `${s.size_system || "No system given"} · <span class="${(sizeRec(p, s) || [""])[0] === "same" ? "okc" : "warnc"}">${(sizeRec(p, s) || ["", "—"])[1]}</span>` : `<span class="diff">No size chart</span>`]] : []),
+    ["Chinese tags", s => s.chinese_tags == null ? `<span class="miss">—</span>` : s.chinese_tags ? `<span class="warnc">Yes, remove before shipping</span>` : "No"],
+    ["Price 1 / 2 pcs", s => `$${s.p1.toFixed(2)} / $${s.p2.toFixed(2)}`],
+    ["Answers in", s => s.qc ? `${s.answer_h} h` : `<span class="miss">—</span>`],
+    ["Remark", s => s.remark ? esc(s.remark) : `<span class="miss">—</span>`],
+  ];
+  el.innerHTML = ai + `<div class="box"><h4>Photos <span class="sub">listing vs what each supplier sent · click to enlarge</span></h4><div class="gal-wrap">${gallery(p, "On the website", p.listing.images, 0, "Listing")}${sups.map((s, k) => gallery(p, s.name + " QC", s.photos, 10 + k * 10, s.name + " QC")).join("")}</div></div>
+    <div class="box" style="overflow-x:auto"><h4>What each supplier sent</h4><table class="facts"><thead><tr><th></th>${sups.map(s => `<th>${esc(s.name)}${p.fulfiller === s.name ? " ★" : ""}</th>`).join("")}</tr></thead><tbody>${facts.map(([l, f]) => `<tr><td>${l}</td>${sups.map(s => `<td>${f(s)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+  el.querySelectorAll("[data-lb]").forEach(b => b.onclick = () => openLightbox(p, +b.dataset.lb, b.dataset.cap, el));
+}
+function tabSize(p, el) {
+  if (!p.apparel) { el.innerHTML = `<div class="box"><div class="empty" style="padding:20px">Not a sized product — nothing to check here.</div></div>`; return; }
+  const our = p.listing.chart;
+  el.innerHTML = `<div class="box"><h4>Our size chart <span class="sub">body measurements in cm, US sizing</span></h4>${chartTable(our, null)}</div>` +
+    p.suppliers.map(s => { const r = sizeRec(p, s);
+      return `<div class="box"><h4>${esc(s.name)} <span class="sub">${s.chart ? (s.size_system ? s.size_system + " sizes" : "No size system given") : ""}</span>${r ? `<span class="rec ${r[0]}" style="margin-left:auto">${r[1]}</span>` : ""}</h4>${s.chart ? chartTable(s.chart, our) + `<div class="field"><select data-sys="${s.name}" aria-label="Size system"><option value="">Which size system is ${esc(s.name)}'s chart?</option>${["Asian", "US", "EU"].map(x => `<option ${s.size_system === x ? "selected" : ""}>${x}</option>`).join("")}</select></div>` : `<div class="empty" style="padding:16px">No size chart from ${esc(s.name)}${s.qc ? "" : " yet"}.</div>`}</div>`; }).join("") +
+    `<p style="font-size:12px;color:var(--t3)">The call compares bust and waist for each size with our chart and takes the middle answer. Red figures are 3 cm or more off our chart.</p>`;
+  el.querySelectorAll("[data-sys]").forEach(sel => sel.onchange = () => { const s = p.suppliers.find(x => x.name === sel.dataset.sys); s.size_system = sel.value || null; save(); toast("Size system saved"); renderPanel(); });
+}
+function chartTable(rows, ref) {
+  return `<table class="facts num"><thead><tr><th>Size</th><th>Bust</th><th>Waist</th><th>Hip</th></tr></thead><tbody>${rows.map((r, i) => `<tr><td style="color:var(--text);font-weight:700">${r[0]}</td>${[1, 2, 3].map(k => { const d = ref ? r[k] - ref[i][k] : 0; return `<td class="${ref && Math.abs(d) >= 3 ? "diff" : ""}">${r[k]}${ref && d ? ` <small class="miss">(${d > 0 ? "+" : ""}${d})</small>` : ""}</td>`; }).join("")}</tr>`).join("")}</tbody></table>`;
+}
+function tabCost(p, el) {
+  const sups = p.suppliers.filter(s => s.quote !== "Cannot source" && s.quote !== "Quote asked");
+  const best = sups.length ? sups.reduce((a, s) => unitCost(s) < unitCost(a) ? s : a) : null;
+  const headline = best ? (unitCost(best) / p.price * 100) : null;
+  el.innerHTML = `<div class="box"><h4>Cost of goods <span class="sub">target under 28% (green) · 28–30% is close (orange) · 30% and more is not met (red)</span></h4>
+    ${best ? `<div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:6px"><div><div style="font-size:12px;color:var(--t3)">Best COG %</div><div class="${cogCls(headline)}" style="font-size:26px">${headline.toFixed(1)}%</div></div><div><div style="font-size:12px;color:var(--t3)">Cheapest supplier</div><div style="font-size:18px;font-weight:700;margin-top:4px">${esc(best.name)} · $${unitCost(best).toFixed(2)}</div></div><div><div style="font-size:12px;color:var(--t3)">Our price</div><div style="font-size:18px;font-weight:700;margin-top:4px">$${p.price.toFixed(2)}</div></div></div>` : `<div class="empty" style="padding:16px">No supplier price yet.</div>`}</div>
+    ${sups.length ? `<div class="box" style="overflow-x:auto"><h4>COG per variant <span class="sub">supplier price per piece, with the 2-piece price weighed in</span></h4><table class="facts num"><thead><tr><th>Variant</th><th>Our price</th>${sups.map(s => `<th>${esc(s.name)}</th>`).join("")}</tr></thead><tbody>${p.variants.map(v => `<tr><td style="color:var(--text)">${esc(v.name)}</td><td>$${v.price.toFixed(2)}</td>${sups.map(s => { const c = unitCost(s) / v.price * 100; return `<td><span class="${cogCls(c)}">${c.toFixed(1)}%</span> <small class="miss">$${unitCost(s).toFixed(2)}</small></td>`; }).join("")}</tr>`).join("")}</tbody></table></div>` : ""}`;
+}
+function tabQuestions(p, el) {
+  const label = { suggested: "Suggested", sent: "Sent", not_needed: "Not needed", answered: "Answered" };
+  const q = p.questions;
+  el.innerHTML = `<div class="box"><h4>Questions for the suppliers <span class="sub">AI-suggested — approve, reword or skip, then send</span></h4>${q.length ? q.map((x, k) => `<div class="q ${x.state === "not_needed" ? "not" : ""}"><div>${UI.editQ === k ? `<div class="field" style="margin:0"><input id="edQ" value="${esc(x.text)}" maxlength="200" aria-label="Question wording"><button class="sbtn primary" data-save="${k}">Save</button></div>` : `<div class="txt">${esc(x.text)}</div>`}<div style="font-size:11.5px;color:var(--t3);margin-top:2px">${label[x.state]}${x.to.length ? " · to " + x.to.join(", ") : ""}</div></div>
+      <div class="acts">${x.state === "suggested" ? `<button class="sbtn" data-ed="${k}">Edit</button><button class="sbtn" data-skip="${k}">Do not send</button>` : x.state === "not_needed" ? `<button class="sbtn" data-anyway="${k}">Ask anyway</button>` : `<span class="tag good">Sent</span>`}</div>${x.reason && x.state === "not_needed" ? `<div class="why">Not needed: ${esc(x.reason)}</div>` : ""}</div>`).join("") : `<div class="empty" style="padding:16px">Nothing to ask.</div>`}
+    <div class="field"><input id="ownQ" maxlength="200" placeholder="Own question (max 200 characters)"><button class="sbtn" id="addQ">Add</button></div></div>
+    <div style="display:flex;justify-content:flex-end"><button class="sbtn primary big" id="sendQ" ${q.some(x => x.state === "suggested") ? "" : "disabled"}>Send ${q.filter(x => x.state === "suggested").length || ""} questions to the suppliers</button></div>`;
+  el.querySelectorAll("[data-skip]").forEach(b => b.onclick = () => { const x = q[+b.dataset.skip]; x.state = "not_needed"; x.reason = x.reason || "Taken off the supplier's page."; save(); renderPanel(); });
+  el.querySelectorAll("[data-anyway]").forEach(b => b.onclick = () => { q[+b.dataset.anyway].state = "suggested"; save(); renderPanel(); });
+  el.querySelectorAll("[data-ed]").forEach(b => b.onclick = () => { UI.editQ = +b.dataset.ed; renderPanel(); const i = panel.querySelector("#edQ"); i.focus(); i.select(); });
+  el.querySelectorAll("[data-save]").forEach(b => { const go = () => { const v = panel.querySelector("#edQ").value.trim(); if (v) q[+b.dataset.save].text = v; UI.editQ = null; save(); renderPanel(); }; b.onclick = go; panel.querySelector("#edQ").onkeydown = e => { if (e.key === "Enter") go(); }; });
+  el.querySelector("#addQ").onclick = () => { const v = el.querySelector("#ownQ").value.trim(); if (!v) return; q.push({ text: v, reason: null, state: "suggested", to: p.suppliers.filter(s => s.qc).map(s => s.name).slice(0, 2) }); save(); renderPanel(); };
+  el.querySelector("#sendQ").onclick = () => { const n = q.filter(x => x.state === "suggested"); n.forEach(x => x.state = "sent"); p.thread.push({ who: "You", text: `Sent ${n.length} question${n.length > 1 ? "s" : ""} to the suppliers.` }); if (p.stage === "We review QC") setStage(p, "Supplier replies"); save(); renderPanel(); renderMain(); toast(`${n.length} questions sent · moved to Supplier replies`); };
+}
+function tabImages(p, el) {
+  const lab = { requested: "Requested", approved: "Approved", live: "Live" };
+  el.innerHTML = `<div class="box">${gallery(p, "Listing photos", p.listing.images, 0, "Listing")}</div><div class="box"><h4>Image edits <span class="sub">add one only if something is really off</span></h4>${p.edits.length ? p.edits.map((e, k) => `<div class="edit"><span class="tag ${e.state === "live" ? "good" : e.state === "approved" ? "" : "warn"}">${lab[e.state]}</span><span class="grow">${esc(e.text)}</span><span style="font-size:12px;color:var(--t3)">${esc(e.by)}</span>${e.state === "requested" ? `<button class="sbtn" data-ap="${k}">Approve</button>` : e.state === "approved" ? `<button class="sbtn" data-tb="${k}">Take back</button>` : ""}</div>`).join("") : `<div class="empty" style="padding:14px">No image edits.</div>`}
+    <div class="field"><input id="newEdit" placeholder="Add an edit, e.g. remove the belt in photo 3"><button class="sbtn" id="addEdit">Add</button></div></div>`;
+  el.querySelectorAll("[data-ap]").forEach(b => b.onclick = () => { p.edits[+b.dataset.ap].state = "approved"; save(); renderPanel(); toast("Approved — the lister will pick it up"); });
+  el.querySelectorAll("[data-tb]").forEach(b => b.onclick = () => { p.edits[+b.dataset.tb].state = "requested"; save(); renderPanel(); });
+  el.querySelector("#addEdit").onclick = () => { const v = el.querySelector("#newEdit").value.trim(); if (!v) return; p.edits.push({ text: v, by: "You", state: "requested" }); save(); renderPanel(); };
+  el.querySelectorAll("[data-lb]").forEach(b => b.onclick = () => openLightbox(p, +b.dataset.lb, b.dataset.cap, el));
+}
+function tabNotes(p, el) {
+  el.innerHTML = `<div class="box"><h4>Notes <span class="sub">say what we are waiting on</span></h4>${p.notes.map((n, k) => `<div class="note"><div>${esc(n.text)}<small>${esc(n.by)} · ${fmtDate(n.at)}</small></div><button class="ibtn" style="width:28px;height:28px" data-dn="${k}" title="Delete this note">✕</button></div>`).join("") || `<div class="empty" style="padding:12px">No notes.</div>`}
+    <div class="field"><input id="newNote" placeholder="Leave a note: a question, something unclear, anything blocking this product"><button class="sbtn" id="addNote">Add</button></div></div>
+    <div class="box"><h4>Slack thread <span class="sub">#qc-${p.id.toLowerCase()} · demo, nothing is really sent</span></h4>${p.thread.map(m => `<div class="msg"><span class="avatar" style="width:30px;height:30px;background:${AV[m.who] || "var(--t3)"}">${esc(m.who[0])}</span><div><div class="who">${esc(m.who)}</div><div>${esc(m.text)}</div></div></div>`).join("") || `<div class="empty" style="padding:12px">No messages yet.</div>`}
+    <div class="field"><input id="reply" placeholder="Reply in this thread"><button class="sbtn primary" id="send">Send</button></div></div>`;
+  el.querySelectorAll("[data-dn]").forEach(b => b.onclick = () => { p.notes.splice(+b.dataset.dn, 1); save(); renderPanel(); });
+  el.querySelector("#addNote").onclick = () => { const v = el.querySelector("#newNote").value.trim(); if (!v) return; p.notes.push({ by: "You", text: v, at: D.as_of }); save(); renderPanel(); };
+  const send = () => { const v = el.querySelector("#reply").value.trim(); if (!v) return; p.thread.push({ who: "You", text: v }); save(); renderPanel(); toast("Demo: the message stays in this browser"); };
+  el.querySelector("#send").onclick = send; el.querySelector("#reply").onkeydown = e => { if (e.key === "Enter") send(); };
+}
+function renderFooter(p, el) {
+  const ok = p.suppliers.filter(s => s.qc);
+  if (p.stage === "Supplier does QC") {
+    el.innerHTML = `<span style="color:var(--t3);font-size:13px">Waiting for the suppliers to send their QC.</span><span class="grow"></span><button class="sbtn big" id="remind">Remind suppliers</button><button class="sbtn big" id="qcIn">Mark QC as received</button>`;
+    el.querySelector("#remind").onclick = () => toast("Demo: reminder not really sent");
+    el.querySelector("#qcIn").onclick = () => { p.suppliers.forEach(s => { if (s.quote !== "Cannot source") { s.qc = true; s.photos = s.photos || 4; s.quote = "Quote in"; } }); setStage(p, "We review QC", "QC received · moved to We review QC"); renderPanel(); renderMain(); };
+    return;
+  }
+  el.innerHTML = `<div><div style="font-size:11px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Pick supplier &amp; QC status</div><div class="pickers">${p.suppliers.map(s => `<button class="pick ${p.fulfiller === s.name ? "on" : ""}" data-f="${s.name}" ${s.qc ? "" : "disabled"}><b>${esc(s.name)}</b><small>${s.qc ? "$" + unitCost(s).toFixed(2) + " · " + (unitCost(s) / p.price * 100).toFixed(0) + "% COG" : "no QC"}</small></button>`).join("")}</div></div>
+    <span class="grow"></span>
+    <div class="verdict"><button class="p ${p.decision === "Passed" ? "on" : ""}" id="pass">✓ Passed</button><button class="f ${p.decision === "Failed" ? "on" : ""}" id="fail">✕ Failed</button></div>
+    <button class="sbtn big" id="requote">Ask for requote</button>
+    <button class="sbtn good big" id="done" ${p.decision && (p.decision === "Failed" || p.fulfiller) ? "" : "disabled"}>${p.stage === "Done" ? "Saved" : "Save &amp; set Done"}</button>`;
+  el.querySelectorAll("[data-f]").forEach(b => b.onclick = () => { p.fulfiller = p.fulfiller === b.dataset.f ? null : b.dataset.f; if (p.fulfiller && !p.decision) p.decision = "Passed"; save(); renderPanel(); renderMain(); });
+  el.querySelector("#pass").onclick = () => { p.decision = p.decision === "Passed" ? null : "Passed"; if (p.decision === "Passed" && !p.fulfiller && ok.length) p.fulfiller = ok.reduce((a, s) => unitCost(s) < unitCost(a) ? s : a).name; save(); renderPanel(); };
+  el.querySelector("#fail").onclick = () => { p.decision = p.decision === "Failed" ? null : "Failed"; if (p.decision === "Failed") p.fulfiller = null; save(); renderPanel(); renderMain(); };
+  el.querySelector("#requote").onclick = () => { const s = ok[0] || p.suppliers[0]; s.quote = "Re-quote · low quality"; p.thread.push({ who: "You", text: `Better quality needed. Quote request to ${s.name}: please send real photos and your price for 1 and 2 pieces.` }); save(); renderPanel(); renderMain(); toast("Re-quote requested from " + s.name); };
+  el.querySelector("#done").onclick = () => { if (p.stage === "Done") return; setStage(p, "Done", p.decision === "Failed" ? "Saved as failed · Done" : `Saved · ${p.fulfiller} fulfils it · Done`); step(1); if (cur() === p) renderPanel(); renderMain(); };
+}
+
+// ---------- lightbox ----------
+let LB = null;
+function openLightbox(p, n, cap, scope) {
+  const tiles = [...scope.querySelectorAll("[data-lb]")].map(b => [+b.dataset.lb, b.dataset.cap]);
+  LB = { p, tiles, i: tiles.findIndex(t => t[0] === n) }; drawLB(); document.getElementById("lightbox").classList.add("show");
+}
+function drawLB() { const [n, cap] = LB.tiles[LB.i]; document.getElementById("lbImg").innerHTML = art(LB.p, n); document.getElementById("lbCap").textContent = cap + `  (${LB.i + 1}/${LB.tiles.length})`; }
+document.getElementById("lbPrev").onclick = e => { e.stopPropagation(); LB.i = (LB.i - 1 + LB.tiles.length) % LB.tiles.length; drawLB(); };
+document.getElementById("lbNext").onclick = e => { e.stopPropagation(); LB.i = (LB.i + 1) % LB.tiles.length; drawLB(); };
+document.getElementById("lightbox").onclick = () => { document.getElementById("lightbox").classList.remove("show"); LB = null; };
+
+// ---------- global wiring ----------
+function render() { renderSide(); renderMain(); }
+scrim.onclick = closePanel;
+document.getElementById("q").oninput = e => { UI.q = e.target.value; UI.limit = 40; renderMain(); };
+document.querySelectorAll("#viewSeg button").forEach(b => b.onclick = () => { UI.view = b.dataset.v; UI.portal = false; render(); });
+document.getElementById("menuBtn").onclick = () => document.getElementById("side").classList.toggle("show");
+document.getElementById("navPortal").onclick = () => { UI.portal = true; UI.view = "list"; document.getElementById("side").classList.remove("show"); render(); };
+const sheet = id => { document.querySelectorAll(".sheet").forEach(s => s.classList.toggle("show", s.id === id && !s.classList.contains("show"))); };
+document.getElementById("navNotes").onclick = () => sheet("notepad");
+document.getElementById("navHelp").onclick = () => sheet("help");
+document.querySelectorAll("[data-close]").forEach(b => b.onclick = () => document.getElementById(b.dataset.close).classList.remove("show"));
+const pad = document.getElementById("padText");
+try { pad.value = localStorage.getItem("qc-demo-pad") || ""; } catch (e) {}
+pad.oninput = () => { try { localStorage.setItem("qc-demo-pad", pad.value); } catch (e) {} };
+document.getElementById("resetDemo").onclick = () => { try { localStorage.removeItem(KEY); } catch (e) {} P = structuredClone(D.products); closePanel(); render(); toast("Demo reset to the original data"); };
+function setTheme() { const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; document.documentElement.dataset.theme = dark ? "light" : "dark"; try { localStorage.setItem("qc-demo-theme", document.documentElement.dataset.theme); } catch (e) {} }
+try { const t = localStorage.getItem("qc-demo-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+document.getElementById("themeBtn").onclick = setTheme;
+addEventListener("keydown", e => {
+  const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
+  if (e.key === "Escape") { if (LB) { document.getElementById("lightbox").classList.remove("show"); LB = null; } else if (UI.open) closePanel(); else document.querySelectorAll(".sheet").forEach(s => s.classList.remove("show")); return; }
+  if (typing) return;
+  if (e.key === "/") { e.preventDefault(); document.getElementById("q").focus(); }
+  if (LB && e.key === "ArrowRight") document.getElementById("lbNext").click();
+  else if (LB && e.key === "ArrowLeft") document.getElementById("lbPrev").click();
+  else if (UI.open && e.key === "ArrowRight") step(1);
+  else if (UI.open && e.key === "ArrowLeft") step(-1);
+});
 render();
 </script>
 </body>
