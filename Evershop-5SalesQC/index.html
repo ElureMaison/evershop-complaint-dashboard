@@ -195,6 +195,9 @@
   #eg-gate .eg-error { color: #e66767; font-size: 12.5px; min-height: 16px; text-align: center; }
 </style>
 <style>
+  /* Buttons centre their content vertically; tiles carry 1-3 lines of
+     detail, so pin everything to the top or the labels stop lining up. */
+  .kpi { display: flex; flex-direction: column; justify-content: flex-start; }
   .stage-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 14px; }
   @media (max-width: 800px) { .stage-row { grid-template-columns: repeat(2, 1fr); } }
   .stage { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; background: var(--surface-2); cursor: pointer; text-align: left; font: inherit; color: inherit; position: relative; }
@@ -231,7 +234,7 @@
       <div class="refresh-block">
         <button class="refresh-btn" id="refreshBtn">⟳ Refresh data</button>
         <div class="refresh-status" id="refreshStatus">Loading…</div>
-        <span class="build-tag" title="Which version of this page your browser loaded. If it is older than you expect, hard-refresh (Cmd+Shift+R).">build 2026-10-16a</span>
+        <span class="build-tag" title="Which version of this page your browser loaded. If it is older than you expect, hard-refresh (Cmd+Shift+R).">build 2026-10-16b</span>
       </div>
     </div>
   </header>
@@ -347,9 +350,9 @@
     <h2>Notes on this data</h2>
     <p class="footnote">
       <b>Source:</b> the 5+ Sales QC board (qualitycontrol-xi), read through its own API from a signed-in browser — the list plus each product's detail page. The board itself is the Notion "5+ sales quality control" database.<br>
-      <b>Entered QC</b> is the board's date: the day a product reached 5 sales with live ad traffic. <b>Outcomes</b> for finished products: <i>Passed clean</i> (no edits), <i>Fixed</i> (listing edited after QC), <i>Pulled / failed</i> (discontinued, QC decision Failed, or the supplier could not source it).<br>
+      <b>Entered QC</b> is the board's date: the day a product reached 5 sales with live ad traffic. <b>Outcomes</b> for finished products: <i>Passed clean</i> (QC report, no edits), <i>Fixed</i> (listing edited after QC), <i>Pulled / failed</i> (discontinued, QC decision Failed, or the supplier could not source it), <i>No QC record</i> (finished before edits and reports were logged, from July 2026; left out of every edit rate).<br>
       <b>Checks</b> come from the AI QC reports run on each supplier's photos and size charts: material, images, functionality and size chart are each <i>ok</i>, <i>mismatch</i> or <i>unknown</i>; the ✗ rates count ok vs mismatch only. A report's verdict is pass, warn or fail.<br>
-      <b>Supplier</b> is the board's supplier field, else the supplier QC was run against, else the Notion product board (29 Sep copy).<br>
+      <b>Supplier</b> is the board's supplier field, else the supplier QC was run against, else the Notion product board (exact name, then same brand with most words shared).<br>
       <b>Refund impact</b> matches products to the 💸 Refunds log by name (exact, then same brand with most words shared). The QC date is the 5th sale, so there are almost no refunds before it; each product is compared with itself instead — first 30 days after QC vs months 2–3. Sales volume also changes over that time and is not available here, so read these as counts, not refund rates.<br>
       <b>Privacy:</b> no customer data — product, supplier and QC results only.
     </p>
@@ -372,8 +375,8 @@ if (ss("eg-unlocked") === "1") unlock();
 
 const STAGES = [["Not started", "Supplier does QC"], ["In progress", "We review QC"], ["Check updates", "Supplier replies and edits"], ["Final updates", "Final updates"], ["Done", "Done"]];
 const STAGE_LABEL = Object.fromEntries(STAGES);
-const OUTCOMES = ["Passed clean", "Fixed", "Pulled / failed", "Open"];
-const OCOLOR = { "Passed clean": "var(--s3)", "Fixed": "var(--s1)", "Pulled / failed": "var(--s2)", "Open": "var(--s0)" };
+const OUTCOMES = ["Passed clean", "Fixed", "Pulled / failed", "Open", "No QC record"];
+const OCOLOR = { "Passed clean": "var(--s3)", "Fixed": "var(--s1)", "Pulled / failed": "var(--s2)", "Open": "var(--s4)", "No QC record": "var(--s0)" };
 const CHECKS = ["Material", "Images", "Functionality", "Size chart"];
 const ROOT = {
   "Size chart": { where: "Our listing's chart vs the supplier's measured chart (often a CN size system).", fix: "Convert from the supplier's measured chart at listing time, not after 5 sales; flag CN sizing on the listing.", owner: "Listings" },
@@ -384,7 +387,7 @@ const ROOT = {
   "Open": { where: "Waiting on the supplier or on us.", fix: "Chase anything older than 7 days; the stuck table lists them.", owner: "QC team" },
 };
 
-const state = { gran: "all", period: null, store: "all", sup: "all", stage: null, outcome: null, act: null, defect: null, cat: null, product: null, dq: null, check: null };
+const state = { gran: "all", period: null, store: "all", sup: "all", stage: null, outcome: null, act: null, defect: null, cat: null, product: null, dq: null, check: null, ai: null, refunding: false };
 let RAW = null, ALL = [];
 
 async function load() {
@@ -394,7 +397,9 @@ async function load() {
   ALL = RAW.products.map(p => {
     const acts = (p.acts || []).filter(Boolean);
     const failed = acts.includes("Discontinued") || p.dec === "Failed" || p.reqc === "Cannot source";
-    const outcome = p.st !== "Done" ? "Open" : failed ? "Pulled / failed" : acts.length ? "Fixed" : "Passed clean";
+    // Edits and QC reports were only recorded from July 2026. A finished
+    // product with neither was not passed clean -- nothing was written down.
+    const outcome = p.st !== "Done" ? "Open" : failed ? "Pulled / failed" : acts.length ? "Fixed" : (p.reports || []).length ? "Passed clean" : "No QC record";
     const defects = [...new Set((p.reports || []).flatMap(r => r.defects || []).map(d => d.toLowerCase().trim()).filter(Boolean))];
     const age = p.date ? Math.floor((Date.now() - new Date(p.date + "T00:00:00Z")) / 864e5) : null;
     return { ...p, acts, outcome, defects, age, sup: p.sup || "Unknown", store: (p.stores || []).join(" + ") || "Unknown" };
@@ -410,6 +415,23 @@ const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct
 function label(k, g, short) { if (g === "week") { const d = new Date(k + "T00:00:00Z"); return (short ? "" : "Week of ") + d.getUTCDate() + " " + MON[d.getUTCMonth()]; } if (g === "month") return MON[+k.slice(5, 7) - 1] + (short ? " '" + k.slice(2, 4) : " " + k.slice(0, 4)); if (g === "quarter") return k.slice(5) + " " + (short ? "'" + k.slice(2, 4) : k.slice(0, 4)); return k; }
 function allKeys(g) { const days = ALL.map(p => p.date).filter(Boolean).sort(); if (!days.length) return []; const ks = []; const d = new Date(days[0] + "T00:00:00Z"); const end = days[days.length - 1]; while (d.toISOString().slice(0, 10) <= end) { const k = bucket(d.toISOString().slice(0, 10), g); if (ks[ks.length - 1] !== k) ks.push(k); d.setUTCDate(d.getUTCDate() + 1); } return ks; }
 function partial(k, g) { return bucket(new Date().toISOString().slice(0, 10), g) === k; }
+function periodStart(k, g) { if (g === "week") return k; if (g === "month") return k + "-01"; if (g === "quarter") return k.slice(0, 4) + "-" + String((+k.slice(6) - 1) * 3 + 1).padStart(2, "0") + "-01"; return k + "-01-01"; }
+// The period before the selected one, with the same filters. A period still in
+// progress is compared with the same number of days of the one before it.
+function previous() {
+  if (state.gran === "all" || !state.period) return null;
+  const ks = allKeys(state.gran), i = ks.indexOf(state.period);
+  if (i < 1) return null;
+  const pk = ks[i - 1];
+  let rows = inPeriod(base(), pk), lab = label(pk, state.gran);
+  if (partial(state.period, state.gran)) {
+    const days = Math.floor((Date.now() - new Date(periodStart(state.period, state.gran) + "T00:00:00Z")) / 864e5);
+    const cut = new Date(new Date(periodStart(pk, state.gran) + "T00:00:00Z").getTime() + days * 864e5).toISOString().slice(0, 10);
+    rows = rows.filter(p => p.date <= cut);
+    lab = "first " + (days + 1) + " days of " + lab;
+  }
+  return { rows, label: lab };
+}
 
 // ---- filtering ----
 const DQ = {
@@ -431,8 +453,13 @@ function base(except) {
     (except === "cat" || !state.cat || p.cat === state.cat) &&
     (except === "product" || !state.product || p.id === state.product) &&
     (except === "check" || !state.check || (p.reports || []).some(r => r[state.check] === "mismatch")) &&
-    (except === "dq" || !state.dq || DQ[state.dq](p)));
+    (except === "dq" || !state.dq || DQ[state.dq](p)) &&
+    (except === "ai" || !state.ai || p.ai === state.ai) &&
+    (except === "refunding" || !state.refunding || stillRefunding(p)));
 }
+const stillRefunding = p => p.st === "Done" && p.rf && p.rf.sN >= 5;
+// Finished, with a QC record: the only products an edit rate can be worked out for.
+const recorded = p => p.st === "Done" && p.outcome !== "No QC record";
 function inPeriod(rows, k) { if (state.gran === "all" || !k) return rows; return rows.filter(p => p.date && bucket(p.date, state.gran) === k); }
 const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
 const fmtE = v => "€" + Math.round(v).toLocaleString("en-US");
@@ -444,7 +471,7 @@ function render() {
   renderControls();
   const k = state.gran === "all" ? null : state.period;
   const cur = inPeriod(base(), k);
-  renderAge(); renderKpis(cur); renderStages(inPeriod(base("stage"), k)); renderTrend(); renderInsights(cur);
+  renderAge(); renderKpis(cur, previous()); renderStages(inPeriod(base("stage"), k)); renderTrend(); renderInsights(cur);
   renderActs(inPeriod(base("act"), k)); renderDefects(inPeriod(base("defect"), k)); renderSuppliers(inPeriod(base("sup"), k));
   renderImpact(cur); renderCats(inPeriod(base("cat"), k)); renderDq(inPeriod(base("dq"), k)); renderRca(cur); renderPlan(cur);
 }
@@ -472,6 +499,8 @@ function renderControls() {
   if (state.cat) chips.push(["cat", "Category: " + state.cat]);
   if (state.product) chips.push(["product", "Product: " + (ALL.find(p => p.id === state.product) || {}).name]);
   if (state.dq) chips.push(["dq", "Gap: " + state.dq]);
+  if (state.ai) chips.push(["ai", "AI verdict: " + state.ai]);
+  if (state.refunding) chips.push(["refunding", "Still refunding (5+ since QC)"]);
   const ac = document.getElementById("activeChips");
   ac.innerHTML = chips.map(([k, l]) => `<span class="chip">${esc(short(l, 48))}<button data-k="${k}" aria-label="Remove">✕</button></span>`).join("");
   ac.querySelectorAll("button").forEach(b => b.onclick = () => { state[b.dataset.k] = null; render(); });
@@ -492,32 +521,65 @@ function rate(rf, side) { if (!rf || !rf.full) return null; return side === "b" 
 function rateE(rf, side) { if (!rf || !rf.full) return null; return side === "b" ? rf.m1E : rf.m23E / 2; }
 const comparable = xs => xs.filter(p => p.rf && p.rf.full);
 
-function renderKpis(cur) {
-  const done = cur.filter(p => p.st === "Done"), open = cur.filter(p => p.st !== "Done");
-  const fixed = done.filter(p => p.outcome === "Fixed"), pulled = done.filter(p => p.outcome === "Pulled / failed");
-  const sc = done.filter(p => p.acts.includes("Size chart"));
-  const ai = cur.filter(p => p.ai), aiF = ai.filter(p => p.ai === "Fail");
-  const oldest = open.reduce((m, p) => Math.max(m, p.age || 0), 0);
-  const qh = med(cur.map(p => p.qHrs));
-  const m = comparable(cur);
-  const bR = m.reduce((a, p) => a + rate(p.rf, "b"), 0), aR = m.reduce((a, p) => a + rate(p.rf, "a"), 0);
+const MIN_CMP = 10; // a rate needs this many products in both periods to show a change
+function kpiNums(rows) {
+  const done = rows.filter(recorded), ai = rows.filter(p => p.ai);
+  return {
+    n: rows.length, done, nDone: rows.filter(p => p.st === "Done").length, open: rows.filter(p => p.st !== "Done"), ai,
+    edits: done.length ? (done.filter(p => p.outcome !== "Passed clean").length / done.length) * 100 : null,
+    sc: done.length ? (done.filter(p => p.acts.includes("Size chart")).length / done.length) * 100 : null,
+    aiF: ai.length ? (ai.filter(p => p.ai === "Fail").length / ai.length) * 100 : null,
+    still: rows.filter(stillRefunding).length,
+  };
+}
+// Change vs the previous period. Coloured only where lower is plainly better;
+// `neutral` shows the change without a judgement.
+function change(now, prev, kind, nNow, nPrev) {
+  if (now == null || prev == null) return "";
+  if (nNow != null && (nNow < MIN_CMP || nPrev < MIN_CMP)) return `<span class="muted" title="Fewer than ${MIN_CMP} products in one of the two periods">too few to compare</span>`;
+  if (kind === "count") {
+    if (!prev) return "";
+    const d = (now - prev) / prev * 100;
+    return Math.abs(d) < 0.5 ? `<span class="delta">±0%</span>` : `<span class="delta">${d > 0 ? "▲" : "▼"} ${Math.abs(d).toFixed(0)}%</span>`;
+  }
+  const d = now - prev;
+  if (Math.abs(d) < 0.5) return `<span class="delta">±0pp</span>`;
+  return `<span class="delta ${d > 0 ? "bad" : "good"}">${d > 0 ? "▲" : "▼"} ${Math.abs(d).toFixed(0)}pp</span>`;
+}
+
+function renderKpis(cur, prev) {
+  const N = kpiNums(cur), P = prev ? kpiNums(prev.rows) : null;
+  const fixed = N.done.filter(p => p.outcome === "Fixed").length, pulled = N.done.filter(p => p.outcome === "Pulled / failed").length;
+  const scN = N.done.filter(p => p.acts.includes("Size chart")).length, aiFN = N.ai.filter(p => p.ai === "Fail").length;
+  const oldest = N.open.reduce((m, p) => Math.max(m, p.age || 0), 0);
+  const vs = P ? `<div class="sub">${"$CHANGE"} vs ${esc(prev.label)}</div>` : "";
+  const line = c => !P || !c ? "" : c.includes("too few") ? `<div class="sub">${c} with ${esc(prev.label)}</div>` : vs.replace("$CHANGE", c);
+  // Open now and Still refunding are today's state of each intake. A younger
+  // intake has had less time to close and less time to collect refunds, so an
+  // arrow would mislead; the previous intake's figure is shown plainly instead.
+  const state_ = (v, what) => P ? `<div class="sub muted" title="Today's state of each period's intake. A younger intake has had less time to ${what}, so this is not coloured as better or worse.">${esc(prev.label)}: ${v.toLocaleString()}</div>` : "";
   const tiles = [
-    { l: "Products", v: cur.length.toLocaleString(), s: `${done.length.toLocaleString()} done · ${open.length} open`, act: false, click: () => { state.outcome = null; state.stage = null; } },
-    { l: "Needed edits", v: pct(fixed.length + pulled.length, done.length) + "%", s: `${fixed.length} fixed · ${pulled.length} pulled`, act: state.outcome === "Fixed", click: () => { state.outcome = state.outcome === "Fixed" ? null : "Fixed"; } },
-    { l: "Size chart edits", v: pct(sc.length, done.length) + "%", s: `${sc.length} of ${done.length} finished`, act: state.act === "Size chart", click: () => { state.act = state.act === "Size chart" ? null : "Size chart"; } },
-    { l: "AI QC fail", v: ai.length ? pct(aiF.length, ai.length) + "%" : "—", s: `${aiF.length} of ${ai.length} with a verdict`, act: false, click: () => {} },
-    { l: "Open now", v: open.length.toLocaleString(), s: open.length ? `oldest ${oldest} days` : "nothing waiting", act: state.outcome === "Open", click: () => { state.outcome = state.outcome === "Open" ? null : "Open"; } },
-    { l: "Still refunding", v: cur.filter(p => p.st === "Done" && p.rf && p.rf.sN >= 5).length.toLocaleString(), s: `finished products with 5+ refunds since QC`, act: false, click: () => {} },
+    { l: "Products", v: N.n.toLocaleString(), s: `${N.nDone.toLocaleString()} done · ${N.open.length} open`, d: line(change(N.n, P && P.n, "count")), act: false,
+      click: () => { state.outcome = null; state.stage = null; } },
+    { l: "Needed edits", v: N.edits == null ? "—" : Math.round(N.edits) + "%", s: `${fixed} fixed · ${pulled} pulled · of ${N.done.length} recorded`, d: line(change(N.edits, P && P.edits, "pp", N.done.length, P && P.done.length)), act: state.outcome === "Fixed",
+      click: () => { state.outcome = state.outcome === "Fixed" ? null : "Fixed"; } },
+    { l: "Size chart edits", v: N.sc == null ? "—" : Math.round(N.sc) + "%", s: `${scN} of ${N.done.length} recorded`, d: line(change(N.sc, P && P.sc, "pp", N.done.length, P && P.done.length)), act: state.act === "Size chart",
+      click: () => { state.act = state.act === "Size chart" ? null : "Size chart"; } },
+    { l: "AI QC fail", v: N.aiF == null ? "—" : Math.round(N.aiF) + "%", s: `${aiFN} of ${N.ai.length} with a verdict`, d: line(change(N.aiF, P && P.aiF, "pp", N.ai.length, P && P.ai.length)), act: state.ai === "Fail",
+      click: () => { state.ai = state.ai === "Fail" ? null : "Fail"; } },
+    { l: "Open now", v: N.open.length.toLocaleString(), s: N.open.length ? `oldest ${oldest} days` : "nothing waiting", d: state_(P ? P.open.length : 0, "close"), act: state.outcome === "Open",
+      click: () => { state.outcome = state.outcome === "Open" ? null : "Open"; } },
+    { l: "Still refunding", v: N.still.toLocaleString(), s: `finished, 5+ refunds since QC`, d: state_(P ? P.still : 0, "collect refunds"), act: state.refunding,
+      click: () => { state.refunding = !state.refunding; } },
   ];
   const el = document.getElementById("kpis");
-  el.innerHTML = tiles.map((t, i) => `<button class="kpi ${t.act ? "active" : ""}" data-i="${i}"><div class="label">${t.l}</div><div class="value">${t.v}</div><div class="sub">${t.s}</div></button>`).join("");
+  el.innerHTML = tiles.map((t, i) => `<button class="kpi ${t.act ? "active" : ""}" data-i="${i}"><div class="label">${t.l}</div><div class="value">${t.v}</div><div class="sub">${t.s}</div>${t.d || ""}</button>`).join("");
   el.querySelectorAll(".kpi").forEach(b => b.onclick = () => { tiles[+b.dataset.i].click(); render(); });
-  void qh;
 }
 
 function renderStages(rows) {
   const el = document.getElementById("stages");
-  el.innerHTML = STAGES.map(([k, l]) => { const x = rows.filter(p => p.st === k); const oldest = x.filter(p => p.st !== "Done").reduce((m, p) => Math.max(m, p.age || 0), 0); return `<button class="stage ${state.stage === k ? "on" : ""}" data-k="${k}"><div class="l">${l}</div><div class="n">${x.length.toLocaleString()}</div><div class="s">${k === "Done" ? pct(x.filter(p => p.outcome !== "Passed clean").length, x.length) + "% needed edits" : x.length ? "oldest " + oldest + " d" : "—"}</div></button>`; }).join("");
+  el.innerHTML = STAGES.map(([k, l]) => { const x = rows.filter(p => p.st === k); const oldest = x.filter(p => p.st !== "Done").reduce((m, p) => Math.max(m, p.age || 0), 0); return `<button class="stage ${state.stage === k ? "on" : ""}" data-k="${k}"><div class="l">${l}</div><div class="n">${x.length.toLocaleString()}</div><div class="s">${k === "Done" ? pct(x.filter(p => recorded(p) && p.outcome !== "Passed clean").length, x.filter(recorded).length) + "% of recorded needed edits" : x.length ? "oldest " + oldest + " d" : "—"}</div></button>`; }).join("");
   el.querySelectorAll(".stage").forEach(b => b.onclick = () => { state.stage = state.stage === b.dataset.k ? null : b.dataset.k; render(); });
   const open = rows.filter(p => p.st !== "Done").sort((a, b) => (b.age || 0) - (a.age || 0)).slice(0, 12);
   const t = document.getElementById("stuck");
@@ -563,7 +625,7 @@ function renderTrend() {
 }
 
 function supStats(rows, s) {
-  const x = rows.filter(p => p.sup === s), done = x.filter(p => p.st === "Done");
+  const x = rows.filter(p => p.sup === s), done = x.filter(recorded);
   const reps = rows.flatMap(p => (p.reports || []).filter(r => r.sup === s));
   const chk = Object.fromEntries(CHECKS.map(c => { const r = reps.filter(r => r[c] === "ok" || r[c] === "mismatch"); return [c, r.length ? pct(r.filter(r => r[c] === "mismatch").length, r.length) : null]; }));
   const fail = reps.filter(r => ["pass", "warn", "fail"].includes(r.v)), costs = rows.map(p => p.cost && p.cost[s]).filter(v => v);
@@ -572,13 +634,15 @@ function supStats(rows, s) {
 
 function renderInsights(cur) {
   const G = { critical: [], warning: [], good: [] };
-  const done = cur.filter(p => p.st === "Done");
+  const done = cur.filter(recorded);
   if (!cur.length) { document.getElementById("insights").innerHTML = `<div class="empty-note">No products match these filters.</div>`; return; }
   const needed = done.filter(p => p.outcome !== "Passed clean");
-  (pct(needed.length, done.length) > 30 ? G.critical : G.warning).push(`<b>${pct(needed.length, done.length)}% of finished products needed changes</b> <span class="m">— ${needed.length} of ${done.length}; QC is catching listings that were wrong at launch.</span>`);
+  if (done.length) (pct(needed.length, done.length) > 30 ? G.critical : G.warning).push(`<b>${pct(needed.length, done.length)}% of finished products needed changes</b> <span class="m">— ${needed.length} of ${done.length} with a QC record; QC is catching listings that were wrong at launch.</span>`);
+  const norec = cur.filter(p => p.outcome === "No QC record").length;
+  if (norec) G.warning.push(`<b>${norec} finished products have no QC record</b> <span class="m">— edits and QC reports were only logged from July 2026, so they are left out of every edit rate; <span class="linkish" data-outcome="No QC record">show them</span>.</span>`);
   const ac = {}; for (const p of done) for (const a of p.acts) ac[a] = (ac[a] || 0) + 1;
   const topA = Object.entries(ac).sort((a, b) => b[1] - a[1])[0];
-  if (topA) G.critical.push(`<b><span class="linkish" data-act="${esc(topA[0])}">${esc(topA[0])}</span> is the most common fix</b> <span class="m">— ${topA[1]} products (${pct(topA[1], done.length)}% of finished).</span>`);
+  if (topA) G.critical.push(`<b><span class="linkish" data-act="${esc(topA[0])}">${esc(topA[0])}</span> is the most common fix</b> <span class="m">— ${topA[1]} products (${pct(topA[1], done.length)}% of finished with a QC record).</span>`);
   const w = supStats(cur, "WIIO"), c = supStats(cur, "CJ");
   if (w.reps && c.reps && w.fail != null && c.fail != null) { const worse = w.fail >= c.fail ? ["WIIO", w, c] : ["CJ", c, w]; G.warning.push(`<b>${worse[0]}'s QC fails more</b> <span class="m">— ${worse[1].fail}% of its reports fail vs ${worse[2].fail}% for ${worse[0] === "WIIO" ? "CJ" : "WIIO"}.</span>`); }
   const worstChk = CHECKS.map(k => [k, Math.max(w.chk[k] || 0, c.chk[k] || 0)]).sort((a, b) => b[1] - a[1])[0];
@@ -598,7 +662,7 @@ function renderInsights(cur) {
     else if (gP != null && pc.length >= 5) G.warning.push(`<b>Refunds grow ×${gP.toFixed(1)} from month 1 to months 2–3</b> <span class="m">— ${pc.length} passed products; too few fixed products are 90+ days old to compare yet.</span>`);
   }
   const still = cur.filter(p => p.rf && p.rf.sN >= 5 && p.st === "Done").sort((a, b) => b.rf.sE - a.rf.sE);
-  if (still.length) G.critical.push(`<b><span class="linkish" data-product="${still[0].id}">${esc(short(still[0].name, 50))}</span> keeps refunding</b> <span class="m">— ${fmtE(still[0].rf.sE)} since QC (${still[0].outcome.toLowerCase()}); ${still.length} finished products have 5+ refunds since QC.</span>`);
+  if (still.length) G.critical.push(`<b><span class="linkish" data-product="${still[0].id}">${esc(short(still[0].name, 50))}</span> keeps refunding</b> <span class="m">— ${fmtE(still[0].rf.sE)} since QC (${still[0].outcome === "No QC record" ? "no QC record" : still[0].outcome.toLowerCase()}); ${still.length} finished products have 5+ refunds since QC.</span>`);
   const unk = cur.filter(p => p.sup === "Unknown");
   if (pct(unk.length, cur.length) > 20) G.warning.push(`<b>${pct(unk.length, cur.length)}% have no supplier</b> <span class="m">— <span class="linkish" data-dq="Supplier unknown">show them</span>; mostly older products from before the QC reports.</span>`);
   const head = { critical: ["Watch", "var(--critical)"], warning: ["Notable", "var(--warning)"], good: ["Working", "var(--good)"] };
@@ -617,7 +681,7 @@ function barList(el, items, picked, onPick, fmt) {
   el.querySelectorAll(".barrow").forEach(b => b.onclick = () => onPick(items[+b.dataset.n]));
 }
 function renderActs(rows) {
-  const done = rows.filter(p => p.st === "Done"), c = {};
+  const done = rows.filter(recorded), c = {};
   for (const p of done) for (const a of p.acts) c[a] = (c[a] || 0) + 1;
   const items = Object.entries(c).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({ k, v, extra: pct(v, done.length) + "%" }));
   items.push({ k: "__none", label: "No edits needed", v: done.filter(p => !p.acts.length).length, extra: pct(done.filter(p => !p.acts.length).length, done.length) + "%", color: "var(--s3)" });
@@ -653,21 +717,21 @@ function renderImpact(cur) {
   el.querySelectorAll("tr[data-id]").forEach(r => r.onclick = () => { state.product = state.product === r.dataset.id ? null : r.dataset.id; render(); });
 }
 function renderCats(rows) {
-  const c = {}; for (const p of rows.filter(p => p.st === "Done")) { const k = p.cat || "Unknown"; const o = c[k] = c[k] || { n: 0, e: 0 }; o.n++; if (p.outcome !== "Passed clean") o.e++; }
+  const c = {}; for (const p of rows.filter(recorded)) { const k = p.cat || "Unknown"; const o = c[k] = c[k] || { n: 0, e: 0 }; o.n++; if (p.outcome !== "Passed clean") o.e++; }
   barList(document.getElementById("cats"), Object.entries(c).filter(([, o]) => o.n >= 3).sort((a, b) => b[1].n - a[1].n).slice(0, 12).map(([k, o]) => ({ k, label: k.replace("Clothing > ", ""), v: pct(o.e, o.n), extra: `${o.e} of ${o.n}` })), state.cat, i => { state.cat = state.cat === i.k ? null : i.k; render(); }, v => v + "%");
 }
 function renderDq(rows) {
   barList(document.getElementById("dq"), Object.keys(DQ).map(k => { const n = rows.filter(DQ[k]).length; return { k, v: n, extra: pct(n, rows.length) + "%" }; }).filter(i => i.v), state.dq, i => { state.dq = state.dq === i.k ? null : i.k; render(); });
 }
 function renderRca(cur) {
-  const done = cur.filter(p => p.st === "Done"), n = done.length || 1;
+  const done = cur.filter(recorded), n = done.length || 1;
   const keys = ["Size chart", "Images", "Functionality", "Material"].map(k => [k, done.filter(p => p.acts.includes(k))]).concat([["Pulled / failed", done.filter(p => p.outcome === "Pulled / failed")], ["Open", cur.filter(p => p.st !== "Done")]]).filter(([, x]) => x.length).sort((a, b) => b[1].length - a[1].length);
   const el = document.getElementById("rca");
   el.innerHTML = keys.map(([k, x]) => { const R = ROOT[k]; const d = {}; x.forEach(p => p.defects.forEach(z => d[z] = (d[z] || 0) + 1)); const td = Object.entries(d).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([z, v]) => `<b>${esc(z)}</b> ${v}`).join(" · "); const rf = x.filter(p => p.rf && p.rf.sN).length; return `<div class="rca-row" data-k="${esc(k)}"><div class="rca-head"><span class="sym">${esc(k)}</span><span class="share">${k === "Open" ? x.length + " open" : pct(x.length, n) + "%"}</span><span class="meta">${x.length} products · ${rf} still refunding after QC · owner: ${R.owner}</span></div><dl><dt>Where</dt><dd>${R.where}</dd><dt>Evidence</dt><dd>${td || "No defect detail recorded."}</dd><dt>Fix</dt><dd>${R.fix}</dd></dl></div>`; }).join("") || `<div class="empty-note">Nothing in this view.</div>`;
   el.querySelectorAll(".rca-row").forEach(c => c.onclick = () => { const k = c.dataset.k; if (k === "Pulled / failed" || k === "Open") state.outcome = state.outcome === k ? null : k; else state.act = state.act === k ? null : k; render(); });
 }
 function renderPlan(cur) {
-  const done = cur.filter(p => p.st === "Done"), A = [];
+  const done = cur.filter(recorded), A = [];
   const sc = done.filter(p => p.acts.includes("Size chart"));
   if (sc.length) A.push({ n: sc.length, act: `<b>Fix size charts at launch, not at 5 sales</b> — ${sc.length} products (${pct(sc.length, done.length)}%) had their chart corrected after QC. Build the chart from the supplier's measured chart when listing.`, owner: "Listings", f: () => state.act = "Size chart" });
   const im = done.filter(p => p.acts.includes("Images") || p.acts.includes("Functionality"));
@@ -694,7 +758,7 @@ function wireSearch() {
 let booted = false;
 function boot() {
   if (booted) return; booted = true; wireSearch();
-  document.getElementById("clearAll").onclick = () => { Object.assign(state, { store: "all", sup: "all", stage: null, outcome: null, act: null, defect: null, cat: null, product: null, dq: null, check: null }); render(); };
+  document.getElementById("clearAll").onclick = () => { Object.assign(state, { store: "all", sup: "all", stage: null, outcome: null, act: null, defect: null, cat: null, product: null, dq: null, check: null, ai: null, refunding: false }); render(); };
   document.getElementById("refreshBtn").onclick = async e => { e.target.disabled = true; await load(); e.target.disabled = false; };
   let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => ALL.length && render(), 200); });
   setInterval(() => ALL.length && renderAge(), 60000);
