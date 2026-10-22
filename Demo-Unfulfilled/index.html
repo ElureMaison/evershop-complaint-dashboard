@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unfulfilled Orders &mdash; Northfield Collective (Demo)</title>
+<meta name="description" content="Interactive demo of an unfulfilled-orders portal: every paid order not yet with the customer, with drafted supplier and customer messages rated by a person. Sample data only.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%AC%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --bg:#f6f7f9; --panel:#fff; --ink:#15181d; --soft:#6b7280; --line:#e5e7eb;
+    --accent:#5b43d6; --accent-soft:#efecfd; --ok:#0f8a5f; --warn:#b4610a; --bad:#c0392f;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 'Inter',system-ui,sans-serif}
+  .banner{background:var(--accent);color:#fff;text-align:center;font-size:12px;font-weight:600;padding:8px 16px}
+  header{background:var(--panel);border-bottom:1px solid var(--line);padding:14px 22px;
+    display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:17px}
+  .brand .tag{font:500 11px 'IBM Plex Mono',monospace;background:#f1f1f4;color:var(--soft);
+    padding:3px 8px;border-radius:20px}
+  .hbtns{display:flex;gap:8px;align-items:center}
+  button{font:inherit;cursor:pointer}
+  .btn{background:#fff;border:1px solid var(--line);border-radius:9px;padding:7px 13px;
+    font-size:13px;font-weight:600;color:#374151;transition:.15s}
+  .btn:hover{border-color:var(--accent);color:var(--accent)}
+  .app{display:grid;grid-template-columns:minmax(330px,420px) 1fr;gap:18px;
+    max-width:1500px;margin:18px auto;padding:0 22px;align-items:start}
+  @media(max-width:950px){.app{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius)}
+  .bar{padding:16px 16px 12px;border-bottom:1px solid var(--line)}
+  h1{font-size:17px;margin:0 0 10px}
+  .counts{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:11px}
+  .count{font:500 11.5px 'IBM Plex Mono',monospace;background:#f3f4f6;color:var(--soft);
+    padding:4px 9px;border-radius:20px}
+  .count b{color:var(--ink)}
+  input[type=text],input[type=date],textarea,select{font:inherit;border:1px solid var(--line);
+    border-radius:9px;padding:8px 11px;width:100%;background:#fff;color:var(--ink)}
+  input:focus,textarea:focus,select:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
+  .dates{display:flex;gap:6px;align-items:center;margin-top:8px;font-size:12px;color:var(--soft)}
+  .filters{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
+  .chip{font:600 11.5px 'Inter',sans-serif;border:1px solid var(--line);background:#fff;
+    color:var(--soft);padding:5px 10px;border-radius:20px}
+  .chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .rows{max-height:62vh;overflow:auto}
+  .row{padding:12px 16px;border-bottom:1px solid var(--line);cursor:pointer;display:block;width:100%;
+    text-align:left;background:#fff;border-left:3px solid transparent}
+  .row:hover{background:#fafafe}
+  .row.sel{background:var(--accent-soft);border-left-color:var(--accent)}
+  .row .top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+  .row .ord{font:600 13px 'IBM Plex Mono',monospace}
+  .row .age{font-size:11.5px;color:var(--soft)}
+  .row .cust{font-size:13.5px;margin-top:2px}
+  .row .prod{font-size:12.5px;color:var(--soft);margin-top:1px}
+  .pill{display:inline-block;font:600 11px 'Inter',sans-serif;padding:3px 8px;border-radius:20px;margin-top:6px}
+  .s-awaiting{background:#fdf0e6;color:var(--warn)} .s-production{background:#eef2ff;color:#4338ca}
+  .s-issued{background:#eefbf4;color:var(--ok)} .s-transit{background:#eefbf4;color:var(--ok)}
+  .s-stalled{background:#fdf0e6;color:var(--warn)} .s-exception{background:#fdecea;color:var(--bad)}
+  .rated{float:right;font:600 10.5px 'IBM Plex Mono',monospace;color:var(--soft)}
+  .detail{padding:0}
+  .empty{padding:70px 24px;text-align:center;color:var(--soft)}
+  .dhead{padding:18px 22px;border-bottom:1px solid var(--line)}
+  .dhead h2{margin:0;font-size:19px}
+  .dmeta{font-size:13px;color:var(--soft);margin-top:4px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));background:#fff;border-top:1px solid var(--line)}
+  .cell{background:#fff;padding:13px 18px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .cell .k{font:500 10.5px 'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.06em;color:var(--soft)}
+  .cell .v{font-size:14px;margin-top:3px;word-break:break-word}
+  .sec{padding:18px 22px;border-top:1px solid var(--line)}
+  .sec h3{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--soft)}
+  .draft{background:#fbfbfd;border:1px solid var(--line);border-radius:11px;padding:14px 16px;
+    white-space:pre-wrap;font-size:13.5px;line-height:1.6}
+  .draftbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;gap:8px}
+  .draftbar span{font:600 11.5px 'Inter',sans-serif;color:var(--soft)}
+  .mini{font:600 11px 'Inter',sans-serif;border:1px solid var(--line);background:#fff;color:var(--soft);
+    border-radius:7px;padding:4px 9px}
+  .mini:hover{border-color:var(--accent);color:var(--accent)}
+  .actions{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);
+    padding:14px 22px;border-radius:0 0 var(--radius) var(--radius)}
+  .arow{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+  .vb{border-radius:9px;padding:8px 15px;font-size:13px;font-weight:600;border:1px solid var(--line);background:#fff}
+  .vb.ok{color:var(--ok);border-color:#bfe6d4} .vb.ok:hover{background:#eefbf4}
+  .vb.no{color:var(--bad);border-color:#f3c9c4} .vb.no:hover{background:#fdecea}
+  .vb.on-ok{background:var(--ok);border-color:var(--ok);color:#fff}
+  .vb.on-no{background:var(--bad);border-color:var(--bad);color:#fff}
+  .hint{font-size:12px;color:var(--soft)}
+  .fbwrap{margin-top:11px}
+  .fbrow{display:flex;gap:9px;align-items:center;margin-top:8px;flex-wrap:wrap}
+  .note{font-size:12px;color:var(--soft);margin-top:8px}
+  footer{max-width:1500px;margin:8px auto 30px;padding:0 22px;font-size:12px;color:var(--soft)}
+  footer a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="banner">PORTFOLIO DEMO &middot; every order, customer, address and tracking number below is invented sample data &middot; nothing here belongs to a real business</div>
+
+<header>
+  <div class="brand">📬 <span>Northfield Collective &middot; Unfulfilled orders</span>
+    <span class="tag">Demo</span></div>
+  <div class="hbtns">
+    <span class="hint" id="asof"></span>
+    <button class="btn" id="reset">Reset demo</button>
+  </div>
+</header>
+
+<div class="app">
+  <div class="card">
+    <div class="bar">
+      <h1>Unfulfilled orders</h1>
+      <div class="counts" id="counts"></div>
+      <input type="text" id="q" placeholder="Search order, customer, product, tracking…" autocomplete="off">
+      <div class="dates">
+        <input type="date" id="from" aria-label="Placed on or after">
+        <span>to</span>
+        <input type="date" id="to" aria-label="Placed on or before">
+        <button class="mini" id="datesclear" type="button">Clear</button>
+      </div>
+      <div class="filters" id="filters"></div>
+    </div>
+    <div class="rows" id="rows"></div>
+  </div>
+
+  <div class="card detail" id="detail">
+    <div class="empty">Pick an order on the left.</div>
+  </div>
+</div>
+
+<footer>
+  A rebuild of an internal tool I built, on invented data. Built by Rona Shella Cacao &middot;
+  <a href="/">back to portfolio</a>
+</footer>
+
+<script src="data.js"></script>
+<script>
+const KEY='unfulfilled-demo-v1';
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e) { saved = {}; }
+const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch(e){} };
+
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const CLS = {'Awaiting supplier':'s-awaiting','In production':'s-production','Tracking issued':'s-issued',
+             'In transit':'s-transit','Stalled':'s-stalled','Exception':'s-exception'};
+const fmt = d => d ? new Date(d+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—';
+let state = { q:'', from:'', to:'', filters:new Set(), sel:null };
+
+document.getElementById('asof').textContent = 'as of ' + fmt(DEMO.as_of);
+
+function matches(o){
+  if (state.filters.size && !state.filters.has(o.state) && !(state.filters.has('Customer asked') && o.customer_asked)
+      && !(state.filters.has(o.store))) return false;
+  if (state.from && o.date < state.from) return false;
+  if (state.to   && o.date > state.to)   return false;
+  if (state.q){
+    const hay = [o.order,o.customer,o.product,o.sku,o.tracking,o.supplier,o.store,o.email].join(' ').toLowerCase();
+    if (!hay.includes(state.q.toLowerCase())) return false;
+  }
+  return true;
+}
+
+function buildFilters(){
+  const w = document.getElementById('filters'); w.innerHTML='';
+  const add = label => {
+    const b=document.createElement('button');
+    b.className='chip'+(state.filters.has(label)?' on':'');
+    b.textContent=label;
+    b.onclick=()=>{ state.filters.has(label)?state.filters.delete(label):state.filters.add(label);
+                    buildFilters(); render(); };
+    w.appendChild(b);
+  };
+  DEMO.states.forEach(add); add('Customer asked'); DEMO.stores.forEach(add);
+}
+
+function render(){
+  const list = DEMO.orders.filter(matches);
+  const counts = document.getElementById('counts');
+  const n = s => DEMO.orders.filter(o=>o.state===s).length;
+  const ratedCount = Object.keys(saved).length;
+  counts.innerHTML =
+    `<span class="count">showing <b>${list.length}</b> of ${DEMO.orders.length}</span>` +
+    DEMO.states.map(s=>`<span class="count">${esc(s)} <b>${n(s)}</b></span>`).join('') +
+    `<span class="count">rated <b>${ratedCount}</b></span>`;
+
+  document.getElementById('rows').innerHTML = list.length ? list.map(o=>{
+    const r = saved[o.order];
+    return `<button class="row${state.sel===o.order?' sel':''}" data-order="${esc(o.order)}">
+      <span class="top"><span class="ord">${esc(o.order)}</span>
+        <span class="age">${o.age_days} days old</span></span>
+      <span class="cust">${esc(o.customer)} &middot; ${esc(o.store)}</span>
+      <span class="prod">${esc(o.product)} &times;${o.qty}</span>
+      <span class="pill ${CLS[o.state]}">${esc(o.state)}</span>
+      ${r?`<span class="rated">${r.verdict==='Accurate'?'✓ accurate':'✕ inaccurate'}</span>`:''}
+    </button>`;}).join('')
+    : '<div class="empty">No orders match these filters.</div>';
+
+  document.querySelectorAll('.row').forEach(b=>b.onclick=()=>{ state.sel=b.dataset.order; render(); detail(); });
+  if (state.sel) detail();
+}
+
+function detail(){
+  const o = DEMO.orders.find(x=>x.order===state.sel);
+  const d = document.getElementById('detail');
+  if(!o){ d.innerHTML='<div class="empty">Pick an order on the left.</div>'; return; }
+  const r = saved[o.order] || null;
+  const cell=(k,v)=>`<div class="cell"><div class="k">${k}</div><div class="v">${v}</div></div>`;
+  d.innerHTML = `
+    <div class="dhead">
+      <h2>${esc(o.order)} &middot; ${esc(o.customer)}</h2>
+      <div class="dmeta">${esc(o.store)} &middot; placed ${fmt(o.date)} &middot; ${o.age_days} days ago
+        &middot; <span class="pill ${CLS[o.state]}">${esc(o.state)}</span></div>
+    </div>
+    <div class="grid">
+      ${cell('Product', esc(o.product)+' &times;'+o.qty+'<br><span class="hint">'+esc(o.sku)+'</span>')}
+      ${cell('Order value', '$'+o.total.toFixed(2))}
+      ${cell('Supplier', esc(o.supplier))}
+      ${cell('Carrier', o.carrier?esc(o.carrier):'<span class="hint">none yet</span>')}
+      ${cell('Tracking', o.tracking?`<span style="font-family:'IBM Plex Mono',monospace;font-size:13px">${esc(o.tracking)}</span>`:'<span class="hint">not issued</span>')}
+      ${cell('Last scan', o.last_scan?fmt(o.last_scan):'<span class="hint">no scan yet</span>')}
+      ${cell('Ship to', esc(o.address))}
+      ${cell('Customer', esc(o.email)+(o.customer_asked?'<br><span class="pill s-stalled">has already asked</span>':''))}
+    </div>
+    <div class="sec">
+      <h3>Why it is on this list</h3>
+      <p style="margin:0">${esc(o.state_note)}${o.exception?' Carrier reports: '+esc(o.exception)+'.':''}
+      ${o.informed?' The customer has been updated once already.':' The customer has not been told anything yet.'}</p>
+      ${o.tags.length?`<div class="filters" style="margin-top:10px">${o.tags.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div>`:''}
+    </div>
+    <div class="sec">
+      <h3>Drafted messages</h3>
+      <div class="draftbar"><span>To the supplier</span>
+        <button class="mini" data-copy="s">Copy</button></div>
+      <div class="draft" id="ds">${esc(o.draft_supplier)}</div>
+      <div class="draftbar" style="margin-top:14px"><span>To the customer</span>
+        <button class="mini" data-copy="c">Copy</button></div>
+      <div class="draft" id="dc">${esc(o.draft_customer)}</div>
+      <p class="note">Drafted automatically from the order's state. Nothing sends from here, a person rates it first.</p>
+    </div>
+    <div class="actions">
+      <div class="arow">
+        <button class="vb ok${r&&r.verdict==='Accurate'?' on-ok':''}" id="vok">Accurate</button>
+        <button class="vb no${r&&r.verdict==='Inaccurate'?' on-no':''}" id="vno">Inaccurate</button>
+        <span class="hint" id="vstate">${r?`rated ${r.verdict.toLowerCase()}${r.note?', with a note':''}`:'rate these drafts so they improve'}</span>
+      </div>
+      <div class="fbwrap" id="fbwrap" ${r&&r.verdict==='Inaccurate'?'':'hidden'}>
+        <textarea id="fb" rows="3" placeholder="Which part is wrong, and what should it say? e.g. 'do not promise a ship date we have not confirmed' or 'offer a replacement, not a refund'">${r&&r.note?esc(r.note):''}</textarea>
+        <div class="fbrow"><button class="vb no" id="fbsend">Save feedback</button>
+          <span class="hint">kept against this order so the drafting rules can be corrected</span></div>
+      </div>
+    </div>`;
+
+  d.querySelectorAll('[data-copy]').forEach(b=>b.onclick=async()=>{
+    const txt = b.dataset.copy==='s' ? o.draft_supplier : o.draft_customer;
+    try { await navigator.clipboard.writeText(txt); b.textContent='Copied'; }
+    catch(e){ b.textContent='Select and copy'; }
+    setTimeout(()=>b.textContent='Copy', 1400);
+  });
+  const rate = v => { saved[o.order] = Object.assign({}, saved[o.order], {verdict:v}); persist(); render(); detail(); };
+  d.querySelector('#vok').onclick = ()=>rate('Accurate');
+  d.querySelector('#vno').onclick = ()=>rate('Inaccurate');
+  const send = d.querySelector('#fbsend');
+  if (send) send.onclick = ()=>{
+    const note = d.querySelector('#fb').value.trim();
+    saved[o.order] = Object.assign({}, saved[o.order], {verdict:'Inaccurate', note});
+    persist(); render(); detail();
+  };
+}
+
+document.getElementById('q').oninput = e => { state.q=e.target.value; render(); };
+document.getElementById('from').onchange = e => { state.from=e.target.value; render(); };
+document.getElementById('to').onchange = e => { state.to=e.target.value; render(); };
+document.getElementById('datesclear').onclick = () => {
+  state.from=state.to=''; document.getElementById('from').value=''; document.getElementById('to').value=''; render();
+};
+document.getElementById('reset').onclick = () => {
+  saved={}; persist(); state={q:'',from:'',to:'',filters:new Set(),sel:null};
+  document.getElementById('q').value=''; document.getElementById('from').value=''; document.getElementById('to').value='';
+  buildFilters(); render();
+  document.getElementById('detail').innerHTML='<div class="empty">Pick an order on the left.</div>';
+};
+
+buildFilters(); render();
+</script>
+</body>
+</html>
