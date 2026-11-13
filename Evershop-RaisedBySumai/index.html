@@ -346,7 +346,7 @@ function renderList(){
     `<span><b>${DB.done_on_wiio||0}</b> done — on the sheet, off this list</span>`+
     `<span class="stamp">Updated ${esc(DB.built)}${
         LAST_CHECKED ? ` · checked ${LAST_CHECKED}` : ""}</span>` +
-    staleWarning();
+    staleWarning() + sourceWarning();
   $("#filters").innerHTML = FILTERS.map(([k,l]) =>
     `<button data-f="${esc(k)}" class="${filter===k?'on':''}">${esc(l)}</button>`).join("");
   $("#rows").innerHTML = shown.length ? shown.slice(0,600).map(o =>
@@ -361,6 +361,22 @@ function renderList(){
 // only thing that turns a silent failure into a noticed one -- the page itself
 // is where someone is already looking.
 const STALE_AFTER_HOURS = 16;
+// A source older than this means the step that feeds it has stopped, even
+// though the page itself keeps rebuilding and stamping a fresh time. The
+// pipeline runs three times every weekday, so a day is already far too long.
+const SOURCE_STALE_AFTER_HOURS = 24;
+function sourceWarning(){
+  const src = DB.sources || {};
+  const bad = Object.entries(src).filter(([, v]) =>
+    v && (v.age_hours === null || v.age_hours > SOURCE_STALE_AFTER_HOURS));
+  if (!bad.length) return "";
+  const list = bad.map(([k, v]) =>
+    `${esc(k)} (${v.age_hours === null ? "never run" : Math.round(v.age_hours) + "h old"})`).join(", ");
+  return `<div class="stale"><b>The page rebuilt, but some of its data did not.</b>
+    ${list}. The build time above is when this page was generated, not when
+    that data was last fetched &mdash; so the tickets below may be out of date
+    even though the page looks current. Check the refresh job's step log.</div>`;
+}
 function staleWarning(){
   const e = DB.built_epoch;
   if (!e) return "";
